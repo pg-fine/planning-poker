@@ -26,6 +26,8 @@ function useBrowserOnline(): boolean {
 }
 
 const POLL_INTERVAL_MS = 5000
+/** Mit Live-Kanal wird nur jeden 6. Takt (also alle 30 Sekunden) abgeglichen. */
+const LIVE_RECONCILE_TICKS = 6
 
 function isNotMember(error: unknown): boolean {
   return error instanceof RoomError && error.code === 'not_member'
@@ -100,10 +102,14 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
     document.addEventListener('visibilitychange', onVisible)
 
     let channelLive = false
-    // Ohne Live-Kanal (z. B. WebSockets im Firmennetz blockiert) fragt die App ersatzweise
-    // regelmäßig nach, solange der Tab sichtbar ist. Mit Live-Kanal ist das nicht nötig.
+    // Sicherheitsnetz: Ohne Live-Kanal (z. B. WebSockets im Firmennetz blockiert) wird alle 5 Sekunden
+    // nachgefragt. Auch mit Live-Kanal gleicht ein seltener Abgleich Ereignisse aus, die verloren
+    // gehen können (z. B. direkt nach dem Verbinden, bevor die Datenbank-Anbindung bereit ist).
+    let ticks = 0
     const poll = window.setInterval(() => {
-      if (!channelLive && document.visibilityState === 'visible' && navigator.onLine) {
+      ticks += 1
+      const due = channelLive ? ticks % LIVE_RECONCILE_TICKS === 0 : true
+      if (due && document.visibilityState === 'visible' && navigator.onLine) {
         void load()
       }
     }, POLL_INTERVAL_MS)
