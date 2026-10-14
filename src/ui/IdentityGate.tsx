@@ -1,5 +1,7 @@
 import type { SupabaseConfig } from '../supabase/config.ts'
 import { describeIdentityError } from '../supabase/identity.ts'
+import { getSupabaseClient } from '../supabase/client.ts'
+import { AppRoutes } from './AppRoutes.tsx'
 import { useIdentity } from './useIdentity.ts'
 
 type Props = { config: SupabaseConfig }
@@ -29,15 +31,11 @@ export function IdentityGate({ config }: Props) {
   }
 
   return (
-    <section className="card" aria-labelledby="ready-title">
-      <h2 id="ready-title">Bereit</h2>
-      <p>
-        Du bist anonym in diesem Browser angemeldet. Raum erstellen und Beitreten
-        folgen in den nächsten Arbeitspaketen.
-      </p>
-      <p className="hint">
+    <>
+      <AppRoutes client={getSupabaseClient(config)} />
+      <p className="hint footer">
         Kennung dieses Browsers: <code>{state.identity.userId.slice(0, 8)}</code>
       </p>
-    </section>
+    </>
   )
 }
