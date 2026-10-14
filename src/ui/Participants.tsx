@@ -73,7 +73,7 @@ export function Participants({ client, state, onState, offline, onlineIds }: Pro
               setConfirmId(member.userId)
             }}
           >
-            Remove
+            <span aria-hidden="true">×</span>
           </button>
         )}
       </li>

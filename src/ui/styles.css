@@ -452,7 +452,7 @@ a:focus-visible {
 
 .participant {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0 0.5rem;
   padding: 0.25rem 0;
@@ -472,11 +472,17 @@ a:focus-visible {
 }
 
 .participant__remove {
-  grid-column: 2;
-  justify-self: start;
-  margin-top: 0.25rem;
-  padding: 0.15rem 0.5rem;
-  font-size: 0.8rem;
+  grid-column: 3;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .participant__name {
@@ -484,7 +490,7 @@ a:focus-visible {
 }
 
 .participant__status {
-  grid-column: 2;
+  grid-column: 2 / -1;
   font-size: 0.85rem;
   color: var(--muted);
 }
