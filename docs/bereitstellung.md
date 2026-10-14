@@ -139,7 +139,9 @@ Bestehende Raum-Links bleiben gültig. Die Räume liegen in der Datenbank, nicht
 - **Backups:** Free-Projekte haben keine herunterladbaren Backups. Die Daten sind flüchtig (nur
   aktuelle Runden) und können jederzeit neu entstehen.
 - **Netz:** Teilnehmende müssen `*.workers.dev` bzw. `*.pages.dev` und `*.supabase.co` (HTTPS und WebSocket) erreichen.
-  Blockiert ein Netz WebSockets, fragt die App alle 5 Sekunden nach und bleibt nutzbar.
+  Blockiert ein Netz WebSockets, fragt die App alle 5 Sekunden nach und bleibt nutzbar. Auch mit
+  funktionierender Live-Verbindung gleicht sie alle 30 Sekunden den Stand ab, falls ein Ereignis
+  verloren ging.
 
 ## 6. Aufräumen
 
@@ -160,7 +162,7 @@ Nach der ersten Veröffentlichung hier eintragen (nicht committen, falls nicht g
 
 | Angabe                       | Wert |
 | ---------------------------- | ---- |
-| App-URL                      |      |
+| App-URL                      | https://planning-poker.peter-gruszka.workers.dev |
 | Supabase-Projekt (Referenz)  |      |
-| Zuletzt angewendete Migration |      |
-| Deploy-Weg (A oder B)        |      |
+| Zuletzt angewendete Migration | 20261014090500_echtzeit.sql |
+| Deploy-Weg (A oder B)        | A (Git-Anbindung, Workers-Flow) |

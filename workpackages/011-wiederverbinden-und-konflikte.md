@@ -61,5 +61,11 @@ kein Testcode eingecheckt):
   erscheinen nach etwa 5 Sekunden, Abstimmen funktioniert.
 - Keine JavaScript-Fehler. Typecheck, Lint und Build sind fehlerfrei.
 
+Nachtrag (bei der Prüfung der veröffentlichten App): Ein einzelner Durchlauf zeigte ein Live-Update
+nicht, vier weitere liefen fehlerfrei. Als Absicherung gleicht die App nun auch mit Live-Kanal alle
+30 Sekunden den Stand ab. Geprüft, indem im Browser alle Live-Ereignisse verworfen wurden: Die
+Änderung erscheint nach höchstens 30 Sekunden. Die genaue Ursache des einmaligen Ausfalls ist nicht
+bewiesen.
+
 Nicht geprüft: Rückkehr in einen im Hintergrund schlafenden Tab (nur per Code abgesichert) und
 echte Verbindungsabbrüche mitten im Echtzeit-Kanal (nur über Netzwerk-Emulation).

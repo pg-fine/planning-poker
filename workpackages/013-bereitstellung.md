@@ -1,6 +1,6 @@
 # 013 – Cloud-Einrichtung und Veröffentlichung
 
-- **Status:** Vorbereitet; Veröffentlichung blockiert (Cloudflare-Account nötig)
+- **Status:** Erledigt
 - **Abhängigkeiten:** 012
 - **Meilenstein:** M5
 - **Externe Voraussetzung:** Vom Nutzer kontrollierte Supabase- und Cloudflare-Accounts
@@ -55,8 +55,14 @@ Vorbereitet und geprüft:
   unter der CSP, Abstimmen, Aufdecken, Neuladen auf `/r/<token>`, ungültiger Link, Favicon –
   ohne Konsolenfehler und ohne CSP-Verstöße. Typecheck, Lint und Build sind fehlerfrei.
 
-Nicht geprüft (nur mit eurem Cloudflare-Account möglich): die echte Veröffentlichung unter `pages.dev`,
-das Verhalten der Header auf Cloudflare selbst und das Setzen der Variablen im Pages-Dashboard.
+Veröffentlicht und geprüft (Cloudflare Workers mit statischen Dateien, Git-Anbindung, Branch `main`):
 
-Offen, bis veröffentlicht wurde: endgültige URL und Migrationsstand in Abschnitt 7 der Anleitung
-eintragen.
+- Adresse: https://planning-poker.peter-gruszka.workers.dev
+- Startseite und direkter Aufruf von `/r/<token>` liefern die App (200), Sicherheits-Header
+  (CSP, `X-Frame-Options`, `Permissions-Policy`) sind aktiv.
+- Mit zwei getrennten Browserprofilen auf der echten Adresse: Raum erstellen, Beitritt per Link,
+  Live-Updates (Beitritt, Runde, Stimmenzahl, Ergebnis, neue Runde ohne alte Stimmen, Verlassen),
+  verborgene Fremdkarten, Neuladen auf `/r/<token>`, keine Konsolenfehler oder CSP-Verstöße.
+  Fünf Durchläufe: vier fehlerfrei, ein Live-Update blieb einmal aus (siehe Nachtrag in Paket 011,
+  inzwischen zusätzlich abgesichert).
+- Endgültige URL und Migrationsstand stehen in Abschnitt 7 von `docs/bereitstellung.md`.
