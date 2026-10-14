@@ -32,7 +32,7 @@
 
 Umsetzung:
 
-- `supabase/migrations/20261014090500_echtzeit.sql`: nimmt nur `public.rooms` in die Publikation
+- `supabase/migrations/20261014090500_realtime.sql`: nimmt nur `public.rooms` in die Publikation
   `supabase_realtime` auf (idempotent). Die Tabelle enthält weder Namen noch Stimmen; die
   Leserichtlinie aus 003 (nur Mitglieder) gilt auch für Echtzeit-Ereignisse.
 - `src/ui/useRoomState.ts`: abonniert UPDATE-Ereignisse der eigenen Raumzeile

@@ -20,7 +20,7 @@ Publishable Key. Sie werden beim Bauen eingebettet (Variablen `VITE_SUPABASE_URL
 
 ## 1. Supabase vorbereiten
 
-Alles Weitere steht in [`supabase-einrichtung.md`](supabase-einrichtung.md). Kurzfassung:
+Alles Weitere steht in [`supabase-setup.md`](supabase-setup.md). Kurzfassung:
 
 1. Projekt anlegen (Free-Plan).
 2. Alle Migrationen aus `supabase/migrations/` **in der Reihenfolge der Dateinamen** im SQL Editor
@@ -164,5 +164,5 @@ Nach der ersten Veröffentlichung hier eintragen (nicht committen, falls nicht g
 | ---------------------------- | ---- |
 | App-URL                      | https://planning-poker.peter-gruszka.workers.dev |
 | Supabase-Projekt (Referenz)  |      |
-| Zuletzt angewendete Migration | 20261014090500_echtzeit.sql |
+| Zuletzt angewendete Migration | 20261014090500_realtime.sql |
 | Deploy-Weg (A oder B)        | A (Git-Anbindung, Workers-Flow) |

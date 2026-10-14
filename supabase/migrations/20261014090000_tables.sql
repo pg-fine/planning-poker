@@ -1,5 +1,5 @@
 -- Arbeitspaket 003: Tabellen für Räume, Mitgliedschaften, aktuelle Runde und Stimmen.
--- Siehe docs/daten-und-aktionsvertrag.md. Zugriffsrechte folgen in der nächsten Migration.
+-- Siehe docs/data-and-action-contract.md. Zugriffsrechte folgen in der nächsten Migration.
 
 -- Raum. Die Revision wird bei jeder sichtbaren Änderung erhöht (Signal für Echtzeit).
 create table public.rooms (

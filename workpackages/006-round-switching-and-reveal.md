@@ -32,7 +32,7 @@ Alle Mitglieder können eine Runde konsistent starten und manuell aufdecken.
 
 Umsetzung:
 
-- `supabase/migrations/20261014090300_runden.sql`: `start_round`, `reveal_round`,
+- `supabase/migrations/20261014090300_rounds.sql`: `start_round`, `reveal_round`,
   `get_room_state` sowie intern `private.lock_room_as_member` (Mitgliedschaft prüfen, Raumzeile
   sperren, erneut prüfen) und `private.room_snapshot` (ein einziges SQL-Statement, damit der
   Snapshot konsistent ist).

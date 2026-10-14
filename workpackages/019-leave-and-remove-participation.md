@@ -21,7 +21,7 @@ Auftraggeber die neue Regel bestätigen.
 - „Teilnahme entfernen“ als ausdrückliche, bestätigte Aktion mit Datenänderung.
 - Aufgedeckte Ergebnisse bleiben bis zum nächsten Rundenstart stabil; Entfernen wirkt dann nur
   auf offene Runden (Anpassung in Migrationen/RPC prüfen).
-- `docs/daten-und-aktionsvertrag.md` und `docs/identitaet.md` aktualisieren.
+- `docs/data-and-action-contract.md` und `docs/identity.md` aktualisieren.
 - Szenario 10 der Abnahme anpassen.
 
 ## Abnahmekriterien
@@ -39,14 +39,14 @@ Umgesetzt (ohne Datenbankänderung):
 - „Teilnahme entfernen“ (unter „Raum und Hilfe“) ruft wie bisher `leave_room` auf, jetzt mit
   Bestätigung („Teilnahme wirklich entfernen? Deine Stimme wird gelöscht.“) und mit Hinweis, dass die
   Stimme auch aus einem aufgedeckten Ergebnis verschwindet.
-- `docs/daten-und-aktionsvertrag.md` ergänzt.
+- `docs/data-and-action-contract.md` ergänzt.
 
 Geprüft (Headless-Chromium über Playwright, zwei getrennte Profile, echtes Supabase-Projekt): Startseite
 lässt Stimme und Mitgliedschaft unverändert (zweite Person sieht 1 Stimme, 2 Mitglieder); Rückkehr
 über die Liste zeigt die gespeicherte Stimme; Abbrechen belässt alles; „Ja, entfernen“ führt zur
 Startseite, die zweite Person sieht 1 Mitglied und 0 Stimmen; axe-core ohne Befunde.
 
-Datenbank (Migration `supabase/migrations/20261014090600_stabile_ergebnisse.sql`):
+Datenbank (Migration `supabase/migrations/20261014090600_stable_results.sql`):
 
 - Der Fremdschlüssel `votes_member_fkey` (Kaskade) entfällt; neue Spalte `votes.voter_name`.
 - `leave_room`: In einer offenen Runde wird die Stimme gelöscht (wie bisher). In einer aufgedeckten

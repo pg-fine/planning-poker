@@ -18,10 +18,10 @@ muss von dir im Supabase-Projekt angewendet werden; ich habe darauf keinen Zugri
 
 ## Aufgaben
 
-- Neue Migration `supabase/migrations/…_raumname.sql`: Spalte, Längenprüfung (z. B. 1–60 Zeichen),
+- Neue Migration `supabase/migrations/…_room_name.sql`: Spalte, Längenprüfung (z. B. 1–60 Zeichen),
   `create_room(p_display_name, p_room_name)` mit Standardwert, Funktion zum Ändern durch Mitglieder.
   Bestehende Räume bleiben ohne Namen gültig.
-- `docs/daten-und-aktionsvertrag.md` und `docs/supabase-einrichtung.md` ergänzen.
+- `docs/data-and-action-contract.md` und `docs/supabase-setup.md` ergänzen.
 - Formularfeld „Raumname (optional)“ auf der Startseite; Anzeige im Raumkopf und in der Liste.
 - Raumname im Raum ändern können.
 - Rückwärtskompatibilität: Die App muss mit der alten Datenbank weiterlaufen, bis die Migration
@@ -35,7 +35,7 @@ muss von dir im Supabase-Projekt angewendet werden; ich habe darauf keinen Zugri
 
 ## Prüfung und Ergebnis
 
-Migration `supabase/migrations/20261014090700_raumname.sql`:
+Migration `supabase/migrations/20261014090700_room_name.sql`:
 
 - `rooms.name` (NULL oder 1-60 Zeichen, ohne Leerraum am Rand), `create_room(display_name, room_name
   default null)` (alte Aufrufe mit einem Argument funktionieren weiter), `set_room_name` für

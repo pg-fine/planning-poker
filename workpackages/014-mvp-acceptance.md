@@ -79,5 +79,5 @@ Bekannte Grenzen des MVP:
 - Keine Historie, keine Ticket-Integration, keine Teams-App (bewusst nicht im MVP).
 - Fremde Kartenwerte sind vor dem Aufdecken nur in der Oberfläche verborgen, technisch aber für
   Mitglieder abrufbar (bewusste Entscheidung).
-- Supabase Free pausiert nach etwa einer Woche Inaktivität; Reaktivierung siehe `docs/bereitstellung.md`.
+- Supabase Free pausiert nach etwa einer Woche Inaktivität; Reaktivierung siehe `docs/deployment.md`.
 - Geprüft wurde nur Chromium; echter Screenreader und die Teams-Umgebung wurden nicht getestet.

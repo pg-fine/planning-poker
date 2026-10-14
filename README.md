@@ -60,7 +60,7 @@ workpackages/     Roadmap und Arbeitspakete
 ## Veröffentlichen
 
 Schritt-für-Schritt-Anleitung für Supabase und Cloudflare Pages (beide Free-Pläne):
-[`docs/bereitstellung.md`](docs/bereitstellung.md).
+[`docs/deployment.md`](docs/deployment.md).
 
 ## Qualitätssicherung
 

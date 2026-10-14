@@ -31,7 +31,7 @@ Pro Identität genau eine gültige Stimme für die offene aktuelle Runde speiche
 
 Umsetzung:
 
-- `supabase/migrations/20261014090400_stimmen.sql`: `cast_vote(room_id, round_id, card)`.
+- `supabase/migrations/20261014090400_votes.sql`: `cast_vote(room_id, round_id, card)`.
   Nutzer-ID nur aus der Session. Prüfreihenfolge: Mitgliedschaft, Karte, Runde vorhanden,
   Runden-ID aktuell, Runde offen. Upsert auf (Raum, Person); gleiche Karte erneut ändert nichts.
 - `src/supabase/votes.ts`: `castVote` mit typisiertem `CardValue`.

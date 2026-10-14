@@ -3,7 +3,7 @@ dist/
 *.tsbuildinfo
 .wrangler/
 
-# Lokale Konfiguration mit projektspezifischen Werten
+# Local configuration with project-specific values
 .env
 .env.*
 !.env.example

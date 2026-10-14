@@ -22,7 +22,7 @@ mitschätzt oder zusieht.
 
 ## Aufgaben (nach Entscheidung)
 
-- Definition der Schätzgruppe in `docs/daten-und-aktionsvertrag.md` festhalten.
+- Definition der Schätzgruppe in `docs/data-and-action-contract.md` festhalten.
 - Personen mit Initialen und neutralem Status zeigen (✓ abgestimmt / noch keine Stimme); Werte
   bleiben verborgen.
 - Fortschrittsanzeige „x von y abgestimmt“ nur auf Basis der definierten Gruppe.
@@ -47,7 +47,7 @@ mitschätzt oder zusieht.
   unter „Nicht online (n)“ und zeigen nur einen Haken, falls sie abgestimmt haben. Ohne Live-Verbindung
   fällt die Anzeige auf die Mitgliederliste ohne Fortschritt zurück.
 - Kartenwerte bleiben bis zum Aufdecken verborgen. Status ist Text (nicht nur Farbe).
-- `docs/daten-und-aktionsvertrag.md`: Abschnitt „Anwesenheit“, inklusive Grenzen.
+- `docs/data-and-action-contract.md`: Abschnitt „Anwesenheit“, inklusive Grenzen.
 - Keine Datenbankänderung nötig.
 
 Geprüft (Headless-Chromium über Playwright, drei getrennte Profile, echtes Supabase-Projekt):

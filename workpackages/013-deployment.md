@@ -38,7 +38,7 @@ Die App auf den gewählten Free-Plänen veröffentlichen und die Einrichtung rep
 
 Vorbereitet und geprüft:
 
-- `docs/bereitstellung.md`: vollständige Anleitung (Supabase, Cloudflare Pages per Git-Anbindung
+- `docs/deployment.md`: vollständige Anleitung (Supabase, Cloudflare Pages per Git-Anbindung
   oder direktem Upload, Variablen, Node-Version über `.nvmrc`, Prüfung nach dem Veröffentlichen,
   Update-Reihenfolge, Betriebsgrenzen, manuelles Aufräumen). Plattformangaben wurden in der aktuellen
   Cloudflare- und Supabase-Dokumentation nachgelesen (u. a. SPA-Verhalten ohne `404.html`,
@@ -65,4 +65,4 @@ Veröffentlicht und geprüft (Cloudflare Workers mit statischen Dateien, Git-Anb
   verborgene Fremdkarten, Neuladen auf `/r/<token>`, keine Konsolenfehler oder CSP-Verstöße.
   Fünf Durchläufe: vier fehlerfrei, ein Live-Update blieb einmal aus (siehe Nachtrag in Paket 011,
   inzwischen zusätzlich abgesichert).
-- Endgültige URL und Migrationsstand stehen in Abschnitt 7 von `docs/bereitstellung.md`.
+- Endgültige URL und Migrationsstand stehen in Abschnitt 7 von `docs/deployment.md`.

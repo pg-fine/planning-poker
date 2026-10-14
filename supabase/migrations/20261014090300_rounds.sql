@@ -1,5 +1,5 @@
 -- Arbeitspaket 006: Rundenwechsel und Aufdecken, plus der gemeinsame Zustands-Snapshot.
--- Rechte, Fehlercodes und Konkurrenzverhalten: docs/daten-und-aktionsvertrag.md, Abschnitt 4-6.
+-- Rechte, Fehlercodes und Konkurrenzverhalten: docs/data-and-action-contract.md, Abschnitt 4-6.
 
 -- Prüft die Mitgliedschaft der aufrufenden Person und sperrt danach die Raumzeile.
 -- Alle schreibenden Aktionen eines Raums laufen dadurch nacheinander. Ohne Mitgliedschaft
@@ -30,7 +30,7 @@ $$;
 
 revoke all on function private.lock_room_as_member(uuid, uuid) from public, anon, authenticated;
 
--- Zustands-Snapshot eines Raums (Aufbau: docs/daten-und-aktionsvertrag.md, Abschnitt 5).
+-- Zustands-Snapshot eines Raums (Aufbau: docs/data-and-action-contract.md, Abschnitt 5).
 -- Es ist bewusst eine einzige SQL-Anweisung: Sie sieht einen konsistenten Datenstand,
 -- auch wenn parallel andere Transaktionen schreiben.
 -- Aufrufer müssen die Mitgliedschaft vorher geprüft haben.

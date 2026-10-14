@@ -37,7 +37,7 @@ Umsetzung:
   Fehlerarten `anonymous_disabled`, `rate_limited`, `network`, `unknown`) und deutsche Meldungen.
 - `src/ui/useIdentity.ts`, `src/ui/IdentityGate.tsx`: Ladezustand, Fehler mit
   „Erneut versuchen“, Bereit-Ansicht mit gekürzter Kennung des Browsers.
-- `docs/identitaet.md`: Verhalten bei gelöschten Browserdaten, anderem Profil, ungültiger
+- `docs/identity.md`: Verhalten bei gelöschten Browserdaten, anderem Profil, ungültiger
   Session und die Fehlerarten.
 
 Gegen das echte Supabase-Projekt geprüft (Node-Skripte mit dateibasiertem `localStorage`

@@ -34,7 +34,7 @@ Kleine, eindeutige Verträge für UI und Datenbank festlegen, bevor beide ausein
 
 ## Prüfung und Ergebnis
 
-Ergebnis: [docs/daten-und-aktionsvertrag.md](../docs/daten-und-aktionsvertrag.md).
+Ergebnis: [docs/data-and-action-contract.md](../docs/data-and-action-contract.md).
 
 - Alle Abnahmekriterien sind dort abgedeckt: Zustandsübergänge (Abschnitt 3), Regeln für
   neue Runden, verspätete Stimmen und gleichzeitiges Aufdecken (Abschnitt 4 und 6),

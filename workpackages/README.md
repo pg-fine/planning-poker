@@ -44,28 +44,28 @@ Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbe
 
 | Nr. | Arbeitspaket | Abhängigkeiten | Meilenstein | Status |
 | --- | --- | --- | --- | --- |
-| 001 | [Projektgrundgerüst](001-projektgrundgeruest.md) | – | M1: Grundlage | Erledigt |
-| 002 | [Daten- und Aktionsvertrag](002-daten-und-aktionsvertrag.md) | – | M1 | Erledigt |
-| 003 | [Datenbankschema und Leserechte](003-datenbankschema-und-leserechte.md) | 002 | M1 | Erledigt |
-| 004 | [Supabase-Verbindung und Identität](004-supabase-und-identitaet.md) | 001 | M1 | Erledigt |
-| 005 | [Raumzugang und Mitgliedschaft](005-raumzugang-und-mitgliedschaft.md) | 003, 004 | M2: Gemeinsamer Raum | Erledigt |
-| 006 | [Rundenwechsel und Aufdecken](006-rundenwechsel-und-aufdecken.md) | 005 | M2 | Erledigt |
-| 007 | [Stimmen speichern und ändern](007-stimmen-speichern.md) | 006 | M2 | Erledigt |
-| 008 | [Raum erstellen und beitreten: Oberfläche](008-raumoberflaeche.md) | 005 | M3: Spielbarer Ablauf | Erledigt |
-| 009 | [Karten und Ergebnisse: Oberfläche](009-pokeroberflaeche.md) | 006, 007, 008 | M3 | Erledigt |
-| 010 | [Echtzeit-Synchronisierung](010-echtzeit.md) | 009 | M3 | Erledigt |
-| 011 | [Wiederverbinden und konkurrierende Aktionen](011-wiederverbinden-und-konflikte.md) | 010 | M4: Verlässliche Nutzung | Erledigt |
-| 012 | [Bedienbarkeit und Fehleranzeigen](012-bedienbarkeit.md) | 011 | M4 | Erledigt |
-| 013 | [Cloud-Einrichtung und Veröffentlichung](013-bereitstellung.md) | 012 | M5: Nutzbares MVP | Erledigt |
-| 014 | [Gemeinsame MVP-Abnahme](014-mvp-abnahme.md) | 013 | M5 | Erledigt |
-| 015 | [Kompakter Raumkopf und Hierarchie](015-raumkopf-und-hierarchie.md) | 014 | M6: UX-Iteration 1 | Erledigt |
-| 016 | [Phasen und „Noch einmal schätzen“](016-phasen-und-neue-runde.md) | 015 | M6 | Erledigt |
-| 017 | [Ergebnisverteilung und Ergebnistexte](017-ergebnisdarstellung.md) | 015 | M6 | Erledigt |
-| 018 | [Rückmeldungen nahe an der Aktion](018-lokale-rueckmeldungen.md) | 015 | M6 | Erledigt |
-| 019 | [Verlassen und Teilnahme entfernen](019-verlassen-und-teilnahme-entfernen.md) | 016 | M7: UX-Iteration 2 | Erledigt |
-| 020 | [Teilnehmerstatus](020-teilnehmerstatus.md) | 016 | M7 | Erledigt |
-| 021 | [Dauerhafte Räume wiederfinden](021-raeume-wiederfinden.md) | 015 | M7 | Erledigt |
-| 022 | [Raumname](022-raumname.md) | 021 | M7 | Erledigt |
+| 001 | [Projektgrundgerüst](001-project-scaffold.md) | – | M1: Grundlage | Erledigt |
+| 002 | [Daten- und Aktionsvertrag](002-data-and-action-contract.md) | – | M1 | Erledigt |
+| 003 | [Datenbankschema und Leserechte](003-database-schema-and-read-access.md) | 002 | M1 | Erledigt |
+| 004 | [Supabase-Verbindung und Identität](004-supabase-and-identity.md) | 001 | M1 | Erledigt |
+| 005 | [Raumzugang und Mitgliedschaft](005-room-access-and-membership.md) | 003, 004 | M2: Gemeinsamer Raum | Erledigt |
+| 006 | [Rundenwechsel und Aufdecken](006-round-switching-and-reveal.md) | 005 | M2 | Erledigt |
+| 007 | [Stimmen speichern und ändern](007-saving-votes.md) | 006 | M2 | Erledigt |
+| 008 | [Raum erstellen und beitreten: Oberfläche](008-room-ui.md) | 005 | M3: Spielbarer Ablauf | Erledigt |
+| 009 | [Karten und Ergebnisse: Oberfläche](009-poker-ui.md) | 006, 007, 008 | M3 | Erledigt |
+| 010 | [Echtzeit-Synchronisierung](010-realtime.md) | 009 | M3 | Erledigt |
+| 011 | [Wiederverbinden und konkurrierende Aktionen](011-reconnect-and-conflicts.md) | 010 | M4: Verlässliche Nutzung | Erledigt |
+| 012 | [Bedienbarkeit und Fehleranzeigen](012-usability.md) | 011 | M4 | Erledigt |
+| 013 | [Cloud-Einrichtung und Veröffentlichung](013-deployment.md) | 012 | M5: Nutzbares MVP | Erledigt |
+| 014 | [Gemeinsame MVP-Abnahme](014-mvp-acceptance.md) | 013 | M5 | Erledigt |
+| 015 | [Kompakter Raumkopf und Hierarchie](015-room-header-and-hierarchy.md) | 014 | M6: UX-Iteration 1 | Erledigt |
+| 016 | [Phasen und „Noch einmal schätzen“](016-phases-and-new-round.md) | 015 | M6 | Erledigt |
+| 017 | [Ergebnisverteilung und Ergebnistexte](017-result-display.md) | 015 | M6 | Erledigt |
+| 018 | [Rückmeldungen nahe an der Aktion](018-local-feedback.md) | 015 | M6 | Erledigt |
+| 019 | [Verlassen und Teilnahme entfernen](019-leave-and-remove-participation.md) | 016 | M7: UX-Iteration 2 | Erledigt |
+| 020 | [Teilnehmerstatus](020-participant-status.md) | 016 | M7 | Erledigt |
+| 021 | [Dauerhafte Räume wiederfinden](021-finding-rooms-again.md) | 015 | M7 | Erledigt |
+| 022 | [Raumname](022-room-name.md) | 021 | M7 | Erledigt |
 
 ### M1: Grundlage
 

@@ -18,7 +18,7 @@ die Identität in allen Räumen. Der Anzeigename ist nur eine Beschriftung und k
 
 Eine neue Identität im selben Raum erscheint als zusätzliches Mitglied. Der alte Eintrag
 bleibt bestehen, solange niemand ihn verlässt; er blockiert aber keine Abstimmung, weil es
-keine Pflichtabstimmenden gibt (siehe `daten-und-aktionsvertrag.md`).
+keine Pflichtabstimmenden gibt (siehe `data-and-action-contract.md`).
 
 ## Fehlerarten der Anmeldung
 

@@ -33,9 +33,9 @@ Versionierbare SQL-Migrationen für die aktuelle Runde und raumgebundene Daten e
 
 Umsetzung:
 
-- `supabase/migrations/20261014090000_tabellen.sql`: Tabellen, Fremdschlüssel, Prüfregeln, Indizes.
-- `supabase/migrations/20261014090100_zugriffsrechte.sql`: RLS, Rechte, Leserichtlinien.
-- `docs/supabase-einrichtung.md`: erste Einrichtung (Projekt, Migrationen, Schlüssel).
+- `supabase/migrations/20261014090000_tables.sql`: Tabellen, Fremdschlüssel, Prüfregeln, Indizes.
+- `supabase/migrations/20261014090100_access_rights.sql`: RLS, Rechte, Leserichtlinien.
+- `docs/supabase-setup.md`: erste Einrichtung (Projekt, Migrationen, Schlüssel).
 
 Der Mitgliedschaftstest läuft über `private.is_room_member` (SECURITY DEFINER, fester
 `search_path`, Schema `private` nicht über die API veröffentlicht), dadurch gibt es keine

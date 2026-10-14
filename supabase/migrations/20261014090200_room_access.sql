@@ -7,7 +7,7 @@
 --  * prüfen auth.uid() selbst und verwenden nie eine vom Aufrufer übergebene Nutzer-ID,
 --  * sind nur für angemeldete Personen (auch anonyme) ausführbar, nicht für "anon",
 --  * melden fachliche Fehler als stabilen Code im Meldungstext (SQLSTATE P0001),
---    siehe docs/daten-und-aktionsvertrag.md, Abschnitt 4.
+--    siehe docs/data-and-action-contract.md, Abschnitt 4.
 
 -- Namen prüfen: Leerraum am Rand entfernen, danach 1-40 Zeichen.
 create function private.normalize_display_name(p_name text)

@@ -3,7 +3,7 @@
 -- Stimme gehört immer zur aktuellen Runde: Rundenwechsel löschen alle Stimmen (006).
 --
 -- Stimmen sind für Mitglieder des Raums lesbar, auch vor dem Aufdecken (bewusste Entscheidung:
--- das Verbergen ist eine Vereinbarung der Oberfläche, siehe docs/daten-und-aktionsvertrag.md).
+-- das Verbergen ist eine Vereinbarung der Oberfläche, siehe docs/data-and-action-contract.md).
 
 create function public.cast_vote(p_room_id uuid, p_round_id uuid, p_card text)
 returns jsonb

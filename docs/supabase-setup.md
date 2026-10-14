@@ -21,15 +21,15 @@ Dashboard wieder aktivieren.
 Die Migrationen liegen unter `supabase/migrations/`. Sie müssen **in der Reihenfolge der
 Dateinamen** auf eine leere Datenbank angewendet werden:
 
-1. `20261014090000_tabellen.sql`
-2. `20261014090100_zugriffsrechte.sql`
-3. `20261014090200_raumzugang.sql`
-4. `20261014090300_runden.sql`
-5. `20261014090400_stimmen.sql`
-6. `20261014090500_echtzeit.sql` (nimmt die Tabelle `rooms` in die Echtzeit-Veröffentlichung auf)
-7. `20261014090600_stabile_ergebnisse.sql` (Arbeitspaket 019: aufgedeckte Ergebnisse bleiben nach
+1. `20261014090000_tables.sql`
+2. `20261014090100_access_rights.sql`
+3. `20261014090200_room_access.sql`
+4. `20261014090300_rounds.sql`
+5. `20261014090400_votes.sql`
+6. `20261014090500_realtime.sql` (nimmt die Tabelle `rooms` in die Echtzeit-Veröffentlichung auf)
+7. `20261014090600_stable_results.sql` (Arbeitspaket 019: aufgedeckte Ergebnisse bleiben nach
    „Teilnahme entfernen“ stehen)
-8. `20261014090700_raumname.sql` (Arbeitspaket 022: optionaler Raumname)
+8. `20261014090700_room_name.sql` (Arbeitspaket 022: optionaler Raumname)
 
 Bei einer **bereits eingerichteten** Datenbank genügt es, nur die neuen Dateien (7 und 8) in dieser
 Reihenfolge auszuführen. Die App läuft auch vor dem Anwenden weiter; ohne Migration 7 verschwindet

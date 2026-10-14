@@ -34,7 +34,7 @@ Dauerhafte Räume über einen Einladungslink zugänglich machen und Zugriffe beg
 
 Umsetzung:
 
-- `supabase/migrations/20261014090200_raumzugang.sql`: `create_room`, `join_room`,
+- `supabase/migrations/20261014090200_room_access.sql`: `create_room`, `join_room`,
   `leave_room`, `get_invite_token` (SECURITY DEFINER, leerer `search_path`, `auth.uid()`
   aus der Session, Ausführung nur für `authenticated`, nicht für `anon`) und die interne
   Namensprüfung `private.normalize_display_name`.
