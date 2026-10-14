@@ -52,9 +52,15 @@ src/
   supabase/       Supabase-Konfiguration, Anmeldung und Datenbankzugriff
 supabase/
   migrations/     SQL-Migrationen (in Dateinamen-Reihenfolge anwenden)
-docs/             Vertrag, Identität, Supabase-Einrichtung
+public/           Statische Dateien (Favicon, Cloudflare-Header)
+docs/             Vertrag, Identität, Supabase-Einrichtung, Bereitstellung
 workpackages/     Roadmap und Arbeitspakete
 ```
+
+## Veröffentlichen
+
+Schritt-für-Schritt-Anleitung für Supabase und Cloudflare Pages (beide Free-Pläne):
+[`docs/bereitstellung.md`](docs/bereitstellung.md).
 
 ## Qualitätssicherung
 
