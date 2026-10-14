@@ -439,3 +439,57 @@ a:focus-visible {
   margin: 0;
   flex: 1 1 12rem;
 }
+
+.participants-summary {
+  margin: 0 0 0.5rem;
+}
+
+.participant-list {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
+.participant {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.participant__avatar {
+  grid-row: span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.participant__name {
+  overflow-wrap: anywhere;
+}
+
+.participant__status {
+  grid-column: 2;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.participant__status:empty {
+  display: none;
+}
+
+.participants-others {
+  margin-bottom: 0.5rem;
+}
+
+.participants-others summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+}

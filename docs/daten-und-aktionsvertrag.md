@@ -217,6 +217,18 @@ zuverlässiges Signal, auch wenn Zeilen gelöscht wurden.
 - Bei unklarer Antwort auf eine Mutation zuerst Snapshot laden. Rundenwechsel werden nicht
   blind wiederholt; die erwartete Runden-ID schützt zusätzlich.
 
+### Anwesenheit (Presence, Paket 020)
+
+Wer gerade im Raum online ist, kommt nicht aus der Datenbank, sondern aus einem
+Realtime-Presence-Kanal `presence:<room_id>`. Jeder geöffnete Raum meldet nur die eigene
+Nutzer-ID. Namen stammen weiter aus der Mitgliederliste. Die Schätzgruppe für „x von y abgestimmt“
+sind die gerade online anwesenden Mitglieder (inklusive der eigenen Person). Frühere Mitglieder
+zählen nicht mit, bleiben aber mit ihrem Haken unter „Nicht online“ sichtbar, wenn sie abgestimmt
+haben. Der Kanal ist nicht privat: Wer die Raum-ID kennt, könnte anonyme Nutzer-IDs sehen, aber
+weder Namen noch Stimmen. Die Raum-ID erfährt nur, wer Mitglied ist. Ein privater Kanal würde
+eine Realtime-Richtlinie in der Datenbank brauchen. Presence sagt nicht, ob jemand mitschätzt
+oder nur zusieht.
+
 ## 8. Durchgespielte Beispielrunde
 
 Anna und Ben, Raum noch ohne Runde (Revision 1, `round = null`).

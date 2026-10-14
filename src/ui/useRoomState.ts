@@ -44,6 +44,8 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
   const [attempt, setAttempt] = useState(0)
   const [result, setResult] = useState<RoomStateResult>({ status: 'loading' })
   const [channelState, setChannelState] = useState<Connection>('connecting')
+  // Wer gerade im Raum online ist (Presence); `null`, solange unbekannt (kein Live-Kanal).
+  const [onlineIds, setOnlineIds] = useState<ReadonlySet<string> | null>(null)
   const browserOnline = useBrowserOnline()
   // Ohne Netzwerk ist die Verbindung sofort „offline“, auch wenn der Kanal es noch nicht bemerkt hat.
   const connection: Connection = browserOnline ? channelState : 'offline'
@@ -139,20 +141,49 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
         }
       })
 
+    // Anwesenheit: eigener Kanal mit gemeinsamem Namen je Raum (der Datenkanal oben hat einen
+    // eindeutigen Namen je Browser-Tab und taugt dafür nicht). Übertragen wird nur die Nutzer-ID;
+    // Namen kommen aus der Mitgliederliste, die nur Mitglieder lesen dürfen.
+    const presence = client.channel(`presence:${roomId}`)
+    presence
+      .on('presence', { event: 'sync' }, () => {
+        if (cancelled) return
+        const ids = new Set<string>()
+        for (const entries of Object.values(presence.presenceState<{ userId?: string }>())) {
+          for (const entry of entries) {
+            if (typeof entry.userId === 'string') ids.add(entry.userId)
+          }
+        }
+        setOnlineIds(ids)
+      })
+      .subscribe((status) => {
+        if (cancelled) return
+        if (status === 'SUBSCRIBED') {
+          void client.auth.getSession().then(({ data }) => {
+            const userId = data.session?.user.id
+            if (userId && !cancelled) void presence.track({ userId })
+          })
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          setOnlineIds(null)
+        }
+      })
+
     return () => {
       cancelled = true
       window.removeEventListener('online', onOnline)
       document.removeEventListener('visibilitychange', onVisible)
       window.clearInterval(poll)
       void client.removeChannel(channel)
+      void client.removeChannel(presence)
     }
   }, [client, roomId, attempt, applyState])
 
   const reload = useCallback(() => {
     setResult({ status: 'loading' })
     setChannelState('connecting')
+    setOnlineIds(null)
     setAttempt((value) => value + 1)
   }, [])
 
-  return { result, reload, applyState, connection, browserOnline }
+  return { result, reload, applyState, connection, browserOnline, onlineIds }
 }

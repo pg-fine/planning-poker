@@ -3,6 +3,7 @@ import type { AppSupabaseClient } from '../supabase/client.ts'
 import { getRoomState } from '../supabase/roomState.ts'
 import { RoomError, describeRoomError, leaveRoom } from '../supabase/rooms.ts'
 import { Link } from './Link.tsx'
+import { Participants } from './Participants.tsx'
 import { NameChange } from './NameChange.tsx'
 import { roomUrl } from './routing.ts'
 import { RoundPanel } from './RoundPanel.tsx'
@@ -19,7 +20,7 @@ type Props = {
 }
 
 export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) {
-  const { result, reload, applyState, connection, browserOnline } = useRoomState(
+  const { result, reload, applyState, connection, browserOnline, onlineIds } = useRoomState(
     client,
     roomId,
   )
@@ -144,20 +145,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
           />
         </div>
 
-        <aside className="card room-layout__side" aria-labelledby="members-title">
-          <h2 id="members-title">Mitglieder ({state.members.length})</h2>
-          <ul className="member-list">
-            {state.members.map((member) => (
-              <li key={member.userId}>
-                {member.displayName}
-                {member.userId === state.me.userId ? ' (du)' : ''}
-              </li>
-            ))}
-          </ul>
-          <p className="hint">
-            Alle, die diesem Raum beigetreten sind, nicht nur wer gerade online ist.
-          </p>
-        </aside>
+        <Participants state={state} onlineIds={connection === 'live' ? onlineIds : null} />
       </div>
 
       <details className="card room-details" ref={details}>
