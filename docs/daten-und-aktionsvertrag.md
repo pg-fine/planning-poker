@@ -134,7 +134,8 @@ Verhalten im Einzelnen:
 - **`leave_room`**: entfernt die Mitgliedschaft und die eigene Stimme der aktuellen Runde in
   einer Transaktion. Raum und Runde bleiben bestehen. Wiederbeitritt per Link ist möglich;
   die entfernte Stimme kommt nicht zurück. Ein zweiter Aufruf liefert `not_member`; die
-  Oberfläche behandelt das als erfolgreich.
+  Oberfläche behandelt das als erfolgreich. Die Oberfläche ruft die Funktion nur über die
+  bestätigte Aktion „Teilnahme entfernen“ auf; „Zur Startseite“ ändert keine Daten (Paket 019).
 - **`start_round`**: `expected_round_id` ist die Runden-ID, die der Aufrufer zuletzt gesehen
   hat (`null`, wenn er noch keine Runde kannte). Stimmt sie mit der aktuellen Runde überein,
   werden alle Stimmen gelöscht und die Runde mit neuer `round_id`, neuem Titel und Status

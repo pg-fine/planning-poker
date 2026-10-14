@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { AppSupabaseClient } from '../supabase/client.ts'
 import { getRoomState } from '../supabase/roomState.ts'
 import { RoomError, describeRoomError, leaveRoom } from '../supabase/rooms.ts'
+import { Link } from './Link.tsx'
 import { NameChange } from './NameChange.tsx'
 import { roomUrl } from './routing.ts'
 import { RoundPanel } from './RoundPanel.tsx'
@@ -29,6 +30,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   const isReady = result.status === 'ready'
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
   const [leaving, setLeaving] = useState(false)
+  const [confirmLeave, setConfirmLeave] = useState(false)
   const [leaveError, setLeaveError] = useState<string | null>(null)
 
   // Mitgliedschaft fehlt, z. B. nach neuer Browser-Identität: zurück zum Beitrittsformular.
@@ -90,6 +92,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
       onLeft()
     } catch (caught) {
       setLeaveError(describeRoomError(caught))
+      setConfirmLeave(false)
       setLeaving(false)
     }
   }
@@ -105,7 +108,8 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
     <div ref={top} tabIndex={-1} className="focus-target">
       <div className="room-bar">
         <p className="room-bar__who">
-          Du bist als <strong>{state.me.displayName}</strong> dabei
+          Du bist als <strong>{state.me.displayName}</strong> dabei ·{' '}
+          <Link to="/">Zur Startseite</Link>
         </p>
         <p
           className={`room-bar__status${connection === 'live' ? '' : ' room-bar__status--warn'}`}
@@ -177,23 +181,37 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
             void getRoomState(client, roomId).then(applyState, () => {})
           }}
         />
+        <h3 className="results-heading">Teilnahme entfernen</h3>
         <p className="hint">
-          Beim Verlassen wird deine Stimme entfernt. Mit dem Link kannst du jederzeit erneut
-          beitreten.
+          „Zur Startseite“ verlässt nur diese Ansicht; deine Teilnahme und deine Stimme bleiben
+          erhalten. „Teilnahme entfernen“ löscht dich aus der Mitgliederliste und entfernt deine
+          Stimme, auch aus einem bereits aufgedeckten Ergebnis. Mit dem Link kannst du jederzeit
+          erneut beitreten.
         </p>
         {leaveError && (
           <p className="error" role="alert">
             {leaveError}
           </p>
         )}
-        <button
-          type="button"
-          className="secondary"
-          onClick={leave}
-          aria-disabled={leaving || undefined}
-        >
-          {leaving ? 'Raum wird verlassen …' : 'Raum verlassen'}
-        </button>
+        {confirmLeave ? (
+          <div className="confirm" role="alert">
+            <p>
+              <strong>Teilnahme wirklich entfernen?</strong> Deine Stimme wird gelöscht.
+            </p>
+            <div className="row">
+              <button type="button" onClick={leave} aria-disabled={leaving || undefined}>
+                {leaving ? 'Wird entfernt …' : 'Ja, entfernen'}
+              </button>
+              <button type="button" className="secondary" onClick={() => setConfirmLeave(false)}>
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button type="button" className="secondary" onClick={() => setConfirmLeave(true)}>
+            Teilnahme entfernen
+          </button>
+        )}
       </details>
     </div>
   )
