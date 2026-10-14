@@ -353,3 +353,14 @@ a:focus-visible {
 .card--notice p {
   margin: 0;
 }
+
+.confirm {
+  border-left: 4px solid var(--notice-border);
+  background: var(--notice-bg);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+}
+
+.confirm p {
+  margin: 0 0 0.5rem;
+}

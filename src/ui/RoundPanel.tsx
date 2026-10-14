@@ -39,6 +39,9 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [title, setTitle] = useState('')
+  // Die Rückfrage gilt nur für die Runde, bei der sie gestellt wurde.
+  const [confirmFor, setConfirmFor] = useState<string | null>(null)
+  const confirmReplace = round !== null && confirmFor === round.roundId
   const heading = useRef<HTMLHeadingElement>(null)
 
   // Beim Aufdecken verschwindet der fokussierte Knopf. Ist der Fokus dann verloren, setzen wir ihn auf
@@ -101,6 +104,22 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
     }
   }
 
+  /** Startet eine neue Runde mit dem Titel; bei Erfolg ist die Rückfrage erledigt. */
+  const startWith = async (newTitle: string): Promise<boolean> => {
+    const started = await run(
+      () => startRound(client, state.roomId, round?.roundId ?? null, newTitle),
+      (fresh) =>
+        fresh.round !== null &&
+        fresh.round.roundId !== (round?.roundId ?? null) &&
+        fresh.round.title === newTitle,
+    )
+    if (started) {
+      setConfirmFor(null)
+      setTitle('')
+    }
+    return started
+  }
+
   const onStart = async (event: FormEvent) => {
     event.preventDefault()
     const trimmed = title.trim()
@@ -112,14 +131,17 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
       setError(`Der Titel darf höchstens ${MAX_TITLE_LENGTH} Zeichen lang sein.`)
       return
     }
-    const started = await run(
-      () => startRound(client, state.roomId, round?.roundId ?? null, trimmed),
-      (fresh) =>
-        fresh.round !== null &&
-        fresh.round.roundId !== (round?.roundId ?? null) &&
-        fresh.round.title === trimmed,
-    )
-    if (started) setTitle('')
+    // Eine laufende Abstimmung mit Stimmen wird nur nach ausdrücklicher Bestätigung ersetzt.
+    if (round?.status === 'open' && round.votes.length > 0 && !confirmReplace) {
+      setError(null)
+      setConfirmFor(round.roundId)
+      return
+    }
+    await startWith(trimmed)
+  }
+
+  const onRestart = () => {
+    if (round) void startWith(round.title)
   }
 
   const onVote = (card: CardValue) => {
@@ -139,6 +161,63 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
       (fresh) => fresh.round?.roundId === round.roundId && fresh.round.status === 'revealed',
     )
   }
+
+  const isOpen = round?.status === 'open'
+  const startForm = (
+    <form onSubmit={onStart} noValidate>
+      <div className="field">
+        <label htmlFor="round-title-input">Titel der Schätzung</label>
+        <input
+          id="round-title-input"
+          type="text"
+          value={title}
+          onChange={(event) => {
+            setTitle(event.target.value)
+            setConfirmFor(null)
+          }}
+          maxLength={MAX_TITLE_LENGTH}
+          placeholder="z. B. STORY-123 Login-Seite"
+          readOnly={busy}
+        />
+      </div>
+      {confirmReplace && (
+        <div className="confirm" role="alert">
+          <p>
+            <strong>Laufende Abstimmung ersetzen?</strong> Die bisherigen Stimmen werden
+            entfernt.
+          </p>
+          <div className="row">
+            <button type="submit" disabled={offline} aria-disabled={busy || undefined}>
+              {busy ? 'Wird gespeichert …' : 'Ja, ersetzen'}
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => setConfirmFor(null)}
+            >
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      )}
+      {!confirmReplace && (
+        <button
+          type="submit"
+          className={isOpen ? 'secondary' : undefined}
+          disabled={offline}
+          aria-disabled={busy || undefined}
+        >
+          {busy
+          ? 'Wird gespeichert …'
+          : !round
+            ? 'Runde starten'
+            : isOpen
+              ? 'Neue Runde starten'
+              : 'Nächste Story starten'}
+        </button>
+      )}
+    </form>
+  )
 
   return (
     <>
@@ -173,31 +252,30 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
         </section>
       )}
 
-      <section className="card" aria-labelledby="start-title">
-        <h2 id="start-title">{round ? 'Neue Runde' : 'Erste Runde starten'}</h2>
-        {round?.status === 'open' && round.votes.length > 0 && (
-          <p className="hint">
-            Eine neue Runde ersetzt die laufende Abstimmung samt aller bisherigen Stimmen.
-          </p>
-        )}
-        <form onSubmit={onStart} noValidate>
-          <div className="field">
-            <label htmlFor="round-title-input">Titel der Schätzung</label>
-            <input
-              id="round-title-input"
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              maxLength={MAX_TITLE_LENGTH}
-              placeholder="z. B. STORY-123 Login-Seite"
-              readOnly={busy}
-            />
-          </div>
-          <button type="submit" disabled={offline} aria-disabled={busy || undefined}>
-            {busy ? 'Wird gespeichert …' : round ? 'Neue Runde starten' : 'Runde starten'}
-          </button>
-        </form>
-      </section>
+      {isOpen ? (
+        <details className="card room-details">
+          <summary>Stattdessen eine andere Story schätzen</summary>
+          {startForm}
+        </details>
+      ) : (
+        <section className="card" aria-labelledby="start-title">
+          <h2 id="start-title">{round ? 'Nächste Story' : 'Erste Runde starten'}</h2>
+          {startForm}
+          {round && (
+            <p>
+              <button
+                type="button"
+                className="secondary"
+                onClick={onRestart}
+                disabled={offline}
+                aria-disabled={busy || undefined}
+              >
+                {busy ? 'Wird gespeichert …' : 'Noch einmal schätzen'}
+              </button>
+            </p>
+          )}
+        </section>
+      )}
 
       {error && (
         <p className="error" role="alert">
