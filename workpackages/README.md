@@ -62,10 +62,10 @@ Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbe
 | 016 | [Phasen und „Noch einmal schätzen“](016-phasen-und-neue-runde.md) | 015 | M6 | Erledigt |
 | 017 | [Ergebnisverteilung und Ergebnistexte](017-ergebnisdarstellung.md) | 015 | M6 | Erledigt |
 | 018 | [Rückmeldungen nahe an der Aktion](018-lokale-rueckmeldungen.md) | 015 | M6 | Erledigt |
-| 019 | [Verlassen und Teilnahme entfernen](019-verlassen-und-teilnahme-entfernen.md) | 016 | M7: UX-Iteration 2 | Erledigt (Migration offen) |
+| 019 | [Verlassen und Teilnahme entfernen](019-verlassen-und-teilnahme-entfernen.md) | 016 | M7: UX-Iteration 2 | Erledigt |
 | 020 | [Teilnehmerstatus](020-teilnehmerstatus.md) | 016 | M7 | Erledigt |
 | 021 | [Dauerhafte Räume wiederfinden](021-raeume-wiederfinden.md) | 015 | M7 | Erledigt |
-| 022 | [Raumname](022-raumname.md) | 021 | M7 | Erledigt (Migration offen) |
+| 022 | [Raumname](022-raumname.md) | 021 | M7 | Erledigt |
 
 ### M1: Grundlage
 

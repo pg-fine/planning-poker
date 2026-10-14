@@ -1,6 +1,6 @@
 # 019 – „Zur Startseite“ und „Teilnahme entfernen“ trennen
 
-- **Status:** Erledigt (Migration `20261014090600` muss im Supabase-Projekt noch angewendet werden)
+- **Status:** Erledigt
 - **Abhängigkeiten:** 016
 - **Meilenstein:** M7: UX-Iteration 2
 - **Herkunft:** UX-Bewertung (Punkt 6), Priorität hoch, Aufwand mittel
@@ -64,4 +64,7 @@ Stimme und Namen im Snapshot der anderen Person; Mitgliederzahl sinkt; die näch
 Stimmen; Nicht-Mitglieder sehen nichts. Die Oberfläche wurde mit einer nachgestellten Antwort
 (Browser-Abfangen der Snapshot-Antwort) geprüft, da die Migration im echten Projekt noch nicht
 eingespielt ist: Eine Stimme mit `display_name` erscheint mit dem Namen im Ergebnis.
-Offen: Test gegen das echte Supabase-Projekt nach dem Einspielen.
+Nach dem Einspielen der Migration (14.10.2026) gegen das echte Supabase-Projekt geprüft (Headless-Chromium,
+zwei getrennte Profile): Entfernen in offener Runde löscht die Stimme (andere Person sieht 1 Stimme);
+Entfernen nach dem Aufdecken lässt „Ben · 8“ im Ergebnis der anderen Person stehen; „Noch einmal
+schätzen“ räumt auf (0 Stimmen); axe-core ohne Befunde.

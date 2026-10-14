@@ -1,6 +1,6 @@
 # 022 – Optionaler Raumname
 
-- **Status:** Erledigt (Migration `20261014090700` muss im Supabase-Projekt noch angewendet werden)
+- **Status:** Erledigt
 - **Abhängigkeiten:** 021
 - **Meilenstein:** M7: UX-Iteration 2
 - **Herkunft:** UX-Bewertung (Punkt 5), aus 021 ausgelagert
@@ -55,4 +55,6 @@ Mitglieder ändern/leeren den Namen, Nicht-Mitglieder erhalten `not_member`. Obe
 (Playwright): Feld auf der Startseite, Erstellen ohne Namen gegen die alte Datenbank, Überschrift,
 Ändern des Namens (mit nachgestellten Antworten, da die Migration im echten Projekt noch fehlt),
 Liste zeigt den Namen; axe-core ohne Befunde. Typecheck, Lint, Build fehlerfrei.
-Offen: Test gegen das echte Supabase-Projekt nach dem Einspielen der Migrationen.
+Nach dem Einspielen der Migrationen (14.10.2026) gegen das echte Supabase-Projekt geprüft: Erstellen mit
+Namen (Leerraum wird entfernt), zweite Person sieht den Namen, Ändern durch die zweite Person erscheint
+live bei der ersten, Leeren entfernt die Überschrift.
