@@ -50,7 +50,7 @@ Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbe
 | 004 | [Supabase-Verbindung und Identität](004-supabase-und-identitaet.md) | 001 | M1 | Erledigt |
 | 005 | [Raumzugang und Mitgliedschaft](005-raumzugang-und-mitgliedschaft.md) | 003, 004 | M2: Gemeinsamer Raum | Umgesetzt, Prüfung im Supabase-Projekt offen |
 | 006 | [Rundenwechsel und Aufdecken](006-rundenwechsel-und-aufdecken.md) | 005 | M2 | Umgesetzt, Prüfung im Supabase-Projekt offen |
-| 007 | [Stimmen speichern und ändern](007-stimmen-speichern.md) | 006 | M2 | Offen |
+| 007 | [Stimmen speichern und ändern](007-stimmen-speichern.md) | 006 | M2 | Umgesetzt, Prüfung im Supabase-Projekt offen |
 | 008 | [Raum erstellen und beitreten: Oberfläche](008-raumoberflaeche.md) | 005 | M3: Spielbarer Ablauf | Offen |
 | 009 | [Karten und Ergebnisse: Oberfläche](009-pokeroberflaeche.md) | 006, 007, 008 | M3 | Offen |
 | 010 | [Echtzeit-Synchronisierung](010-echtzeit.md) | 009 | M3 | Offen |

@@ -1,6 +1,6 @@
 # 007 – Stimmen speichern und ändern
 
-- **Status:** Offen
+- **Status:** Umgesetzt und lokal geprüft; Prüfung im Supabase-Projekt offen (Migration anwenden)
 - **Abhängigkeiten:** 006
 - **Meilenstein:** M2
 
@@ -29,5 +29,30 @@ Pro Identität genau eine gültige Stimme für die offene aktuelle Runde speiche
 
 ## Prüfung und Ergebnis
 
-Eigene Auswahl ändern, ungültige Werte senden und fremde Stimmänderungen manuell
-versuchen. Mit zwei Sessions abstimmen. Kein Testcode ohne festgestellten Bug.
+Umsetzung:
+
+- `supabase/migrations/20261014090400_stimmen.sql`: `cast_vote(room_id, round_id, card)`.
+  Nutzer-ID nur aus der Session. Prüfreihenfolge: Mitgliedschaft, Karte, Runde vorhanden,
+  Runden-ID aktuell, Runde offen. Upsert auf (Raum, Person); gleiche Karte erneut ändert nichts.
+- `src/supabase/votes.ts`: `castVote` mit typisiertem `CardValue`.
+- Lesen aller Stimmen für Mitglieder erfolgt über den Snapshot (und RLS aus 003). Die Werte
+  werden bewusst schon vor dem Aufdecken geliefert; die Oberfläche verbirgt sie (009).
+
+Lokal geprüft (PostgreSQL 17 in Docker, mehrere Nutzer; kein Testcode eingecheckt):
+
+- Ungültige Karten (`4`, `null`, `coffee ` mit Leerzeichen) → `invalid_card`; Fremde und
+  unbekannte Räume → `not_member`; `anon` hat kein Ausführungsrecht.
+- Zweite Auswahl ersetzt die erste, die Stimmenzahl bleibt gleich. Eine Karte erneut zu senden
+  ändert Revision und Stimme nicht; echte Änderungen erhöhen die Revision um 1.
+- Sonderkarten `?` und `coffee` werden gespeichert.
+- Fremde Stimmen lassen sich per direktem Zugriff weder ändern, einfügen noch löschen.
+- Nach dem Aufdecken → `round_not_open`, Stimmen unverändert. Nach Rundenwechsel → `round_conflict`
+  für die alte Runden-ID, die neue Runde bleibt leer.
+- Austritt entfernt die eigene Stimme.
+- Sechs gleichzeitige Stimmabgaben derselben Person plus gleichzeitiges Aufdecken: genau eine
+  Stimme bleibt bestehen; vor dem Aufdecken angenommene Stimmen sind gültig, eine danach
+  eintreffende erhält `round_not_open`.
+- Typecheck und Lint sind fehlerfrei.
+
+Offen (braucht dein Supabase-Projekt): Migration `20261014090400_stimmen.sql` anwenden und
+die Funktionen mit dem öffentlichen Key gegenprüfen.
