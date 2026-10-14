@@ -1,6 +1,6 @@
 # 021 – Dauerhafte Räume wiederfinden
 
-- **Status:** Erledigt (ohne Raumname, siehe 022)
+- **Status:** Erledigt
 - **Abhängigkeiten:** 015
 - **Meilenstein:** M7: UX-Iteration 2
 - **Herkunft:** UX-Bewertung (Punkt 5), Priorität mittel, Aufwand mittel

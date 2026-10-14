@@ -1,6 +1,6 @@
 # 022 – Optionaler Raumname
 
-- **Status:** Blockiert (Datenbankmigration muss im Supabase-Projekt angewendet werden)
+- **Status:** Erledigt (Migration `20261014090700` muss im Supabase-Projekt noch angewendet werden)
 - **Abhängigkeiten:** 021
 - **Meilenstein:** M7: UX-Iteration 2
 - **Herkunft:** UX-Bewertung (Punkt 5), aus 021 ausgelagert
@@ -35,4 +35,24 @@ muss von dir im Supabase-Projekt angewendet werden; ich habe darauf keinen Zugri
 
 ## Prüfung und Ergebnis
 
-Noch nicht bearbeitet.
+Migration `supabase/migrations/20261014090700_raumname.sql`:
+
+- `rooms.name` (NULL oder 1-60 Zeichen, ohne Leerraum am Rand), `create_room(display_name, room_name
+  default null)` (alte Aufrufe mit einem Argument funktionieren weiter), `set_room_name` für
+  Mitglieder, Snapshot mit `name`. Neue Fehlermeldung `invalid_room_name`.
+- Die Migration baut auf `20261014090600` auf (beide ändern `room_snapshot`); Reihenfolge einhalten.
+
+App:
+
+- Startseite: Feld „Raumname (optional)“. Ohne Namen sendet die App den alten Aufruf, sodass das
+  Erstellen auch vor dem Einspielen der Migration funktioniert.
+- Raum: Name als Überschrift; „Raumnamen speichern“ unter „Raum und Hilfe“ (leer entfernt den Namen).
+- „Zuletzt verwendete Räume“ zeigen den Raumnamen (sonst „Raum …“ plus Token-Ende) und halten ihn aktuell.
+
+Geprüft: Migrationen lokal in PostgreSQL 16 (Docker): Name wird getrimmt gespeichert, ein
+61-Zeichen-Name liefert `invalid_room_name`, `create_room` mit einem Argument funktioniert,
+Mitglieder ändern/leeren den Namen, Nicht-Mitglieder erhalten `not_member`. Oberfläche im Browser
+(Playwright): Feld auf der Startseite, Erstellen ohne Namen gegen die alte Datenbank, Überschrift,
+Ändern des Namens (mit nachgestellten Antworten, da die Migration im echten Projekt noch fehlt),
+Liste zeigt den Namen; axe-core ohne Befunde. Typecheck, Lint, Build fehlerfrei.
+Offen: Test gegen das echte Supabase-Projekt nach dem Einspielen der Migrationen.
