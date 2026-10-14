@@ -56,7 +56,8 @@ vote (Stimme)
 
 - Die interne `room.id` wird für Datenbankbeziehungen und Echtzeit-Filter verwendet.
 - Das **Einladungstoken** ist der Zugang. Es ist kryptografisch zufällig und hat mindestens
-  128 Bit Entropie (Vorgabe: 24 Zufallsbytes, URL-sicher kodiert).
+  128 Bit Entropie. Umgesetzt als zwei zufällige UUIDs ohne Bindestriche (64 Hex-Zeichen,
+  etwa 244 Bit) aus dem Zufallsgenerator des Servers, ohne Abhängigkeit von Erweiterungen.
 - Der Einladungslink enthält nur das Token (`/r/<token>`). Das Token läuft nicht ab und kann
   im MVP nicht neu erzeugt werden.
 - Mitglieder erhalten das Token ihres Raums über `get_invite_token`, damit sie den Link
@@ -132,7 +133,8 @@ Verhalten im Einzelnen:
   `invalid_token`, ohne etwas über andere Räume preiszugeben.
 - **`leave_room`**: entfernt die Mitgliedschaft und die eigene Stimme der aktuellen Runde in
   einer Transaktion. Raum und Runde bleiben bestehen. Wiederbeitritt per Link ist möglich;
-  die entfernte Stimme kommt nicht zurück.
+  die entfernte Stimme kommt nicht zurück. Ein zweiter Aufruf liefert `not_member`; die
+  Oberfläche behandelt das als erfolgreich.
 - **`start_round`**: `expected_round_id` ist die Runden-ID, die der Aufrufer zuletzt gesehen
   hat (`null`, wenn er noch keine Runde kannte). Stimmt sie mit der aktuellen Runde überein,
   werden alle Stimmen gelöscht und die Runde mit neuer `round_id`, neuem Titel und Status
@@ -238,7 +240,7 @@ Anna und Ben, Raum noch ohne Runde (Revision 1, `round = null`).
 Entschieden:
 
 - Name 1–40, Titel 1–120 Zeichen; Kartenwert `coffee` statt Emoji gespeichert.
-- Einladungstoken: 24 Zufallsbytes, ohne Ablauf, im MVP nicht erneuerbar.
+- Einladungstoken: 64 Hex-Zeichen (zwei UUIDs), ohne Ablauf, im MVP nicht erneuerbar.
 - Raumrevision als Echtzeitsignal wird bereits im Modell vorgesehen.
 - `not_member` für unbekannte Räume, kein Unterschied zu fremden Räumen.
 

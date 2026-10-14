@@ -1,6 +1,6 @@
 # 005 – Raumzugang und Mitgliedschaft
 
-- **Status:** Offen
+- **Status:** Umgesetzt und lokal geprüft; Prüfung im Supabase-Projekt offen (Migration anwenden)
 - **Abhängigkeiten:** 003, 004
 - **Meilenstein:** M2
 
@@ -32,6 +32,32 @@ Dauerhafte Räume über einen Einladungslink zugänglich machen und Zugriffe beg
 
 ## Prüfung und Ergebnis
 
-Erstellen, Beitreten und Verlassen manuell mit zwei Identitäten ausführen.
-Zugriff auf einen zweiten, nicht betretenen Raum prüfen. Ergebnisse festhalten;
-Testcode nur bei konkret gefundenem Bug.
+Umsetzung:
+
+- `supabase/migrations/20261014090200_raumzugang.sql`: `create_room`, `join_room`,
+  `leave_room`, `get_invite_token` (SECURITY DEFINER, leerer `search_path`, `auth.uid()`
+  aus der Session, Ausführung nur für `authenticated`, nicht für `anon`) und die interne
+  Namensprüfung `private.normalize_display_name`.
+- `src/supabase/rooms.ts`: typisierte Funktionen `createRoom`, `joinRoom`, `leaveRoom`,
+  `getInviteToken`, Fehlercodes als `RoomError` mit deutschen Meldungen.
+- Einladungstoken: zwei zufällige UUIDs ohne Bindestriche (64 Hex-Zeichen, ca. 244 Bit),
+  damit keine Erweiterung (pgcrypto) nötig ist. Der Vertrag wurde entsprechend angepasst.
+
+Lokal geprüft (PostgreSQL 17 in Docker, Supabase-Rollen und `auth.uid()` nachgebildet,
+mehrere Nutzer; kein Testcode eingecheckt):
+
+- `anon` darf keine der Funktionen ausführen; ohne Nutzer-ID in der Session `not_authenticated`.
+- Ungültige Namen (leer, nur Leerraum, `null`, 41 Zeichen) → `invalid_name`; Leerraum am Rand
+  wird entfernt. Ungültiges oder fehlendes Token → `invalid_token`, ohne Raumdaten preiszugeben.
+- Beitritt ist idempotent: wiederholtes Beitreten erzeugt kein Duplikat; Namensänderung
+  erhöht die Raumrevision, ein gleicher Name nicht (Revision 1 → 2 → 3 → 4 bei Austritt).
+- Zwölf gleichzeitige Beitritte derselben Person mit wechselnden Namen: kein Fehler, genau eine
+  Mitgliedschaft (Raumsperre).
+- Fremde Personen erhalten für Token und Austritt `not_member`, auch für nicht existierende Räume.
+- Austritt entfernt Mitgliedschaft und eigene Stimme; Raum, Runde und fremde Stimmen bleiben.
+  Danach sind Raumabfragen und Token gesperrt; erneuter Beitritt per Link klappt, die alte
+  Stimme kommt nicht zurück. Direkte Schreibzugriffe und `room_invites` bleiben gesperrt.
+- Typecheck, Lint und Build sind fehlerfrei.
+
+Offen (braucht dein Supabase-Projekt): Migration `20261014090200_raumzugang.sql` anwenden und
+die Funktionen mit dem öffentlichen Key gegenprüfen (mache ich, sobald sie angewendet ist).
