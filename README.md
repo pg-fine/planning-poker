@@ -47,12 +47,14 @@ Verwende im Frontend **niemals** einen Service-Role- oder Secret-Key. `.env.loca
 ```text
 src/
   main.tsx        Einstiegspunkt
-  ui/             Oberfläche (React-Komponenten, Styles)
-  supabase/       Supabase-Konfiguration und -Zugriff
+  ui/             Oberfläche (React-Komponenten, Routing, Styles)
+  domain/         Fachliche Regeln ohne Abhängigkeiten (Karten, Eingabeprüfung)
+  supabase/       Supabase-Konfiguration, Anmeldung und Datenbankzugriff
+supabase/
+  migrations/     SQL-Migrationen (in Dateinamen-Reihenfolge anwenden)
+docs/             Vertrag, Identität, Supabase-Einrichtung
 workpackages/     Roadmap und Arbeitspakete
 ```
-
-Weitere Verzeichnisse (z. B. für Fachlogik) werden angelegt, sobald sie gebraucht werden.
 
 ## Qualitätssicherung
 
