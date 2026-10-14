@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { checkDisplayName } from '../domain/validation.ts'
 import type { AppSupabaseClient } from '../supabase/client.ts'
 import { RoomError, describeRoomError, joinRoom } from '../supabase/rooms.ts'
@@ -12,6 +12,7 @@ import {
   loadKnownRoom,
   rememberRoom,
   saveDisplayName,
+  touchRecentRoom,
 } from './storage.ts'
 
 type Props = { client: AppSupabaseClient; token: string }
@@ -27,6 +28,12 @@ export function RoomPage({ client, token }: Props) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [invalidToken, setInvalidToken] = useState(false)
+
+  // Bereits bekannter Raum: in der Liste der zuletzt verwendeten Räume nach vorn holen.
+  const known = roomId !== null
+  useEffect(() => {
+    if (known) touchRecentRoom(token)
+  }, [known, token])
 
   if (invalidToken) {
     return (
@@ -67,7 +74,7 @@ export function RoomPage({ client, token }: Props) {
     try {
       const joined = await joinRoom(client, token, check.name)
       saveDisplayName(check.name)
-      rememberRoom(token, joined.roomId)
+      rememberRoom(token, joined.roomId, check.name)
       setRoomId(joined.roomId)
     } catch (caught) {
       if (caught instanceof RoomError && caught.code === 'invalid_token') {

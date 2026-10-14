@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import type { AppSupabaseClient } from '../supabase/client.ts'
+import { getRoomState } from '../supabase/roomState.ts'
 import { RoomError, describeRoomError, leaveRoom } from '../supabase/rooms.ts'
+import { NameChange } from './NameChange.tsx'
 import { roomUrl } from './routing.ts'
 import { RoundPanel } from './RoundPanel.tsx'
 import { useRoomState } from './useRoomState.ts'
@@ -166,6 +168,15 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
           </div>
           <p className="hint">Teile diesen Link im Teams-Chat. Er bleibt dauerhaft gültig.</p>
         </div>
+        <NameChange
+          client={client}
+          token={token}
+          currentName={state.me.displayName}
+          offline={!browserOnline}
+          onChanged={() => {
+            void getRoomState(client, roomId).then(applyState, () => {})
+          }}
+        />
         <p className="hint">
           Beim Verlassen wird deine Stimme entfernt. Mit dem Link kannst du jederzeit erneut
           beitreten.
