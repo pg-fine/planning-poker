@@ -34,13 +34,22 @@ darf nur Daten von Räumen lesen, in denen die Person Mitglied ist, und nichts d
 
 ## 3. Öffentliche Schlüssel
 
-Unter **Project Settings → API** (bzw. **API Keys**) werden benötigt:
+Benötigt werden:
 
-- die **Project URL** → `VITE_SUPABASE_URL`
-- der **Publishable key** (früher `anon` key) → `VITE_SUPABASE_PUBLISHABLE_KEY`
+- die **Project URL** (`https://<project-ref>.supabase.co`) → `VITE_SUPABASE_URL`
+- der **Publishable key** (beginnt mit `sb_publishable_`) → `VITE_SUPABASE_PUBLISHABLE_KEY`
 
-Beides kommt in `.env.local` (siehe `README.md`). **Niemals** den `service_role`- oder
-`secret`-Key im Frontend oder im Repository verwenden.
+So findest du beides:
+
+1. Im Dashboard das Projekt öffnen und oben auf **Connect** klicken. Der Dialog zeigt URL
+   und Publishable key zum Kopieren.
+2. Alternativ unter **Project Settings → API Keys**. Falls dort noch kein Publishable key
+   steht, dort einen neuen erzeugen.
+
+Der ältere `anon`-Key (langer Schlüssel, beginnt mit `eyJ`) funktioniert noch, wird aber bis
+Ende 2026 abgeschafft; bitte den Publishable key verwenden. Beides kommt in `.env.local`
+(siehe `README.md`). **Niemals** den `service_role`- oder `secret`-Key (`sb_secret_…`) im
+Frontend oder im Repository verwenden.
 
 ## 4. Anonyme Anmeldung aktivieren (Arbeitspaket 004)
 
