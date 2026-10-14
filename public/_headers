@@ -1,0 +1,8 @@
+# Von Cloudflare Pages ausgelieferte Zusatz-Header (gilt für alle Pfade).
+# Die Content-Security-Policy erlaubt nur eigene Skripte/Styles und Verbindungen zu Supabase
+# (REST und Echtzeit/WebSocket). Wer einen eigenen Supabase-Host nutzt (z. B. eigene Domain),
+# muss connect-src anpassen.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
