@@ -1,6 +1,6 @@
 # 007 – Stimmen speichern und ändern
 
-- **Status:** Umgesetzt und lokal geprüft; Prüfung im Supabase-Projekt offen (Migration anwenden)
+- **Status:** Erledigt
 - **Abhängigkeiten:** 006
 - **Meilenstein:** M2
 
@@ -54,5 +54,8 @@ Lokal geprüft (PostgreSQL 17 in Docker, mehrere Nutzer; kein Testcode eingechec
   eintreffende erhält `round_not_open`.
 - Typecheck und Lint sind fehlerfrei.
 
-Offen (braucht dein Supabase-Projekt): Migration `20261014090400_stimmen.sql` anwenden und
-die Funktionen mit dem öffentlichen Key gegenprüfen.
+Im echten Supabase-Projekt bestätigt: Alle Migrationen sind angewendet. Ein vollständiger Ablauf
+mit drei anonymen Identitäten über die TypeScript-Module der App (Raum erstellen, Beitreten,
+Token, Runde, Abstimmen und Ändern, Aufdecken, neue Runde, Konflikte, Austritt und Wiederbeitritt,
+fremde Person ohne Zugriff, direkte Schreibzugriffe gesperrt) lief mit 21 von 21 Prüfungen
+fehlerfrei. Dabei ist ein Testraum im Projekt entstanden (ohne Bedeutung).

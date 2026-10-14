@@ -1,6 +1,6 @@
 # 005 – Raumzugang und Mitgliedschaft
 
-- **Status:** Umgesetzt und lokal geprüft; Prüfung im Supabase-Projekt offen (Migration anwenden)
+- **Status:** Erledigt
 - **Abhängigkeiten:** 003, 004
 - **Meilenstein:** M2
 
@@ -59,5 +59,8 @@ mehrere Nutzer; kein Testcode eingecheckt):
   Stimme kommt nicht zurück. Direkte Schreibzugriffe und `room_invites` bleiben gesperrt.
 - Typecheck, Lint und Build sind fehlerfrei.
 
-Offen (braucht dein Supabase-Projekt): Migration `20261014090200_raumzugang.sql` anwenden und
-die Funktionen mit dem öffentlichen Key gegenprüfen (mache ich, sobald sie angewendet ist).
+Im echten Supabase-Projekt bestätigt: Alle Migrationen sind angewendet. Ein vollständiger Ablauf
+mit drei anonymen Identitäten über die TypeScript-Module der App (Raum erstellen, Beitreten,
+Token, Runde, Abstimmen und Ändern, Aufdecken, neue Runde, Konflikte, Austritt und Wiederbeitritt,
+fremde Person ohne Zugriff, direkte Schreibzugriffe gesperrt) lief mit 21 von 21 Prüfungen
+fehlerfrei. Dabei ist ein Testraum im Projekt entstanden (ohne Bedeutung).
