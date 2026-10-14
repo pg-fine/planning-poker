@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from 'react'
 
 /**
- * Kleines Routing ohne Bibliothek: Startseite `/` und Raum-Link `/r/<token>`.
- * Der Einladungstoken hat 64 Hexadezimalzeichen (siehe docs/daten-und-aktionsvertrag.md).
+ * Small router without a library: home page `/` and room link `/r/<token>`.
+ * The invitation token has 64 hexadecimal characters (see docs/data-and-action-contract.md).
  */
 export type Route =
   | { name: 'home' }
@@ -29,7 +29,7 @@ export function roomPath(token: string): string {
   return `/r/${token}`
 }
 
-/** Vollständiger, teilbarer Link zu einem Raum. */
+/** Complete, shareable link to a room. */
 export function roomUrl(token: string): string {
   return `${window.location.origin}${roomPath(token)}`
 }

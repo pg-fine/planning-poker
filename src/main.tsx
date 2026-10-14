@@ -5,7 +5,7 @@ import './ui/styles.css'
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {
-  throw new Error('Wurzelelement #root wurde nicht gefunden.')
+  throw new Error('Root element #root was not found.')
 }
 
 createRoot(rootElement).render(

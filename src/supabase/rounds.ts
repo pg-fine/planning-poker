@@ -3,11 +3,11 @@ import { parseRoomState, type RoomState } from './roomState.ts'
 import { toRoomError } from './rooms.ts'
 
 /**
- * Startet eine neue Runde und ersetzt die bisherige samt Stimmen.
+ * Starts a new round and replaces the previous one including its votes.
  *
- * `expectedRoundId` ist die Runden-ID, die diese Ansicht zuletzt gesehen hat (`null`, wenn
- * es noch keine gab). Hat inzwischen jemand anderes gewechselt, wirft die Funktion
- * `RoomError` mit Code `round_conflict`, und die neuere Runde bleibt unverändert.
+ * `expectedRoundId` is the round ID this view last saw (`null` if there was none yet). If
+ * someone else has switched rounds in the meantime, the function throws a `RoomError` with
+ * code `round_conflict`, and the newer round stays unchanged.
  */
 export async function startRound(
   client: AppSupabaseClient,
@@ -25,8 +25,8 @@ export async function startRound(
 }
 
 /**
- * Deckt die angegebene Runde auf. Wiederholtes Aufdecken ist unschädlich. Gehört die
- * Runden-ID nicht mehr zur aktuellen Runde, wirft die Funktion `round_conflict`.
+ * Reveals the given round. Revealing repeatedly is harmless. If the round ID no longer belongs
+ * to the current round, the function throws `round_conflict`.
  */
 export async function revealRound(
   client: AppSupabaseClient,

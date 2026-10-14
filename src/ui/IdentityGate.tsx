@@ -12,7 +12,7 @@ export function IdentityGate({ config }: Props) {
   if (state.status === 'loading') {
     return (
       <section className="card" aria-live="polite">
-        <p>Anmeldung läuft …</p>
+        <p>Signing in …</p>
       </section>
     )
   }
@@ -24,7 +24,7 @@ export function IdentityGate({ config }: Props) {
         <h2>{title}</h2>
         <p>{hint}</p>
         <button type="button" onClick={retry}>
-          Erneut versuchen
+          Try again
         </button>
       </section>
     )
@@ -34,11 +34,11 @@ export function IdentityGate({ config }: Props) {
     <>
       <AppRoutes client={getSupabaseClient(config)} />
       <details className="hint footer">
-        <summary>Hilfe zu Browser und Teilnahme</summary>
+        <summary>Help on browser and participation</summary>
         <p>
-          Dieser Browser behält seine Teilnahme (Kennung <code>{state.identity.userId.slice(0, 8)}</code>
-          ). In einem anderen Browser, auf einem anderen Gerät oder nach dem Löschen der
-          Browserdaten giltst du als neue Person und trittst dem Raum erneut bei.
+          This browser keeps its participation (ID <code>{state.identity.userId.slice(0, 8)}</code>
+          ). In another browser, on another device or after clearing the browser data,
+          you count as a new person and join the room again.
         </p>
       </details>
     </>

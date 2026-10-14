@@ -6,9 +6,9 @@ export type AppSupabaseClient = SupabaseClient
 let cached: { key: string; client: AppSupabaseClient } | undefined
 
 /**
- * Liefert den gemeinsamen Supabase-Client der App. Pro Browser-Fenster gibt es genau einen
- * Client, damit nicht mehrere Auth-Instanzen um dieselbe gespeicherte Session konkurrieren.
- * Die Session liegt im localStorage und wird zwischen Tabs desselben Profils geteilt.
+ * Returns the app's shared Supabase client. There is exactly one client per browser window so
+ * that multiple auth instances do not compete for the same stored session. The session lives
+ * in localStorage and is shared between tabs of the same profile.
  */
 export function getSupabaseClient(config: SupabaseConfig): AppSupabaseClient {
   const key = `${config.url}|${config.publishableKey}`
@@ -18,7 +18,7 @@ export function getSupabaseClient(config: SupabaseConfig): AppSupabaseClient {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      // Es gibt keine OAuth-Weiterleitungen; die URL (Raum-Links) darf nicht angefasst werden.
+      // There are no OAuth redirects; the URL (room links) must not be touched.
       detectSessionInUrl: false,
     },
   })

@@ -13,11 +13,11 @@ type Props = {
   client: AppSupabaseClient
   state: RoomState
   onState: (state: RoomState) => void
-  /** Keine Verbindung: Aktionen sind gesperrt, bis sie wieder besteht. */
+  /** No connection: actions are disabled until it is back. */
   offline: boolean
 }
 
-/** Antwort blieb aus oder Verbindung brach ab: Die Aktion ist möglicherweise angekommen. */
+/** No response or the connection dropped: the action may have arrived. */
 function isUnclear(error: unknown): boolean {
   return (
     !(error instanceof RoomError) ||
@@ -26,7 +26,7 @@ function isUnclear(error: unknown): boolean {
   )
 }
 
-/** Fehler, nach denen die Ansicht neu geladen wird, weil sich die Runde inzwischen geändert hat. */
+/** Errors after which the view is reloaded because the round has changed in the meantime. */
 function isStaleRound(error: unknown): boolean {
   return (
     error instanceof RoomError &&
@@ -34,7 +34,7 @@ function isStaleRound(error: unknown): boolean {
   )
 }
 
-/** Bereich, in dem eine Aktion läuft bzw. ihre Rückmeldung erscheint. */
+/** Area in which an action runs or its feedback appears. */
 type Scope = 'vote' | 'reveal' | 'start'
 
 export function RoundPanel({ client, state, onState, offline }: Props) {
@@ -44,14 +44,13 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
   const [errors, setErrors] = useState<Partial<Record<Scope, string>>>({})
   const [pendingCard, setPendingCard] = useState<CardValue | null>(null)
   const [title, setTitle] = useState('')
-  // Die Rückfrage gilt nur für die Runde, bei der sie gestellt wurde.
+  // The confirmation only applies to the round for which it was asked.
   const [confirmFor, setConfirmFor] = useState<string | null>(null)
   const confirmReplace = round !== null && confirmFor === round.roundId
   const heading = useRef<HTMLHeadingElement>(null)
 
-  // Beim Aufdecken verschwindet der fokussierte Knopf. Ist der Fokus dann verloren, setzen wir ihn auf
-  // das Ergebnis, damit Tastatur- und Screenreader-Nutzende dort weitermachen. Wer gerade in einem
-  // Feld tippt, behält den Fokus.
+  // On reveal the focused button disappears. If focus is then lost, we move it to the result so
+  // keyboard and screen reader users can continue there. Anyone typing in a field keeps focus.
   const revealed = round?.status === 'revealed'
   useEffect(() => {
     if (revealed && (!document.activeElement || document.activeElement === document.body)) {
@@ -62,10 +61,10 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
   const myVote = round?.votes.find((vote) => vote.userId === state.me.userId)?.card ?? null
 
   /**
-   * Führt eine Aktion aus und übernimmt erst deren bestätigten Zustand.
+   * Runs an action and only adopts its confirmed state.
    *
-   * Bei unklarer Antwort (Verbindungsabbruch) wird die Aktion nie blind wiederholt. Stattdessen
-   * wird der Stand geladen; `wasApplied` entscheidet, ob die Aktion dort bereits sichtbar ist.
+   * On an unclear response (connection dropped) the action is never repeated blindly. Instead
+   * the state is loaded; `wasApplied` decides whether the action is already visible there.
    */
   const run = async (
     scope: Scope,
@@ -74,7 +73,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
   ): Promise<boolean> => {
     if (busy) return false
     if (offline) {
-      setErrors({ [scope]: 'Keine Verbindung. Sobald sie wieder besteht, kannst du weitermachen.' })
+      setErrors({ [scope]: 'No connection. As soon as it is back, you can continue.' })
       return false
     }
     setBusyScope(scope)
@@ -90,17 +89,17 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
           onState(fresh)
           if (wasApplied?.(fresh)) return true
           message =
-            'Die Verbindung wurde unterbrochen. Der aktuelle Stand wurde geladen; deine Aktion ist nicht angekommen. Versuche es erneut.'
+            'The connection was interrupted. The current state has been loaded; your action did not arrive. Try again.'
         } catch {
           message =
-            'Keine Verbindung zu Supabase. Deine Aktion ist möglicherweise nicht angekommen. Prüfe den Stand, sobald die Verbindung wieder besteht.'
+            'No connection to Supabase. Your action may not have arrived. Check the state as soon as the connection is back.'
         }
       } else if (isStaleRound(caught)) {
         try {
           onState(await getRoomState(client, state.roomId))
-          message += ' Die Ansicht wurde aktualisiert.'
+          message += ' The view has been updated.'
         } catch {
-          // Aktualisierung fehlgeschlagen: die ursprüngliche Meldung genügt.
+          // Refresh failed: the original message is enough.
         }
       }
       setErrors({ [scope]: message })
@@ -110,7 +109,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
     }
   }
 
-  /** Startet eine neue Runde mit dem Titel; bei Erfolg ist die Rückfrage erledigt. */
+  /** Starts a new round with the title; on success the confirmation is done. */
   const startWith = async (newTitle: string): Promise<boolean> => {
     const started = await run(
       'start',
@@ -131,14 +130,14 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
     event.preventDefault()
     const trimmed = title.trim()
     if (trimmed === '') {
-      setErrors({ start: 'Bitte gib einen Titel für die Schätzung ein.' })
+      setErrors({ start: 'Please enter a title for the estimate.' })
       return
     }
     if ([...trimmed].length > MAX_TITLE_LENGTH) {
-      setErrors({ start: `Der Titel darf höchstens ${MAX_TITLE_LENGTH} Zeichen lang sein.` })
+      setErrors({ start: `The title may be at most ${MAX_TITLE_LENGTH} characters long.` })
       return
     }
-    // Eine laufende Abstimmung mit Stimmen wird nur nach ausdrücklicher Bestätigung ersetzt.
+    // A running vote with votes is only replaced after explicit confirmation.
     if (round?.status === 'open' && round.votes.length > 0 && !confirmReplace) {
       setErrors({})
       setConfirmFor(round.roundId)
@@ -176,7 +175,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
   const startForm = (
     <form onSubmit={onStart} noValidate>
       <div className="field">
-        <label htmlFor="round-title-input">Titel der Schätzung</label>
+        <label htmlFor="round-title-input">Title of the estimate</label>
         <input
           id="round-title-input"
           type="text"
@@ -186,7 +185,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
             setConfirmFor(null)
           }}
           maxLength={MAX_TITLE_LENGTH}
-          placeholder="z. B. STORY-123 Login-Seite"
+          placeholder="e.g. STORY-123 Login page"
           readOnly={busy}
           aria-invalid={errors.start ? true : undefined}
           aria-describedby={errors.start ? 'start-error' : undefined}
@@ -200,19 +199,19 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
       {confirmReplace && (
         <div className="confirm" role="alert">
           <p>
-            <strong>Laufende Abstimmung ersetzen?</strong> Die bisherigen Stimmen werden
-            entfernt.
+            <strong>Replace the running vote?</strong> The votes cast so far will be
+            removed.
           </p>
           <div className="row">
             <button type="submit" disabled={offline} aria-disabled={busy || undefined}>
-              {busyScope === 'start' ? 'Wird gespeichert …' : 'Ja, ersetzen'}
+              {busyScope === 'start' ? 'Saving …' : 'Yes, replace'}
             </button>
             <button
               type="button"
               className="secondary"
               onClick={() => setConfirmFor(null)}
             >
-              Abbrechen
+              Cancel
             </button>
           </div>
         </div>
@@ -225,12 +224,12 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
           aria-disabled={busy || undefined}
         >
           {busyScope === 'start'
-          ? 'Wird gespeichert …'
+          ? 'Saving …'
           : !round
-            ? 'Runde starten'
+            ? 'Start round'
             : isOpen
-              ? 'Neue Runde starten'
-              : 'Nächste Story starten'}
+              ? 'Start new round'
+              : 'Start next story'}
         </button>
       )}
     </form>
@@ -240,7 +239,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
     <>
       {round && (
         <section className="card" aria-labelledby="round-title">
-          <p className="hint">{round.status === 'open' ? 'Abstimmung läuft' : 'Aufgedeckt'}</p>
+          <p className="hint">{round.status === 'open' ? 'Voting in progress' : 'Revealed'}</p>
           <h2 id="round-title" className="round-title" ref={heading} tabIndex={-1}>
             {round.title}
           </h2>
@@ -250,10 +249,10 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
               <CardDeck selected={myVote} busy={busy} disabled={offline} onSelect={onVote} />
               <p role="status">
                 {busyScope === 'vote' && pendingCard !== null
-                  ? `Speichere deine Schätzung: ${cardDescription(pendingCard)} …`
+                  ? `Saving your estimate: ${cardDescription(pendingCard)} …`
                   : myVote === null
-                    ? 'Du hast noch nicht abgestimmt.'
-                    : `Deine Schätzung: ${cardDescription(myVote)} · gespeichert`}
+                    ? 'You have not voted yet.'
+                    : `Your estimate: ${cardDescription(myVote)} · saved`}
               </p>
               {errors.vote && (
                 <p className="error" role="alert">
@@ -261,8 +260,8 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
                 </p>
               )}
               <p className="hint">
-                {myVote !== null && 'Du kannst sie bis zum Aufdecken ändern. '}
-                Abgegebene Stimmen: <strong>{round.votes.length}</strong>
+                {myVote !== null && 'You can change it until the reveal. '}
+                Votes cast: <strong>{round.votes.length}</strong>
               </p>
               <button
                 type="button"
@@ -270,7 +269,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
                 disabled={offline}
                 aria-disabled={busy || undefined}
               >
-                {busyScope === 'reveal' ? 'Wird aufgedeckt …' : 'Karten aufdecken'}
+                {busyScope === 'reveal' ? 'Revealing …' : 'Reveal cards'}
               </button>
               {errors.reveal && (
                 <p className="error" role="alert">
@@ -286,12 +285,12 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
 
       {isOpen ? (
         <details className="card room-details">
-          <summary>Stattdessen eine andere Story schätzen</summary>
+          <summary>Estimate a different story instead</summary>
           {startForm}
         </details>
       ) : (
         <section className="card" aria-labelledby="start-title">
-          <h2 id="start-title">{round ? 'Nächste Story' : 'Erste Runde starten'}</h2>
+          <h2 id="start-title">{round ? 'Next story' : 'Start the first round'}</h2>
           {startForm}
           {round && (
             <p>
@@ -302,7 +301,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
                 disabled={offline}
                 aria-disabled={busy || undefined}
               >
-                {busyScope === 'start' ? 'Wird gespeichert …' : 'Noch einmal schätzen'}
+                {busyScope === 'start' ? 'Saving …' : 'Estimate again'}
               </button>
             </p>
           )}

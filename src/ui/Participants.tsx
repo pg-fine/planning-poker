@@ -2,7 +2,7 @@ import type { RoomState } from '../supabase/roomState.ts'
 
 type Props = {
   state: RoomState
-  /** Wer gerade online ist; `null`, wenn das nicht bekannt ist (keine Live-Verbindung). */
+  /** Who is currently online; `null` if unknown (no live connection). */
   onlineIds: ReadonlySet<string> | null
 }
 
@@ -16,11 +16,12 @@ function initials(name: string): string {
 }
 
 /**
- * Teilnehmende und ihr Stimmstatus, ohne Kartenwerte zu verraten.
+ * Participants and their voting status, without revealing card values.
  *
- * „Teilnehmende“ sind die Mitglieder, die gerade im Raum online sind (plus man selbst). Frühere
- * Mitglieder fließen nicht in „x von y abgestimmt“ ein. Wer offline schon abgestimmt hat, bleibt
- * unter „Nicht online“ mit Haken sichtbar. Online-Sein sagt nicht, ob jemand mitschätzt oder nur zusieht.
+ * "Participants" are the members who are currently online in the room (plus oneself). Former
+ * members do not count towards "x of y voted". Anyone who voted and then went offline stays
+ * visible with a check mark under "Not online". Being online does not say whether someone is
+ * estimating or just watching.
  */
 export function Participants({ state, onlineIds }: Props) {
   const { members, me, round } = state
@@ -42,11 +43,11 @@ export function Participants({ state, onlineIds }: Props) {
         </span>
         <span className="participant__name">
           {member.displayName}
-          {member.userId === me.userId ? ' (du)' : ''}
+          {member.userId === me.userId ? ' (you)' : ''}
         </span>
         {round && (isOpen || hasVoted) && (
           <span className="participant__status">
-            {hasVoted ? '✓ abgestimmt' : showMissing && isOpen ? 'noch keine Stimme' : ''}
+            {hasVoted ? '✓ voted' : showMissing && isOpen ? 'no vote yet' : ''}
           </span>
         )}
       </li>
@@ -56,27 +57,27 @@ export function Participants({ state, onlineIds }: Props) {
   return (
     <aside className="card room-layout__side" aria-labelledby="members-title">
       <h2 id="members-title">
-        {known ? 'Online' : 'Mitglieder'} ({online.length})
+        {known ? 'Online' : 'Members'} ({online.length})
       </h2>
       {isOpen && known && (
         <p className="participants-summary" role="status">
           <strong>
-            {votedOnline} von {online.length}
+            {votedOnline} of {online.length}
           </strong>{' '}
-          abgestimmt
+          voted
         </p>
       )}
       <ul className="participant-list">{online.map((member) => row(member, true))}</ul>
       {others.length > 0 && (
         <details className="participants-others">
-          <summary>Nicht online ({others.length})</summary>
+          <summary>Not online ({others.length})</summary>
           <ul className="participant-list">{others.map((member) => row(member, false))}</ul>
         </details>
       )}
       <p className="hint">
         {known
-          ? 'Online sind alle, die den Raum gerade geöffnet haben, auch wer nur zusieht. Die Kartenwerte bleiben bis zum Aufdecken verborgen.'
-          : 'Alle, die diesem Raum beigetreten sind. Ohne Live-Verbindung ist nicht bekannt, wer gerade online ist.'}
+          ? 'Online means everyone who currently has the room open, including those just watching. Card values stay hidden until the reveal.'
+          : 'Everyone who has joined this room. Without a live connection it is unknown who is online.'}
       </p>
     </aside>
   )

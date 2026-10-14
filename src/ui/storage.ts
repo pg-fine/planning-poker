@@ -1,8 +1,8 @@
 /**
- * Merkt sich im Browser den zuletzt verwendeten Namen und die Räume, denen dieser Browser
- * beigetreten ist (Einladungstoken → Raum-ID). Beides sind keine Geheimnisse über das hinaus,
- * was in der Adresszeile steht. Der Speicher kann fehlen oder blockiert sein (Privatmodus);
- * dann funktioniert die App weiter, merkt sich aber nichts.
+ * Remembers in the browser the most recently used name and the rooms this browser has joined
+ * (invitation token → room ID). Neither is a secret beyond what is in the address bar. The
+ * storage may be missing or blocked (private mode); the app then keeps working but remembers
+ * nothing.
  */
 const NAME_KEY = 'planning-poker:display-name'
 const ROOMS_KEY = 'planning-poker:rooms'
@@ -21,7 +21,7 @@ function write(key: string, value: string): void {
   try {
     window.localStorage.setItem(key, value)
   } catch {
-    // Speicher voll oder gesperrt: ignorieren.
+    // Storage full or blocked: ignore.
   }
 }
 
@@ -66,12 +66,12 @@ export function forgetRoom(token: string): void {
   write(ROOMS_KEY, JSON.stringify(rooms))
 }
 
-/** Ein zuletzt verwendeter Raum: nur Einladungstoken, letzter Besuch und der eigene Name dort. */
+/** A recently used room: only the invitation token, last visit and the own name there. */
 export type RecentRoom = {
   token: string
   lastUsed: number
   displayName: string
-  /** Raumname, falls der Raum einen hat; sonst leer. */
+  /** Room name if the room has one; otherwise empty. */
   roomName: string
 }
 
@@ -105,8 +105,8 @@ export function loadRecentRooms(): RecentRoom[] {
 }
 
 /**
- * Markiert den Raum als gerade verwendet. Nicht angegebene Werte (`undefined`) bleiben erhalten;
- * `roomName: null` löscht einen gemerkten Raumnamen.
+ * Marks the room as just used. Values that are not given (`undefined`) are kept;
+ * `roomName: null` deletes a remembered room name.
  */
 export function touchRecentRoom(
   token: string,

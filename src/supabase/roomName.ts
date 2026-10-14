@@ -2,7 +2,7 @@ import type { AppSupabaseClient } from './client.ts'
 import { parseRoomState, type RoomState } from './roomState.ts'
 import { toRoomError } from './rooms.ts'
 
-/** Ändert den Raumnamen (`null` entfernt ihn). Nur für Mitglieder; liefert den neuen Zustand. */
+/** Changes the room name (`null` removes it). Members only; returns the new state. */
 export async function setRoomName(
   client: AppSupabaseClient,
   roomId: string,

@@ -7,12 +7,12 @@ type Props = {
 export function SetupNotice({ result }: Props) {
   return (
     <section className="card card--notice" aria-labelledby="setup-title">
-      <h2 id="setup-title">Einrichtung erforderlich</h2>
+      <h2 id="setup-title">Setup required</h2>
 
       {result.status === 'missing' ? (
         <p>
-          Die App ist noch nicht mit einem Supabase-Projekt verbunden. Es
-          fehlen folgende Einstellungen:{' '}
+          The app is not connected to a Supabase project yet. The following
+          settings are missing:{' '}
           {result.missing.map((name, index) => (
             <span key={name}>
               {index > 0 ? ', ' : ''}
@@ -22,23 +22,23 @@ export function SetupNotice({ result }: Props) {
           .
         </p>
       ) : (
-        <p>Die Supabase-Konfiguration ist fehlerhaft: {result.reason}</p>
+        <p>The Supabase configuration is invalid: {result.reason}</p>
       )}
 
       <ol>
         <li>
-          Kopiere <code>.env.example</code> nach <code>.env.local</code>.
+          Copy <code>.env.example</code> to <code>.env.local</code>.
         </li>
         <li>
-          Trage dort die Projekt-URL und den öffentlichen Publishable-/Anon-Key
-          deines Supabase-Projekts ein.
+          Enter the project URL and the public publishable/anon key of your
+          Supabase project there.
         </li>
         <li>
-          Starte den Entwicklungsserver mit <code>npm run dev</code> neu.
+          Restart the development server with <code>npm run dev</code>.
         </li>
       </ol>
       <p className="hint">
-        Verwende niemals einen Service-Role- oder Secret-Key im Frontend.
+        Never use a service role or secret key in the frontend.
       </p>
     </section>
   )

@@ -4,11 +4,11 @@ export type Distribution = { card: CardValue; count: number }
 
 export type VoteSummary = {
   total: number
-  /** Gezählte Karten in der Reihenfolge des Kartensatzes. */
+  /** Counted cards in the order of the card set. */
   distribution: Distribution[]
-  /** Mittelwert nur über Zahlenkarten; `null`, wenn es keine gibt. Sonderkarten zählen nicht. */
+  /** Average over number cards only; `null` if there are none. Special cards do not count. */
   average: number | null
-  /** Mindestens zwei Stimmen und alle gleich. */
+  /** At least two votes, all identical. */
   unanimous: boolean
 }
 
@@ -36,19 +36,18 @@ export function summarizeVotes(votes: readonly { card: CardValue }[]): VoteSumma
 }
 
 /**
- * Aussage zur Übereinstimmung der Stimmen oder `null`, wenn sie nicht einheitlich sind (oder es
- * nur eine Stimme gibt). Gleiche Sonderkarten sind keine Einigkeit über den Aufwand und werden
- * deshalb gesondert benannt.
+ * Statement about whether the votes agree, or `null` if they differ (or there is only one vote).
+ * Identical special cards are not agreement on the effort and are therefore named separately.
  */
 export function describeAgreement(summary: VoteSummary): string | null {
   if (!summary.unanimous) return null
   const card = summary.distribution[0]!.card
-  if (card === '?') return 'Alle abgegebenen Stimmen: noch unklar.'
-  if (card === 'coffee') return 'Alle abgegebenen Stimmen: Kaffeepause.'
-  return `Alle abgegebenen Schätzungen liegen bei ${card}.`
+  if (card === '?') return 'All votes cast: still unclear.'
+  if (card === 'coffee') return 'All votes cast: coffee break.'
+  return `All estimates cast are at ${card}.`
 }
 
-/** Sortierwert einer Karte im Kartensatz (für stabile Anzeigereihenfolge). */
+/** Sort value of a card in the card set (for a stable display order). */
 export function cardOrder(card: CardValue): number {
   return CARDS.findIndex((entry) => entry.value === card)
 }

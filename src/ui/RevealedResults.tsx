@@ -8,22 +8,22 @@ function isSpecial(card: CardValue): boolean {
   return card === '?' || card === 'coffee'
 }
 
-const numberFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 })
+const numberFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
-/** Ergebnis nach dem Aufdecken: wer hat was gewählt, Verteilung und Mittelwert der Zahlenkarten. */
+/** Result after the reveal: who chose what, distribution and average of the number cards. */
 export function RevealedResults({ votes, members }: Props) {
   if (votes.length === 0) {
-    return <p>Niemand hat abgestimmt.</p>
+    return <p>Nobody voted.</p>
   }
 
   const names = new Map(members.map((member) => [member.userId, member.displayName]))
   const rows = votes
     .map((vote) => ({
       userId: vote.userId,
-      name: names.get(vote.userId) ?? vote.displayName ?? 'Unbekannt',
+      name: names.get(vote.userId) ?? vote.displayName ?? 'Unknown',
       card: vote.card,
     }))
-    .sort((a, b) => cardOrder(a.card) - cardOrder(b.card) || a.name.localeCompare(b.name, 'de'))
+    .sort((a, b) => cardOrder(a.card) - cardOrder(b.card) || a.name.localeCompare(b.name, 'en'))
   const summary = summarizeVotes(votes)
 
   const agreement = describeAgreement(summary)
@@ -37,7 +37,7 @@ export function RevealedResults({ votes, members }: Props) {
         </p>
       )}
 
-      <h3 className="results-heading">Verteilung</h3>
+      <h3 className="results-heading">Distribution</h3>
       <ul className="distribution">
         {summary.distribution.map((entry) => (
           <li key={entry.card}>
@@ -49,13 +49,13 @@ export function RevealedResults({ votes, members }: Props) {
               />
             </span>
             <span className="distribution__count">
-              {entry.count} {entry.count === 1 ? 'Stimme' : 'Stimmen'}
+              {entry.count} {entry.count === 1 ? 'vote' : 'votes'}
             </span>
           </li>
         ))}
       </ul>
 
-      <h3 className="results-heading">Wer hat was gewählt?</h3>
+      <h3 className="results-heading">Who chose what?</h3>
       <ul className="result-list">
         {rows.map((row) => (
           <li key={row.userId}>
@@ -67,8 +67,8 @@ export function RevealedResults({ votes, members }: Props) {
 
       {summary.average !== null && (
         <p className="hint">
-          Rechnerischer Mittelwert der Zahlenkarten: {numberFormat.format(summary.average)}. Er ist
-          nur ein Anhaltspunkt; wichtiger ist die Diskussion über die Unterschiede.
+          Calculated average of the number cards: {numberFormat.format(summary.average)}. It is
+          only a rough guide; the discussion about the differences matters more.
         </p>
       )}
     </div>

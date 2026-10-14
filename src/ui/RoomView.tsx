@@ -15,9 +15,9 @@ type Props = {
   client: AppSupabaseClient
   roomId: string
   token: string
-  /** Die Person ist (nicht mehr) Mitglied dieses Raums. */
+  /** The person is (no longer) a member of this room. */
   onNotMember: () => void
-  /** Die Person hat den Raum bewusst verlassen. */
+  /** The person has deliberately left the room. */
   onLeft: () => void
 }
 
@@ -36,7 +36,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   const [confirmLeave, setConfirmLeave] = useState(false)
   const [leaveError, setLeaveError] = useState<string | null>(null)
 
-  // Mitgliedschaft fehlt, z. B. nach neuer Browser-Identität: zurück zum Beitrittsformular.
+  // Membership is missing, e.g. after a new browser identity: back to the join form.
   const notMember =
     result.status === 'error' &&
     result.error instanceof RoomError &&
@@ -45,12 +45,12 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
     if (notMember) onNotMember()
   }, [notMember, onNotMember])
 
-  // Beim ersten Anzeigen des Raums den Fokus an den Anfang setzen (der Beitritts-Knopf ist weg).
+  // When the room is first shown, move focus to the start (the join button is gone).
   useEffect(() => {
     if (isReady) top.current?.focus({ preventScroll: true })
   }, [isReady])
 
-  // Raumnamen in der Liste „Zuletzt verwendete Räume“ aktuell halten.
+  // Keep the room name in the "Recently used rooms" list up to date.
   const roomName = result.status === 'ready' ? result.state.name : undefined
   useEffect(() => {
     if (roomName !== undefined) touchRecentRoom(token, undefined, roomName)
@@ -61,7 +61,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   if (result.status === 'loading') {
     return (
       <section className="card" aria-live="polite">
-        <p>Raum wird geladen …</p>
+        <p>Loading room …</p>
       </section>
     )
   }
@@ -69,10 +69,10 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   if (result.status === 'error') {
     return (
       <section className="card card--notice" role="alert">
-        <h2>Der Raum konnte nicht geladen werden.</h2>
+        <h2>The room could not be loaded.</h2>
         <p>{describeRoomError(result.error)}</p>
         <button type="button" onClick={reload}>
-          Erneut versuchen
+          Try again
         </button>
       </section>
     )
@@ -83,12 +83,12 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(link)
-      setCopyMessage('Link kopiert.')
+      setCopyMessage('Link copied.')
     } catch {
-      // Zwischenablage gesperrt: Link sichtbar machen und markieren, damit er von Hand kopiert werden kann.
+      // Clipboard blocked: make the link visible and select it so it can be copied by hand.
       if (details.current) details.current.open = true
       linkField.current?.select()
-      setCopyMessage('Kopieren nicht möglich. Der Link ist markiert, kopiere ihn mit Strg+C.')
+      setCopyMessage('Copying is not possible. The link is selected, copy it with Ctrl+C.')
     }
   }
 
@@ -110,16 +110,16 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
     connection === 'live'
       ? '● Live'
       : connection === 'connecting'
-        ? '○ Verbindung wird hergestellt …'
-        : '▲ Keine Live-Verbindung'
+        ? '○ Connecting …'
+        : '▲ No live connection'
 
   return (
     <div ref={top} tabIndex={-1} className="focus-target">
       {state.name && <h2 className="room-name">{state.name}</h2>}
       <div className="room-bar">
         <p className="room-bar__who">
-          Du bist als <strong>{state.me.displayName}</strong> dabei ·{' '}
-          <Link to="/">Zur Startseite</Link>
+          You are taking part as <strong>{state.me.displayName}</strong> ·{' '}
+          <Link to="/">Back to home</Link>
         </p>
         <p
           className={`room-bar__status${connection === 'live' ? '' : ' room-bar__status--warn'}`}
@@ -128,7 +128,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
           {statusText}
         </p>
         <button type="button" onClick={copyLink}>
-          Einladen
+          Invite
         </button>
       </div>
       {copyMessage && (
@@ -139,8 +139,8 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
       {connection === 'offline' && (
         <p className="card card--notice" role="status">
           {browserOnline
-            ? 'Keine Live-Verbindung. Der Stand wird alle paar Sekunden abgefragt, Änderungen erscheinen mit kurzer Verzögerung.'
-            : 'Keine Verbindung. Aktionen sind pausiert; deine gespeicherte Stimme bleibt erhalten. Sobald die Verbindung zurück ist, wird der Stand automatisch aktualisiert.'}
+            ? 'No live connection. The state is polled every few seconds; changes appear with a short delay.'
+            : 'No connection. Actions are paused; your saved vote is kept. As soon as the connection is back, the state is updated automatically.'}
         </p>
       )}
 
@@ -158,16 +158,16 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
       </div>
 
       <details className="card room-details" ref={details}>
-        <summary>Raum und Hilfe</summary>
+        <summary>Room and help</summary>
         <div className="field">
-          <label htmlFor="invite-link">Einladungslink</label>
+          <label htmlFor="invite-link">Invitation link</label>
           <div className="row">
             <input id="invite-link" ref={linkField} type="text" readOnly value={link} />
             <button type="button" onClick={copyLink}>
-              Link kopieren
+              Copy link
             </button>
           </div>
-          <p className="hint">Teile diesen Link im Teams-Chat. Er bleibt dauerhaft gültig.</p>
+          <p className="hint">Share this link in the Teams chat. It stays valid permanently.</p>
         </div>
         <RoomNameChange
           client={client}
@@ -185,12 +185,12 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
             void getRoomState(client, roomId).then(applyState, () => {})
           }}
         />
-        <h3 className="results-heading">Teilnahme entfernen</h3>
+        <h3 className="results-heading">Remove participation</h3>
         <p className="hint">
-          „Zur Startseite“ verlässt nur diese Ansicht; deine Teilnahme und deine Stimme bleiben
-          erhalten. „Teilnahme entfernen“ löscht dich aus der Mitgliederliste. Deine Stimme wird in einer
-          offenen Runde entfernt; in einem bereits aufgedeckten Ergebnis bleibt sie samt Namen bis
-          zur nächsten Runde stehen. Mit dem Link kannst du jederzeit erneut beitreten.
+          "Back to home" only leaves this view; your participation and your vote are kept.
+          "Remove participation" deletes you from the member list. Your vote is removed in an
+          open round; in an already revealed result it stays, together with your name, until the
+          next round. You can join again at any time with the link.
         </p>
         {leaveError && (
           <p className="error" role="alert">
@@ -200,21 +200,21 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
         {confirmLeave ? (
           <div className="confirm" role="alert">
             <p>
-              <strong>Teilnahme wirklich entfernen?</strong> Eine Stimme in der offenen Runde wird
-              gelöscht.
+              <strong>Really remove your participation?</strong> A vote in the open round will be
+              deleted.
             </p>
             <div className="row">
               <button type="button" onClick={leave} aria-disabled={leaving || undefined}>
-                {leaving ? 'Wird entfernt …' : 'Ja, entfernen'}
+                {leaving ? 'Removing …' : 'Yes, remove'}
               </button>
               <button type="button" className="secondary" onClick={() => setConfirmLeave(false)}>
-                Abbrechen
+                Cancel
               </button>
             </div>
           </div>
         ) : (
           <button type="button" className="secondary" onClick={() => setConfirmLeave(true)}>
-            Teilnahme entfernen
+            Remove participation
           </button>
         )}
       </details>

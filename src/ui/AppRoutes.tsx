@@ -14,14 +14,14 @@ export function AppRoutes({ client }: { client: AppSupabaseClient }) {
       return <RoomPage key={route.token} client={client} token={route.token} />
     case 'invalid-link':
       return (
-        <NoticePage title="Dieser Einladungslink ist ungültig.">
-          Prüfe, ob der Link vollständig kopiert wurde, oder bitte um einen neuen Link.
+        <NoticePage title="This invitation link is invalid.">
+          Check that the link was copied completely, or ask for a new link.
         </NoticePage>
       )
     case 'not-found':
       return (
-        <NoticePage title="Seite nicht gefunden.">
-          Diese Adresse gibt es nicht.
+        <NoticePage title="Page not found.">
+          This address does not exist.
         </NoticePage>
       )
   }

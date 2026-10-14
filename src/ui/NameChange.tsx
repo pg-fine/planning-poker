@@ -9,14 +9,14 @@ type Props = {
   client: AppSupabaseClient
   token: string
   currentName: string
-  /** Nach erfolgreicher Änderung: Raumstand neu laden. */
+  /** After a successful change: reload the room state. */
   onChanged: () => void
   offline: boolean
 }
 
 /**
- * Anzeigenamen ändern. Dafür genügt erneutes Beitreten mit demselben Token: Die Mitgliedschaft
- * bleibt bestehen, nur der Name wird aktualisiert (siehe `join_room`).
+ * Change the display name. Joining again with the same token is enough: the membership stays,
+ * only the name is updated (see `join_room`).
  */
 export function NameChange({ client, token, currentName, onChanged, offline }: Props) {
   const [name, setName] = useState(currentName)
@@ -32,11 +32,11 @@ export function NameChange({ client, token, currentName, onChanged, offline }: P
       return
     }
     if (check.name === currentName) {
-      setMessage({ text: 'Das ist bereits dein Name.', error: false })
+      setMessage({ text: 'That is already your name.', error: false })
       return
     }
     if (offline) {
-      setMessage({ text: 'Keine Verbindung. Versuche es erneut, sobald sie besteht.', error: true })
+      setMessage({ text: 'No connection. Try again once it is back.', error: true })
       return
     }
     setBusy(true)
@@ -46,7 +46,7 @@ export function NameChange({ client, token, currentName, onChanged, offline }: P
       saveDisplayName(check.name)
       touchRecentRoom(token, check.name)
       setName(check.name)
-      setMessage({ text: 'Name geändert.', error: false })
+      setMessage({ text: 'Name changed.', error: false })
       onChanged()
     } catch (caught) {
       setMessage({ text: describeRoomError(caught), error: true })
@@ -59,7 +59,7 @@ export function NameChange({ client, token, currentName, onChanged, offline }: P
     <form onSubmit={onSubmit} noValidate>
       <NameField value={name} onChange={setName} readOnly={busy} />
       <button type="submit" className="secondary" aria-disabled={busy || undefined}>
-        {busy ? 'Wird gespeichert …' : 'Name ändern'}
+        {busy ? 'Saving …' : 'Change name'}
       </button>
       {message && (
         <p className={message.error ? 'error' : 'hint'} role={message.error ? 'alert' : 'status'}>

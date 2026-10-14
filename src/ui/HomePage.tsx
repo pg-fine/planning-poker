@@ -15,10 +15,10 @@ import {
   touchRecentRoom,
 } from './storage.ts'
 
-const dateTime = new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' })
+const dateTime = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' })
 
 function recentLabel(room: RecentRoom): string {
-  return room.roomName || `Raum …${room.token.slice(-6)}`
+  return room.roomName || `Room …${room.token.slice(-6)}`
 }
 
 export function HomePage({ client }: { client: AppSupabaseClient }) {
@@ -64,50 +64,50 @@ export function HomePage({ client }: { client: AppSupabaseClient }) {
     <>
       {recent.length > 0 && (
         <section className="card" aria-labelledby="recent-title">
-          <h2 id="recent-title">Zuletzt verwendete Räume</h2>
+          <h2 id="recent-title">Recently used rooms</h2>
           <ul className="recent-list">
             {recent.map((room) => (
               <li key={room.token}>
                 <Link to={roomPath(room.token)}>{recentLabel(room)}</Link>
                 <span className="hint">
                   {' '}
-                  · zuletzt geöffnet {dateTime.format(room.lastUsed)}
-                  {room.displayName && `, als ${room.displayName}`}
+                  · last opened {dateTime.format(room.lastUsed)}
+                  {room.displayName && `, as ${room.displayName}`}
                 </span>
                 <button
                   type="button"
                   className="secondary"
                   onClick={() => forget(room.token)}
-                  aria-label={`${recentLabel(room)} aus der Liste entfernen`}
+                  aria-label={`Remove ${recentLabel(room)} from the list`}
                 >
-                  Entfernen
+                  Remove
                 </button>
               </li>
             ))}
           </ul>
           <p className="hint">
-            Die Liste steht nur in diesem Browser. „Entfernen“ löscht den Eintrag hier, nicht den Raum.
+            The list is only stored in this browser. "Remove" deletes the entry here, not the room.
           </p>
         </section>
       )}
 
       <section className="card" aria-labelledby="home-title">
-        <h2 id="home-title">Neuen Raum erstellen</h2>
+        <h2 id="home-title">Create a new room</h2>
         <p>
-          Du erhältst einen Link, den du im Teams-Chat teilen kannst. Wer ihn öffnet, gibt
-          einen Namen ein und schätzt mit. Der Link bleibt dauerhaft gültig.
+          You get a link you can share in the Teams chat. Whoever opens it enters a
+          name and estimates along. The link stays valid permanently.
         </p>
         <form onSubmit={onSubmit} noValidate>
           <NameField value={name} onChange={setName} readOnly={busy} />
           <div className="field">
-            <label htmlFor="room-name-input">Raumname (optional)</label>
+            <label htmlFor="room-name-input">Room name (optional)</label>
             <input
               id="room-name-input"
               type="text"
               value={roomName}
               onChange={(event) => setRoomName(event.target.value)}
               maxLength={MAX_ROOM_NAME_LENGTH}
-              placeholder="z. B. Team Atlas – Refinement"
+              placeholder="e.g. Team Atlas – Refinement"
               readOnly={busy}
             />
           </div>
@@ -117,11 +117,11 @@ export function HomePage({ client }: { client: AppSupabaseClient }) {
             </p>
           )}
           <button type="submit" aria-disabled={busy || undefined}>
-            {busy ? 'Raum wird erstellt …' : 'Raum erstellen'}
+            {busy ? 'Creating room …' : 'Create room'}
           </button>
         </form>
         <p className="hint">
-          Hast du einen Einladungslink? Öffne ihn einfach in diesem Browser.
+          Have an invitation link? Just open it in this browser.
         </p>
       </section>
     </>

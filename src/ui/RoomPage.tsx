@@ -18,9 +18,9 @@ import {
 type Props = { client: AppSupabaseClient; token: string }
 
 /**
- * Raum-Link: Ist dieser Browser dem Raum schon beigetreten, wird er direkt geöffnet,
- * sonst erscheint das Beitrittsformular. Mit `key={token}` einsetzen, damit der Zustand
- * beim Wechsel zu einem anderen Link neu beginnt.
+ * Room link: if this browser has already joined the room, it opens directly; otherwise the
+ * join form appears. Use with `key={token}` so the state starts fresh when switching to
+ * another link.
  */
 export function RoomPage({ client, token }: Props) {
   const [roomId, setRoomId] = useState<string | null>(() => loadKnownRoom(token))
@@ -29,7 +29,7 @@ export function RoomPage({ client, token }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [invalidToken, setInvalidToken] = useState(false)
 
-  // Bereits bekannter Raum: in der Liste der zuletzt verwendeten Räume nach vorn holen.
+  // Already known room: move it to the front of the recently used rooms list.
   const known = roomId !== null
   useEffect(() => {
     if (known) touchRecentRoom(token)
@@ -37,8 +37,8 @@ export function RoomPage({ client, token }: Props) {
 
   if (invalidToken) {
     return (
-      <NoticePage title="Dieser Einladungslink ist ungültig.">
-        Prüfe, ob der Link vollständig kopiert wurde, oder bitte um einen neuen Link.
+      <NoticePage title="This invitation link is invalid.">
+        Check that the link was copied completely, or ask for a new link.
       </NoticePage>
     )
   }
@@ -89,8 +89,8 @@ export function RoomPage({ client, token }: Props) {
 
   return (
     <section className="card" aria-labelledby="join-title">
-      <h2 id="join-title">Raum beitreten</h2>
-      <p>Du wurdest zu einer Schätzrunde eingeladen. Gib deinen Namen ein, um mitzumachen.</p>
+      <h2 id="join-title">Join room</h2>
+      <p>You have been invited to an estimation round. Enter your name to take part.</p>
       <form onSubmit={onSubmit} noValidate>
         <NameField value={name} onChange={setName} readOnly={busy} />
         {error && (
@@ -99,7 +99,7 @@ export function RoomPage({ client, token }: Props) {
           </p>
         )}
         <button type="submit" aria-disabled={busy || undefined}>
-          {busy ? 'Du trittst bei …' : 'Beitreten'}
+          {busy ? 'Joining …' : 'Join'}
         </button>
       </form>
     </section>

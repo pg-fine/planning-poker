@@ -8,7 +8,7 @@ export type RoomStateResult =
   | { status: 'ready'; state: RoomState }
   | { status: 'error'; error: unknown }
 
-/** Zustand des Echtzeit-Kanals dieses Raums. */
+/** State of this room's realtime channel. */
 export type Connection = 'connecting' | 'live' | 'offline'
 
 function subscribeOnline(onChange: () => void): () => void {
@@ -20,13 +20,13 @@ function subscribeOnline(onChange: () => void): () => void {
   }
 }
 
-/** Meldung des Browsers, ob eine Netzwerkverbindung besteht (kann „online“ fälschlich melden). */
+/** The browser's report of whether a network connection exists (may wrongly report "online"). */
 function useBrowserOnline(): boolean {
   return useSyncExternalStore(subscribeOnline, () => navigator.onLine)
 }
 
 const POLL_INTERVAL_MS = 5000
-/** Mit Live-Kanal wird nur jeden 6. Takt (also alle 30 Sekunden) abgeglichen. */
+/** With a live channel, only every 6th tick (i.e. every 30 seconds) is reconciled. */
 const LIVE_RECONCILE_TICKS = 6
 
 function isNotMember(error: unknown): boolean {
@@ -34,20 +34,20 @@ function isNotMember(error: unknown): boolean {
 }
 
 /**
- * Lädt den Raumzustand und hält ihn live aktuell.
+ * Loads the room state and keeps it up to date live.
  *
- * Die Datenbank ist maßgeblich: Echtzeit-Ereignisse und eigene Aktionen lösen nur aus, dass
- * der Snapshot geladen oder übernommen wird. Ein Zustand mit älterer Revision als der aktuelle
- * wird verworfen, damit verspätete Antworten neuere Daten nicht überschreiben.
+ * The database is authoritative: realtime events and own actions only trigger loading or
+ * adopting the snapshot. A state with an older revision than the current one is discarded so
+ * that late responses do not overwrite newer data.
  */
 export function useRoomState(client: AppSupabaseClient, roomId: string) {
   const [attempt, setAttempt] = useState(0)
   const [result, setResult] = useState<RoomStateResult>({ status: 'loading' })
   const [channelState, setChannelState] = useState<Connection>('connecting')
-  // Wer gerade im Raum online ist (Presence); `null`, solange unbekannt (kein Live-Kanal).
+  // Who is currently online in the room (presence); `null` while unknown (no live channel).
   const [onlineIds, setOnlineIds] = useState<ReadonlySet<string> | null>(null)
   const browserOnline = useBrowserOnline()
-  // Ohne Netzwerk ist die Verbindung sofort „offline“, auch wenn der Kanal es noch nicht bemerkt hat.
+  // Without a network the connection is immediately "offline", even if the channel has not noticed yet.
   const connection: Connection = browserOnline ? channelState : 'offline'
 
   const applyState = useCallback((next: RoomState) => {
@@ -63,7 +63,7 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
     let loading = false
     let loadAgain = false
 
-    // Lädt den Snapshot. Überlappende Anforderungen werden zu einem Nachladen zusammengefasst.
+    // Loads the snapshot. Overlapping requests are merged into one reload.
     const load = async () => {
       if (loading) {
         loadAgain = true
@@ -78,8 +78,8 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
             if (!cancelled) applyState(state)
           } catch (error) {
             if (cancelled) break
-            // Ein bereits angezeigter Zustand bleibt bei Ladefehlern stehen; nur der Verlust
-            // der Mitgliedschaft und ein fehlgeschlagenes Erstladen werden gemeldet.
+            // An already displayed state stays on load errors; only the loss of membership
+            // and a failed initial load are reported.
             setResult((previous) =>
               previous.status === 'ready' && !isNotMember(error)
                 ? previous
@@ -94,8 +94,8 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
 
     void load()
 
-    // Nach Rückkehr des Netzwerks oder in den Tab (Ruhezustand, Tab-Wechsel) kann sich der
-    // Raum geändert haben, ohne dass ein Ereignis ankam: Stand abgleichen.
+    // After the network or the tab returns (sleep, tab switch) the room may have changed
+    // without an event arriving: reconcile the state.
     const onOnline = () => void load()
     const onVisible = () => {
       if (document.visibilityState === 'visible') void load()
@@ -104,9 +104,9 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
     document.addEventListener('visibilitychange', onVisible)
 
     let channelLive = false
-    // Sicherheitsnetz: Ohne Live-Kanal (z. B. WebSockets im Firmennetz blockiert) wird alle 5 Sekunden
-    // nachgefragt. Auch mit Live-Kanal gleicht ein seltener Abgleich Ereignisse aus, die verloren
-    // gehen können (z. B. direkt nach dem Verbinden, bevor die Datenbank-Anbindung bereit ist).
+    // Safety net: without a live channel (e.g. WebSockets blocked in a corporate network) the state
+    // is polled every 5 seconds. Even with a live channel an infrequent reconciliation makes up for
+    // events that can get lost (e.g. right after connecting, before the database binding is ready).
     let ticks = 0
     const poll = window.setInterval(() => {
       ticks += 1
@@ -116,8 +116,8 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
       }
     }, POLL_INTERVAL_MS)
 
-    // Eindeutiger Kanalname je Effektlauf, damit ein noch schließender alter Kanal (z. B. im
-    // React-Entwicklungsmodus) nicht wiederverwendet wird.
+    // Unique channel name per effect run so that an old channel that is still closing (e.g. in
+    // React development mode) is not reused.
     const channel = client
       .channel(`room:${roomId}:${crypto.randomUUID()}`)
       .on(
@@ -132,8 +132,8 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
         if (status === 'SUBSCRIBED') {
           channelLive = true
           setChannelState('live')
-          // Zwischen Erstladen und Abonnement (bzw. während einer Unterbrechung) kann sich
-          // etwas geändert haben: nach jedem (erneuten) Verbinden den Stand abgleichen.
+          // Something may have changed between the initial load and the subscription (or during an
+          // interruption): reconcile the state after every (re)connect.
           void load()
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           channelLive = false
@@ -141,9 +141,9 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
         }
       })
 
-    // Anwesenheit: eigener Kanal mit gemeinsamem Namen je Raum (der Datenkanal oben hat einen
-    // eindeutigen Namen je Browser-Tab und taugt dafür nicht). Übertragen wird nur die Nutzer-ID;
-    // Namen kommen aus der Mitgliederliste, die nur Mitglieder lesen dürfen.
+    // Presence: a separate channel with a shared name per room (the data channel above has a
+    // unique name per browser tab and is unsuitable for this). Only the user ID is transmitted;
+    // names come from the member list, which only members may read.
     const presence = client.channel(`presence:${roomId}`)
     presence
       .on('presence', { event: 'sync' }, () => {

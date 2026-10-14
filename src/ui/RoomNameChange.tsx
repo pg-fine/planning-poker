@@ -13,7 +13,7 @@ type Props = {
   offline: boolean
 }
 
-/** Raumnamen setzen, ändern oder (leer) entfernen. Für alle Mitglieder. */
+/** Set, change or (when empty) remove the room name. For all members. */
 export function RoomNameChange({ client, roomId, currentName, onState, offline }: Props) {
   const [name, setName] = useState(currentName ?? '')
   const [busy, setBusy] = useState(false)
@@ -28,11 +28,11 @@ export function RoomNameChange({ client, roomId, currentName, onState, offline }
       return
     }
     if (check.name === currentName) {
-      setMessage({ text: 'Der Raumname ist bereits so gesetzt.', error: false })
+      setMessage({ text: 'The room name is already set to this.', error: false })
       return
     }
     if (offline) {
-      setMessage({ text: 'Keine Verbindung. Versuche es erneut, sobald sie besteht.', error: true })
+      setMessage({ text: 'No connection. Try again once it is back.', error: true })
       return
     }
     setBusy(true)
@@ -40,7 +40,7 @@ export function RoomNameChange({ client, roomId, currentName, onState, offline }
     try {
       onState(await setRoomName(client, roomId, check.name))
       setName(check.name ?? '')
-      setMessage({ text: check.name ? 'Raumname geändert.' : 'Raumname entfernt.', error: false })
+      setMessage({ text: check.name ? 'Room name changed.' : 'Room name removed.', error: false })
     } catch (caught) {
       setMessage({ text: describeRoomError(caught), error: true })
     } finally {
@@ -51,19 +51,19 @@ export function RoomNameChange({ client, roomId, currentName, onState, offline }
   return (
     <form onSubmit={onSubmit} noValidate>
       <div className="field">
-        <label htmlFor="room-name-change">Raumname</label>
+        <label htmlFor="room-name-change">Room name</label>
         <input
           id="room-name-change"
           type="text"
           value={name}
           onChange={(event) => setName(event.target.value)}
           maxLength={MAX_ROOM_NAME_LENGTH}
-          placeholder="z. B. Team Atlas – Refinement"
+          placeholder="e.g. Team Atlas – Refinement"
           readOnly={busy}
         />
       </div>
       <button type="submit" className="secondary" aria-disabled={busy || undefined}>
-        {busy ? 'Wird gespeichert …' : 'Raumnamen speichern'}
+        {busy ? 'Saving …' : 'Save room name'}
       </button>
       {message && (
         <p className={message.error ? 'error' : 'hint'} role={message.error ? 'alert' : 'status'}>

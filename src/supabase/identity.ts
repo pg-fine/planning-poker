@@ -2,16 +2,16 @@ import { isAuthRetryableFetchError, type AuthError } from '@supabase/supabase-js
 import type { AppSupabaseClient } from './client.ts'
 
 export type Identity = {
-  /** Auth-ID der anonymen Browser-Identität (`auth.uid()` in der Datenbank). */
+  /** Auth ID of the anonymous browser identity (`auth.uid()` in the database). */
   userId: string
 }
 
 export type IdentityErrorKind =
-  /** Anonyme Anmeldung ist im Supabase-Projekt nicht aktiviert. */
+  /** Anonymous sign-in is not enabled in the Supabase project. */
   | 'anonymous_disabled'
-  /** Zu viele Anmeldungen (Limit pro IP-Adresse). */
+  /** Too many sign-ins (limit per IP address). */
   | 'rate_limited'
-  /** Supabase nicht erreichbar (offline, pausiertes Projekt, blockiert). */
+  /** Supabase unreachable (offline, paused project, blocked). */
   | 'network'
   | 'unknown'
 
@@ -28,9 +28,9 @@ export class IdentityError extends Error {
 const LOCK_NAME = 'planning-poker:identity'
 
 /**
- * Serialisiert die Initialisierung über alle Tabs desselben Browser-Profils. Ohne Sperre
- * könnten zwei gleichzeitig geöffnete Tabs ohne Session beide anonym anmelden und sich
- * gegenseitig die Session überschreiben (zwei Identitäten für eine Person).
+ * Serializes initialization across all tabs of the same browser profile. Without a lock, two
+ * tabs opened at the same time without a session could both sign in anonymously and overwrite
+ * each other's session (two identities for one person).
  */
 async function withCrossTabLock<T>(task: () => Promise<T>): Promise<T> {
   if (typeof navigator !== 'undefined' && navigator.locks) {
@@ -43,14 +43,14 @@ function classify(error: AuthError): IdentityError {
   if (isAuthRetryableFetchError(error) || error.status === 0) {
     return new IdentityError(
       'network',
-      'Supabase ist nicht erreichbar.',
+      'Supabase is unreachable.',
       { cause: error },
     )
   }
   if (error.code === 'anonymous_provider_disabled') {
     return new IdentityError(
       'anonymous_disabled',
-      'Anonyme Anmeldung ist im Supabase-Projekt nicht aktiviert.',
+      'Anonymous sign-in is not enabled in the Supabase project.',
       { cause: error },
     )
   }
@@ -61,7 +61,7 @@ function classify(error: AuthError): IdentityError {
   ) {
     return new IdentityError(
       'rate_limited',
-      'Zu viele Anmeldungen von dieser Netzwerkadresse.',
+      'Too many sign-ins from this network address.',
       { cause: error },
     )
   }
@@ -76,21 +76,21 @@ async function initialize(client: AppSupabaseClient): Promise<Identity> {
   }
 
   if (sessionData.session) {
-    // getSession() liest nur lokal. getUser() fragt den Server und erkennt Sessions, deren
-    // Nutzer inzwischen gelöscht wurde oder deren Token nicht mehr gültig ist.
+    // getSession() only reads locally. getUser() asks the server and detects sessions whose
+    // user has been deleted in the meantime or whose token is no longer valid.
     const { data: userData, error: userError } = await client.auth.getUser()
     if (userData.user) return { userId: userData.user.id }
     if (userError && isAuthRetryableFetchError(userError)) {
       throw classify(userError)
     }
-    // Ungültige Session: lokal verwerfen und neu anonym anmelden.
+    // Invalid session: discard locally and sign in anonymously again.
     await client.auth.signOut({ scope: 'local' })
   }
 
   const { data, error } = await client.auth.signInAnonymously()
   if (error) throw classify(error)
   if (!data.user) {
-    throw new IdentityError('unknown', 'Anmeldung lieferte keinen Nutzer.')
+    throw new IdentityError('unknown', 'Sign-in returned no user.')
   }
   return { userId: data.user.id }
 }
@@ -98,10 +98,9 @@ async function initialize(client: AppSupabaseClient): Promise<Identity> {
 let inFlight: Promise<Identity> | undefined
 
 /**
- * Stellt eine anonyme Identität sicher: vorhandene Session wiederverwenden, sonst anonym
- * anmelden. Gleichzeitige Aufrufe innerhalb der App teilen sich einen Vorgang; über Tabs
- * hinweg sorgt eine Browser-Sperre für Ordnung. Fehlgeschlagene Vorgänge werden nicht
- * zwischengespeichert, ein erneuter Aufruf versucht es neu.
+ * Ensures an anonymous identity: reuse an existing session, otherwise sign in anonymously.
+ * Concurrent calls within the app share one operation; across tabs a browser lock keeps
+ * things in order. Failed operations are not cached; a new call tries again.
  */
 export function ensureIdentity(client: AppSupabaseClient): Promise<Identity> {
   inFlight ??= withCrossTabLock(() => initialize(client)).finally(() => {
@@ -110,7 +109,7 @@ export function ensureIdentity(client: AppSupabaseClient): Promise<Identity> {
   return inFlight
 }
 
-/** Deutsche Meldung und nächster Schritt für die Oberfläche. */
+/** Message and next step for the user interface. */
 export function describeIdentityError(error: unknown): {
   title: string
   hint: string
@@ -119,23 +118,23 @@ export function describeIdentityError(error: unknown): {
   switch (kind) {
     case 'anonymous_disabled':
       return {
-        title: 'Anonyme Anmeldung ist nicht aktiviert.',
-        hint: 'Aktiviere im Supabase-Dashboard unter „Authentication → Sign In / Providers“ die Option „Allow anonymous sign-ins“ und versuche es erneut.',
+        title: 'Anonymous sign-in is not enabled.',
+        hint: 'In the Supabase dashboard, enable "Allow anonymous sign-ins" under "Authentication → Sign In / Providers" and try again.',
       }
     case 'rate_limited':
       return {
-        title: 'Zu viele Anmeldungen von dieser Netzwerkadresse.',
-        hint: 'Warte einige Minuten und versuche es erneut. Das Limit lässt sich im Supabase-Dashboard unter „Authentication → Rate Limits“ erhöhen.',
+        title: 'Too many sign-ins from this network address.',
+        hint: 'Wait a few minutes and try again. You can raise the limit in the Supabase dashboard under "Authentication → Rate Limits".',
       }
     case 'network':
       return {
-        title: 'Supabase ist nicht erreichbar.',
-        hint: 'Prüfe die Internetverbindung. Ein kostenloses Supabase-Projekt wird nach längerer Inaktivität pausiert und muss im Dashboard wieder aktiviert werden. Auch ein Firmennetz kann die Verbindung blockieren.',
+        title: 'Supabase is unreachable.',
+        hint: 'Check your internet connection. A free Supabase project is paused after a longer period of inactivity and must be reactivated in the dashboard. A corporate network can also block the connection.',
       }
     default:
       return {
-        title: 'Die Anmeldung ist fehlgeschlagen.',
-        hint: 'Versuche es erneut. Besteht das Problem weiter, prüfe URL und Publishable Key in der Konfiguration.',
+        title: 'Sign-in failed.',
+        hint: 'Try again. If the problem persists, check the URL and publishable key in the configuration.',
       }
   }
 }

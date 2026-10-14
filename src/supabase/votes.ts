@@ -4,9 +4,9 @@ import { parseRoomState, type RoomState } from './roomState.ts'
 import { toRoomError } from './rooms.ts'
 
 /**
- * Gibt die eigene Stimme für die offene Runde ab oder ersetzt sie. Die Nutzer-ID kommt
- * serverseitig aus der Session. Fehler als `RoomError`: `round_conflict` (Runde wurde
- * inzwischen gewechselt), `round_not_open` (schon aufgedeckt), `not_member`, `invalid_card`.
+ * Casts the own vote for the open round or replaces it. The user ID comes from the session on
+ * the server. Errors are `RoomError`: `round_conflict` (the round changed in the meantime),
+ * `round_not_open` (already revealed), `not_member`, `invalid_card`.
  */
 export async function castVote(
   client: AppSupabaseClient,

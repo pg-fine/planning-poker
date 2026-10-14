@@ -249,12 +249,12 @@ a {
   font-weight: 600;
 }
 
-/* Lange Wörter (Namen, Titel, Links) dürfen nie das Layout sprengen. */
+/* Long words (names, titles, links) must never break the layout. */
 .card {
   overflow-wrap: anywhere;
 }
 
-/* Programmatischer Fokus-Anker (Seitenwechsel): kein Rahmen, da kein bedienbares Element. */
+/* Programmatic focus anchor (page change): no outline, as it is not an interactive element. */
 .focus-target:focus,
 .page__main:focus,
 .round-title:focus {
@@ -275,7 +275,7 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
-/* Raumkopf und zweispaltiges Layout (Schätzung | Mitglieder) */
+/* Room header and two-column layout (estimate | members) */
 .room-bar {
   display: flex;
   flex-wrap: wrap;
@@ -365,7 +365,7 @@ a:focus-visible {
   margin: 0 0 0.5rem;
 }
 
-/* Ergebnisverteilung: Balken sind Zusatz; die Anzahl steht immer als Text daneben. */
+/* Result distribution: bars are an extra; the count is always given as text next to them. */
 .results-heading {
   margin: 1rem 0 0.5rem;
   font-size: 1rem;

@@ -7,12 +7,12 @@ type Props = {
   readOnly?: boolean
 }
 
-/** Eingabefeld für den Anzeigenamen (beschriftet, mit Längenbegrenzung). */
+/** Input field for the display name (labeled, with a length limit). */
 export function NameField({ value, onChange, readOnly }: Props) {
   const id = useId()
   return (
     <div className="field">
-      <label htmlFor={id}>Dein Name</label>
+      <label htmlFor={id}>Your name</label>
       <input
         id={id}
         type="text"

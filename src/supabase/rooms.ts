@@ -2,8 +2,8 @@ import type { PostgrestError } from '@supabase/supabase-js'
 import type { AppSupabaseClient } from './client.ts'
 
 /**
- * Fachliche Fehlercodes der Datenbankfunktionen (siehe docs/daten-und-aktionsvertrag.md).
- * `network` und `unknown` kommen aus dem Frontend, alle anderen aus der Datenbank.
+ * Business error codes of the database functions (see docs/data-and-action-contract.md).
+ * `network` and `unknown` come from the frontend, all others from the database.
  */
 export const ROOM_ERROR_CODES = [
   'not_authenticated',
@@ -31,27 +31,27 @@ export class RoomError extends Error {
 }
 
 const MESSAGES: Record<RoomErrorCode, string> = {
-  not_authenticated: 'Du bist nicht angemeldet. Lade die Seite neu.',
-  invalid_token: 'Dieser Einladungslink ist ungültig.',
-  not_member: 'Du bist kein Mitglied dieses Raums.',
-  invalid_name: 'Der Name muss 1 bis 40 Zeichen lang sein.',
-  invalid_title: 'Der Titel muss 1 bis 120 Zeichen lang sein.',
-  invalid_room_name: 'Der Raumname darf höchstens 60 Zeichen lang sein.',
-  invalid_card: 'Diese Karte ist nicht erlaubt.',
-  no_round: 'Es gibt noch keine Runde.',
-  round_conflict: 'Die Runde wurde inzwischen geändert.',
-  round_not_open: 'Die Runde ist bereits aufgedeckt.',
+  not_authenticated: 'You are not signed in. Reload the page.',
+  invalid_token: 'This invitation link is invalid.',
+  not_member: 'You are not a member of this room.',
+  invalid_name: 'The name must be 1 to 40 characters long.',
+  invalid_title: 'The title must be 1 to 120 characters long.',
+  invalid_room_name: 'The room name may be at most 60 characters long.',
+  invalid_card: 'This card is not allowed.',
+  no_round: 'There is no round yet.',
+  round_conflict: 'The round has changed in the meantime.',
+  round_not_open: 'The round has already been revealed.',
   network:
-    'Supabase ist nicht erreichbar. Prüfe deine Internetverbindung. Mögliche weitere Ursachen: Ein kostenloses Supabase-Projekt wird nach längerer Inaktivität pausiert und muss im Dashboard reaktiviert werden, oder das Netzwerk blockiert die Verbindung.',
+    'Supabase is unreachable. Check your internet connection. Other possible causes: a free Supabase project is paused after a longer period of inactivity and must be reactivated in the dashboard, or the network is blocking the connection.',
   unknown: 'Unerwarteter Fehler. Versuche es erneut.',
 }
 
-/** Deutsche Meldung für die Oberfläche. */
+/** Message for the user interface. */
 export function describeRoomError(error: unknown): string {
   return MESSAGES[error instanceof RoomError ? error.code : 'unknown']
 }
 
-/** Übersetzt einen Fehler der Datenbankfunktion in einen RoomError. */
+/** Translates a database function error into a RoomError. */
 export function toRoomError(error: PostgrestError): RoomError {
   const known = (ROOM_ERROR_CODES as readonly string[]).includes(error.message)
   if (known) {
@@ -59,7 +59,7 @@ export function toRoomError(error: PostgrestError): RoomError {
       cause: error,
     })
   }
-  // Verbindungsfehler haben keinen Datenbankcode (fetch schlägt vor der Antwort fehl).
+  // Connection errors have no database code (fetch fails before a response arrives).
   if (!error.code && /fetch|network|load failed/i.test(error.message)) {
     return new RoomError('network', error.message, { cause: error })
   }
@@ -75,20 +75,20 @@ function expectString(value: unknown, field: string): string {
 
 function readObject(value: unknown): Record<string, unknown> {
   if (typeof value !== 'object' || value === null) {
-    throw new RoomError('unknown', 'Unerwartete Antwort der Datenbank.')
+    throw new RoomError('unknown', 'Unexpected response from the database.')
   }
   return value as Record<string, unknown>
 }
 
 export type CreatedRoom = { roomId: string; inviteToken: string }
 
-/** Legt einen Raum an und macht die aufrufende Person zum ersten Mitglied. */
+/** Creates a room and makes the caller its first member. */
 export async function createRoom(
   client: AppSupabaseClient,
   displayName: string,
   roomName: string | null = null,
 ): Promise<CreatedRoom> {
-  // Ohne Raumnamen bleibt der Aufruf wie vor Paket 022 und funktioniert auch ohne die Migration.
+  // Without a room name the call stays as before work package 022 and also works without the migration.
   const { data, error } = await client.rpc(
     'create_room',
     roomName === null
@@ -104,8 +104,8 @@ export async function createRoom(
 }
 
 /**
- * Tritt einem Raum per Einladungstoken bei. Wiederholte Aufrufe sind unschädlich; sie
- * aktualisieren höchstens den Anzeigenamen.
+ * Joins a room via invitation token. Repeated calls are harmless; at most they update the
+ * display name.
  */
 export async function joinRoom(
   client: AppSupabaseClient,
@@ -121,8 +121,9 @@ export async function joinRoom(
 }
 
 /**
- * Verlässt den Raum und entfernt die eigene Stimme. Wer schon kein Mitglied mehr ist
- * (z. B. nach Doppelklick), gilt als erfolgreich ausgetreten.
+ * Leaves the room. In an open round the own vote is removed; in a revealed round it stays
+ * until the next round (see work package 019). Anyone who is no longer a member (e.g. after a
+ * double click) counts as successfully left.
  */
 export async function leaveRoom(
   client: AppSupabaseClient,
@@ -136,7 +137,7 @@ export async function leaveRoom(
   }
 }
 
-/** Einladungstoken eines Raums (nur für Mitglieder), um den Link zu kopieren. */
+/** Invitation token of a room (members only), used to copy the link. */
 export async function getInviteToken(
   client: AppSupabaseClient,
   roomId: string,

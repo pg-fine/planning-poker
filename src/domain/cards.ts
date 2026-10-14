@@ -1,6 +1,6 @@
 /**
- * Erlaubte Karten. Gespeichert wird `value` (ASCII), angezeigt wird `label`.
- * Die Menge muss mit der Prüfregel `votes_card_valid` in der Datenbank übereinstimmen.
+ * Allowed cards. `value` (ASCII) is stored, `label` is displayed.
+ * The set must match the `votes_card_valid` check constraint in the database.
  */
 export const CARDS = [
   { value: '0', label: '0', kind: 'number' },
@@ -28,9 +28,9 @@ export function cardLabel(value: CardValue): string {
   return CARDS.find((card) => card.value === value)?.label ?? value
 }
 
-/** Ausgeschriebene Bezeichnung für Texte, z. B. „☕ Kaffeepause“. */
+/** Spelled-out name for use in text, e.g. "☕ Coffee break". */
 export function cardDescription(value: CardValue): string {
-  if (value === 'coffee') return '☕ Kaffeepause'
-  if (value === '?') return '? Unklar'
+  if (value === 'coffee') return '☕ Coffee break'
+  if (value === '?') return '? Unclear'
   return cardLabel(value)
 }

@@ -8,7 +8,7 @@ export type IdentityState =
   | { status: 'ready'; identity: Identity }
   | { status: 'error'; error: unknown }
 
-/** Meldet den Browser anonym an (oder stellt die gespeicherte Identität wieder her). */
+/** Signs the browser in anonymously (or restores the stored identity). */
 export function useIdentity({ url, publishableKey }: SupabaseConfig) {
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState<IdentityState>({ status: 'loading' })

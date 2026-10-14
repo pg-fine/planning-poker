@@ -8,12 +8,12 @@ export type SupabaseConfigResult =
   | { status: 'missing'; missing: string[] }
   | { status: 'invalid'; reason: string }
 
-const PLACEHOLDER_URL = 'https://dein-projekt.supabase.co'
-const PLACEHOLDER_KEY = 'dein-publishable-key'
+const PLACEHOLDER_URL = 'https://your-project.supabase.co'
+const PLACEHOLDER_KEY = 'your-publishable-key'
 
 /**
- * Liest die oeffentliche Supabase-Konfiguration aus den Build-Variablen.
- * Es werden nur Projekt-URL und Publishable-/Anon-Key erwartet, niemals geheime Schluessel.
+ * Reads the public Supabase configuration from the build variables.
+ * Only the project URL and the publishable/anon key are expected, never secret keys.
  */
 export function readSupabaseConfig(
   env: ImportMetaEnv = import.meta.env,
@@ -35,13 +35,13 @@ export function readSupabaseConfig(
     if (parsed.protocol !== 'https:' && parsed.hostname !== 'localhost') {
       return {
         status: 'invalid',
-        reason: 'VITE_SUPABASE_URL muss mit https:// beginnen.',
+        reason: 'VITE_SUPABASE_URL must start with https://.',
       }
     }
   } catch {
     return {
       status: 'invalid',
-      reason: 'VITE_SUPABASE_URL ist keine gültige URL.',
+      reason: 'VITE_SUPABASE_URL is not a valid URL.',
     }
   }
 

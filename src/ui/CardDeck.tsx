@@ -2,17 +2,17 @@ import { CARDS, type CardValue } from '../domain/cards.ts'
 
 type Props = {
   selected: CardValue | null
-  /** Aktion läuft: Knöpfe behalten den Fokus, Klicks werden aber ignoriert. */
+  /** Action in progress: buttons keep focus, but clicks are ignored. */
   busy: boolean
-  /** Keine Verbindung: Knöpfe sind wirklich gesperrt. */
+  /** No connection: buttons are really disabled. */
   disabled: boolean
   onSelect: (card: CardValue) => void
 }
 
-/** Kartenauswahl. Die gewählte Karte ist per Text und `aria-pressed` erkennbar, nicht nur per Farbe. */
+/** Card selection. The selected card is identifiable by text and `aria-pressed`, not just by color. */
 export function CardDeck({ selected, busy, disabled, onSelect }: Props) {
   return (
-    <div className="deck" role="group" aria-label="Karten">
+    <div className="deck" role="group" aria-label="Cards">
       {CARDS.map((card) => {
         const isSelected = card.value === selected
         return (
@@ -23,10 +23,10 @@ export function CardDeck({ selected, busy, disabled, onSelect }: Props) {
             aria-pressed={isSelected}
             aria-label={
               card.value === 'coffee'
-                ? 'Kaffeepause'
+                ? 'Coffee break'
                 : card.value === '?'
-                  ? 'Unklar (Fragezeichen)'
-                  : `Karte ${card.label}`
+                  ? 'Unclear (question mark)'
+                  : `Card ${card.label}`
             }
             disabled={disabled}
             aria-disabled={busy || undefined}
@@ -37,7 +37,7 @@ export function CardDeck({ selected, busy, disabled, onSelect }: Props) {
             <span className="card-button__label" aria-hidden="true">
               {card.label}
             </span>
-            {isSelected && <span className="card-button__mark">gewählt</span>}
+            {isSelected && <span className="card-button__mark">selected</span>}
           </button>
         )
       })}

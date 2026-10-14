@@ -4,7 +4,7 @@ import { IdentityGate } from './IdentityGate.tsx'
 import { usePathname } from './routing.ts'
 import { SetupNotice } from './SetupNotice.tsx'
 
-// Die Build-Konfiguration ändert sich zur Laufzeit nicht; einmal lesen genügt.
+// The build configuration does not change at runtime; reading it once is enough.
 const configResult = readSupabaseConfig()
 
 export default function App() {
@@ -12,8 +12,8 @@ export default function App() {
   const main = useRef<HTMLElement>(null)
   const first = useRef(true)
 
-  // Nach einem Seitenwechsel den Fokus an den Anfang des Inhalts setzen, damit Tastatur- und
-  // Screenreader-Nutzende nicht im Nichts landen. Beim ersten Laden bleibt der Fokus unberührt.
+  // After a page change, move focus to the start of the content so keyboard and screen reader
+  // users do not end up nowhere. On the first load the focus is left untouched.
   useEffect(() => {
     if (first.current) {
       first.current = false
@@ -27,7 +27,7 @@ export default function App() {
       <header className="page__header">
         <h1 className="page__title">Planning Poker</h1>
         <p className="page__subtitle">
-          Gemeinsam schätzen – parallel zur Teams-Besprechung im Browser.
+          Estimate together – in the browser, alongside your Teams meeting.
         </p>
       </header>
 

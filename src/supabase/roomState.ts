@@ -3,7 +3,7 @@ import type { AppSupabaseClient } from './client.ts'
 import { RoomError, toRoomError } from './rooms.ts'
 
 export type Member = { userId: string; displayName: string }
-/** `displayName` ist nur gesetzt, wenn die Person die Teilnahme nach dem Aufdecken entfernt hat. */
+/** `displayName` is only set if the person removed their participation after the reveal. */
 export type Vote = { userId: string; card: CardValue; displayName?: string }
 
 export type RoundState = {
@@ -13,21 +13,21 @@ export type RoundState = {
   votes: Vote[]
 }
 
-/** Zustand eines Raums aus Sicht der aufrufenden Person (siehe Vertrag, Abschnitt 5). */
+/** State of a room from the caller's point of view (see contract, section 5). */
 export type RoomState = {
   roomId: string
-  /** Optionaler Raumname; `null`, wenn der Raum keinen hat. */
+  /** Optional room name; `null` if the room has none. */
   name: string | null
-  /** Steigt bei jeder sichtbaren Änderung; dient dem Erkennen veralteter Antworten. */
+  /** Increases with every visible change; used to detect stale responses. */
   revision: number
   me: Member
-  /** Mitglieder des Raums. Keine Online-Liste und keine Liste Pflichtabstimmender. */
+  /** Members of the room. Not an online list and not a list of required voters. */
   members: Member[]
   round: RoundState | null
 }
 
 function invalid(what: string): never {
-  throw new RoomError('unknown', `Unerwartete Antwort der Datenbank: ${what}.`)
+  throw new RoomError('unknown', `Unexpected response from the database: ${what}.`)
 }
 
 function asObject(value: unknown, what: string): Record<string, unknown> {
@@ -48,21 +48,21 @@ function asArray(value: unknown, what: string): unknown[] {
 }
 
 function parseMember(value: unknown): Member {
-  const object = asObject(value, 'Mitglied')
+  const object = asObject(value, 'member')
   return {
     userId: asString(object.user_id, 'user_id'),
     displayName: asString(object.display_name, 'display_name'),
   }
 }
 
-/** Prüft und übersetzt die JSON-Antwort der Datenbankfunktionen. */
+/** Validates and translates the JSON response of the database functions. */
 export function parseRoomState(data: unknown): RoomState {
-  const object = asObject(data, 'Raumzustand')
+  const object = asObject(data, 'room state')
   if (typeof object.revision !== 'number') invalid('revision')
 
   let round: RoundState | null = null
   if (object.round !== null) {
-    const raw = asObject(object.round, 'Runde')
+    const raw = asObject(object.round, 'round')
     const status = raw.status
     if (status !== 'open' && status !== 'revealed') invalid('status')
     round = {
@@ -70,7 +70,7 @@ export function parseRoomState(data: unknown): RoomState {
       title: asString(raw.title, 'title'),
       status,
       votes: asArray(raw.votes, 'votes').map((entry): Vote => {
-        const vote = asObject(entry, 'Stimme')
+        const vote = asObject(entry, 'vote')
         if (!isCardValue(vote.card)) invalid('card')
         const userId = asString(vote.user_id, 'user_id')
         return typeof vote.display_name === 'string'
@@ -90,7 +90,7 @@ export function parseRoomState(data: unknown): RoomState {
   }
 }
 
-/** Lädt den aktuellen Zustand des Raums (nur für Mitglieder). */
+/** Loads the current state of the room (members only). */
 export async function getRoomState(
   client: AppSupabaseClient,
   roomId: string,
