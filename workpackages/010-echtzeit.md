@@ -1,6 +1,6 @@
 # 010 – Echtzeit-Synchronisierung
 
-- **Status:** Umgesetzt; Prüfung offen (Migration im Supabase-Projekt anwenden)
+- **Status:** Erledigt
 - **Abhängigkeiten:** 009
 - **Meilenstein:** M3
 
@@ -44,9 +44,14 @@ Umsetzung:
   werden dadurch zuverlässig erkannt (löschende Ereignisse gibt es nicht).
 
 Geprüft ohne die Migration (echtes Projekt, Headless-Chromium): Der Kanal verbindet sich und die
-Anzeige zeigt „Live verbunden“, aber es kommen erwartungsgemäß keine Ereignisse an (Beitritt,
-Runde und Stimmen erscheinen bei der anderen Person nicht). Das bestätigt, dass die Migration
-nötig ist. Typecheck, Lint und Build sind fehlerfrei.
+Anzeige zeigt „Live verbunden“, aber es kommen erwartungsgemäß keine Ereignisse an. Das bestätigt,
+dass die Migration nötig ist.
 
-Offen: Nach dem Anwenden der Migration den Browser-Durchlauf mit mehreren Profilen wiederholen
-(Beitritt, Runde, Stimme, Aufdecken, neue Runde, später Beitritt, Austritt live sichtbar).
+Nach Anwenden der Migration im echten Projekt geprüft (drei Profile, kein Testcode eingecheckt):
+
+- Beitritt, neue Runde, Stimmenzahl, Aufdecken, neue Runde (ohne alte Stimmen) und Austritt
+  erscheinen bei den anderen ohne Neuladen. Bei Austritt sinken Mitglieder- und Stimmenzahl live.
+- Später Beitritt während einer laufenden Runde zeigt den aktuellen Stand.
+- Fremde Personen erhalten keine Ereignisse eines Raums, dem sie nicht angehören.
+- Jeder geöffnete Kanal wird beim Verlassen des Raums wieder geschlossen (`phx_leave`).
+- Fremde Kartenwerte erscheinen auch live nicht vor dem Aufdecken. Keine JavaScript-Fehler.
