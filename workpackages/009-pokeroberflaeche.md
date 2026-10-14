@@ -1,6 +1,6 @@
 # 009 – Karten und Ergebnisse: Oberfläche
 
-- **Status:** Offen
+- **Status:** Erledigt
 - **Abhängigkeiten:** 006, 007, 008
 - **Meilenstein:** M3
 
@@ -30,5 +30,33 @@ Eine komplette Schätzrunde über die Oberfläche spielbar machen.
 
 ## Prüfung und Ergebnis
 
-Eine Runde mit Zahlen und Sonderkarten manuell durchspielen. Zweite Session vorerst
-per Reload aktualisieren. Typecheck, Lint und Build ausführen; Testcode nur nach Bugfund.
+Umsetzung:
+
+- `RoundPanel` (Runde starten, Karten, Aufdecken, neue Runde), `CardDeck` (Kartenauswahl mit
+  `aria-pressed` und Text „gewählt“), `RevealedResults` (Namen mit Karten, Verteilung, Einigkeit),
+  `src/domain/results.ts` (Auswertung; Mittelwert nur über Zahlenkarten, Sonderkarten zählen nicht).
+- `useRoomState` übernimmt Zustände der eigenen Aktionen und verwirft solche mit älterer Revision.
+- Nur bestätigte Datenbankantworten werden dargestellt (keine optimistische Anzeige).
+  Nach `round_conflict`/`round_not_open` lädt die Ansicht den aktuellen Stand neu und nennt das.
+- Vor dem Aufdecken zeigt die Oberfläche nur die Anzahl der Stimmen und die eigene Karte. Fremde
+  Kartenwerte stehen nicht im DOM (Text, Labels, Tooltips). Technisch bleiben sie für Mitglieder
+  abrufbar (bewusste Entscheidung). Die Zahl „Abgegebene Stimmen“ ist keine Liste Pflichtabstimmender.
+- Titel und Namen werden als Text gerendert.
+
+Im Browser geprüft (Headless-Chromium über Playwright außerhalb des Projekts, zwei getrennte
+Profile, echtes Supabase-Projekt; kein Testcode eingecheckt):
+
+- Erste Runde: leerer Titel → Fehler; Titel `<b>STORY-1</b> Login` erscheint als Text.
+- Karte wählen und ändern (8 → 13): genau eine Karte gewählt, Stimmenzahl bleibt 1.
+- Zweite Person sieht die Runde und die Stimmenzahl, aber nicht die Karte der ersten.
+- Aufdecken: Namen mit Karten (inkl. `☕`), Verteilung, Mittelwert nur der Zahlenkarten;
+  danach keine Kartenauswahl mehr. Aufdecken ohne Stimmen: „Niemand hat abgestimmt.“
+  Gleiche Karten: Hinweis auf Einigkeit. Neuladen nach dem Aufdecken zeigt das Ergebnis weiter.
+- Neue Runde: keine alten Stimmen, nichts gewählt. Veraltete Ansicht (noch ohne Live-Update):
+  Stimme nach dem Aufdecken und zweiter Rundenstart liefern die passende Meldung und aktualisieren.
+- Schmale Ansicht (380 px) ohne horizontales Scrollen; keine JavaScript-Fehler.
+- Typecheck, Lint und Build sind fehlerfrei.
+
+Bekannt und für spätere Pakete vorgesehen: Andere Personen sehen Änderungen noch erst nach
+Neuladen oder eigener Aktion (010 Echtzeit); ein erneuter Versuch nach Verbindungsproblemen und
+Konfliktfeinschliff folgen in 011.
