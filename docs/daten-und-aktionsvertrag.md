@@ -24,6 +24,7 @@ Grundlage für die Arbeitspakete 003 (Schema), 005–007 (Datenbankfunktionen) s
 room (Raum)
   id             uuid          interne ID, erscheint nie in Links
   created_at     timestamptz
+  name           text          optional, 1–60 Zeichen, NULL = ohne Namen (Paket 022)
   revision       bigint        wird bei jeder sichtbaren Zustandsänderung erhöht (für Echtzeit)
 
 room_invite (Einladung)         getrennt von room, nicht frei lesbar
@@ -49,6 +50,8 @@ vote (Stimme)
   room_id, round_id            verweist auf die aktuelle Runde
   user_id        uuid
   card           Kartenwert
+  voter_name     text          nur gesetzt, wenn die Person nach dem Aufdecken die Teilnahme
+                               entfernt hat (Paket 019); kein Fremdschlüssel auf room_member
   eindeutig je (room_id, user_id)   → höchstens eine Stimme je Person und Runde
 ```
 
@@ -88,6 +91,8 @@ numerische Auswertungen ein.
 - **Anzeigename:** Leerraum am Rand wird entfernt; danach 1–40 Zeichen. Doppelte Namen
   in einem Raum sind erlaubt.
 - **Titel:** Leerraum am Rand wird entfernt; danach 1–120 Zeichen.
+- **Raumname (optional):** Leerraum am Rand wird entfernt; leer bedeutet „kein Name“, sonst
+  höchstens 60 Zeichen.
 - Die Oberfläche gibt Namen und Titel immer als Text aus, nie als HTML.
 
 ## 3. Zustände einer Runde
@@ -115,12 +120,13 @@ und, außer bei Raumerstellung und Beitritt, die Mitgliedschaft im betroffenen R
 
 | Aktion                                   | Eingabe                                        | Rückgabe                         |
 | ---------------------------------------- | ---------------------------------------------- | -------------------------------- |
-| `create_room`                            | `display_name`                                 | `room_id`, `invite_token`        |
+| `create_room`                            | `display_name`, optional `room_name`           | `room_id`, `invite_token`        |
 | `join_room`                              | `invite_token`, `display_name`                 | `room_id`                        |
 | `leave_room`                             | `room_id`                                      | –                                |
 | `get_invite_token`                       | `room_id`                                      | `invite_token`                   |
 | `get_room_state` (Snapshot)              | `room_id`                                      | siehe Abschnitt 5                |
 | `start_round`                            | `room_id`, `expected_round_id`, `title`        | neuer Zustand (Snapshot)         |
+| `set_room_name`                          | `room_id`, `name` (leer = entfernen)           | neuer Zustand (Snapshot)         |
 | `reveal_round`                           | `room_id`, `round_id`                          | neuer Zustand (Snapshot)         |
 | `cast_vote`                              | `room_id`, `round_id`, `card`                  | neuer Zustand (Snapshot)         |
 
@@ -131,11 +137,15 @@ Verhalten im Einzelnen:
 - **`join_room`**: sucht den Raum über das Token. Ist die Person schon Mitglied, wird nur der
   Anzeigename aktualisiert (idempotent, kein Duplikat). Ein ungültiges Token liefert
   `invalid_token`, ohne etwas über andere Räume preiszugeben.
-- **`leave_room`**: entfernt die Mitgliedschaft und die eigene Stimme der aktuellen Runde in
-  einer Transaktion. Raum und Runde bleiben bestehen. Wiederbeitritt per Link ist möglich;
-  die entfernte Stimme kommt nicht zurück. Ein zweiter Aufruf liefert `not_member`; die
-  Oberfläche behandelt das als erfolgreich. Die Oberfläche ruft die Funktion nur über die
-  bestätigte Aktion „Teilnahme entfernen“ auf; „Zur Startseite“ ändert keine Daten (Paket 019).
+- **`leave_room`**: entfernt die Mitgliedschaft. In einer **offenen** Runde wird die eigene
+  Stimme gelöscht. In einer **aufgedeckten** Runde bleibt die Stimme bis zum nächsten
+  Rundenstart erhalten; der Name wird dazu an der Stimme gespeichert (`voter_name`) und erscheint
+  im Ergebnis (Paket 019). Raum und Runde bleiben bestehen. Wiederbeitritt per Link ist möglich.
+  Ein zweiter Aufruf liefert `not_member`; die Oberfläche behandelt das als erfolgreich. Die
+  Oberfläche ruft die Funktion nur über die bestätigte Aktion „Teilnahme entfernen“ auf;
+  „Zur Startseite“ ändert keine Daten.
+- **`set_room_name`**: setzt, ändert oder entfernt (leerer Name) den Raumnamen. Jedes Mitglied darf
+  das. Ein zu langer Name liefert `invalid_room_name`.
 - **`start_round`**: `expected_round_id` ist die Runden-ID, die der Aufrufer zuletzt gesehen
   hat (`null`, wenn er noch keine Runde kannte). Stimmt sie mit der aktuellen Runde überein,
   werden alle Stimmen gelöscht und die Runde mit neuer `round_id`, neuem Titel und Status
@@ -159,6 +169,7 @@ Meldungen.
 | `not_member`        | Kein Mitglied des Raums (auch bei nicht existierender Raum-ID)       |
 | `invalid_name`      | Name leer oder länger als 40 Zeichen                                 |
 | `invalid_title`     | Titel leer oder länger als 120 Zeichen                               |
+| `invalid_room_name` | Raumname länger als 60 Zeichen                                       |
 | `invalid_card`      | Kartenwert nicht in der erlaubten Menge                              |
 | `no_round`          | Aktion setzt eine Runde voraus, es gibt keine                        |
 | `round_conflict`    | Übergebene Runden-ID ist nicht (mehr) die aktuelle                   |
@@ -174,12 +185,14 @@ nur Daten eines Raums, in dem der Aufrufer Mitglied ist.
 
 ```text
 room_id
+name                     Raumname oder null
 revision                 aktuelle Raumrevision
 me                       { user_id, display_name }
 members                  [{ user_id, display_name }]        Mitglieder, keine Online-Liste
 round                    null | {
                            round_id, title, status,
-                           votes: [{ user_id, card }]       alle Stimmen der aktuellen Runde
+                           votes: [{ user_id, card,     alle Stimmen der aktuellen Runde;
+                                  display_name? }]  display_name nur bei entfernter Teilnahme
                          }
 ```
 

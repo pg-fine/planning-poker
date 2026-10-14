@@ -27,6 +27,14 @@ Dateinamen** auf eine leere Datenbank angewendet werden:
 4. `20261014090300_runden.sql`
 5. `20261014090400_stimmen.sql`
 6. `20261014090500_echtzeit.sql` (nimmt die Tabelle `rooms` in die Echtzeit-Veröffentlichung auf)
+7. `20261014090600_stabile_ergebnisse.sql` (Arbeitspaket 019: aufgedeckte Ergebnisse bleiben nach
+   „Teilnahme entfernen“ stehen)
+8. `20261014090700_raumname.sql` (Arbeitspaket 022: optionaler Raumname)
+
+Bei einer **bereits eingerichteten** Datenbank genügt es, nur die neuen Dateien (7 und 8) in dieser
+Reihenfolge auszuführen. Die App läuft auch vor dem Anwenden weiter; ohne Migration 7 verschwindet
+die Stimme beim Entfernen der Teilnahme wie bisher, ohne Migration 8 gibt es keine Raumnamen
+(das Eingabefeld erzeugt dann einen Fehler).
 
 Einfachster Weg: Im Dashboard den **SQL Editor** öffnen, den Inhalt der Datei einfügen und
 ausführen, dann die nächste Datei. Wer die Supabase CLI nutzt, kann stattdessen
