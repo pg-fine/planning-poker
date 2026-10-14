@@ -1,6 +1,7 @@
 node_modules/
 dist/
 *.tsbuildinfo
+.wrangler/
 
 # Lokale Konfiguration mit projektspezifischen Werten
 .env

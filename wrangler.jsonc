@@ -1,0 +1,12 @@
+{
+  // Cloudflare Workers mit statischen Dateien (Deploy-Befehl: npx wrangler deploy).
+  // Der Name muss dem Namen des Workers im Cloudflare-Dashboard entsprechen.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "planning-poker",
+  "compatibility_date": "2026-10-14",
+  "assets": {
+    "directory": "./dist",
+    // Direkte Aufrufe von /r/<token> liefern index.html aus (Single-Page-App).
+    "not_found_handling": "single-page-application"
+  }
+}
