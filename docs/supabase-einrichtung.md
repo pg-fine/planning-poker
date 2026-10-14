@@ -54,7 +54,20 @@ Frontend oder im Repository verwenden.
 ## 4. Anonyme Anmeldung aktivieren (Arbeitspaket 004)
 
 Unter **Authentication → Sign In / Providers** die Option **Allow anonymous sign-ins**
-aktivieren. Ohne sie können Teilnehmende nicht ohne Registrierung beitreten.
+aktivieren und speichern. Ohne sie können Teilnehmende nicht ohne Registrierung beitreten.
+Die Anmeldung braucht weder Schlüssel noch Anbieter-Registrierung. Anonyme Nutzer erscheinen
+danach unter **Authentication → Users** als „anonymous“.
+
+Hinweise:
+
+- Supabase begrenzt anonyme Anmeldungen auf **30 pro Stunde und IP-Adresse**. Hinter einer
+  gemeinsamen Firmen-IP teilt sich das Team dieses Limit. Jeder Browser meldet sich nur einmal
+  an, danach bleibt die Sitzung erhalten. Bei Bedarf lässt sich das Limit unter
+  **Authentication → Rate Limits** erhöhen.
+- Supabase empfiehlt ein CAPTCHA gegen Missbrauch. Im MVP verzichten wir darauf: Raum-Links
+  sind nicht öffentlich, und eine anonyme Anmeldung allein gewährt keinen Zugriff auf Raumdaten.
+- Anonyme Nutzer nutzen die Rolle `authenticated`. Die Zugriffsrechte aus Arbeitspaket 003
+  stützen sich deshalb auf die Raum-Mitgliedschaft und nicht auf die Rolle.
 
 ## 5. Schnellprüfung der Zugriffsrechte (optional)
 
