@@ -1,6 +1,6 @@
 # 003 – Datenbankschema und Leserechte
 
-- **Status:** Offen
+- **Status:** Umgesetzt, Prüfung im echten Supabase-Projekt offen
 - **Abhängigkeiten:** 002
 - **Meilenstein:** M1
 
@@ -31,5 +31,35 @@ Versionierbare SQL-Migrationen für die aktuelle Runde und raumgebundene Daten e
 
 ## Prüfung und Ergebnis
 
-Schema und Policies reviewen; ausgewählte Lesezugriffe manuell unter verschiedenen
-Benutzerkontexten prüfen. Keine automatisierten SQL-Tests ohne festgestellten Bug.
+Umsetzung:
+
+- `supabase/migrations/20261014090000_tabellen.sql`: Tabellen, Fremdschlüssel, Prüfregeln, Indizes.
+- `supabase/migrations/20261014090100_zugriffsrechte.sql`: RLS, Rechte, Leserichtlinien.
+- `docs/supabase-einrichtung.md`: erste Einrichtung (Projekt, Migrationen, Schlüssel).
+
+Der Mitgliedschaftstest läuft über `private.is_room_member` (SECURITY DEFINER, fester
+`search_path`, Schema `private` nicht über die API veröffentlicht), dadurch gibt es keine
+rekursive Policy. Zusammengesetzte Fremdschlüssel erzwingen, dass Stimmen zur aktuellen
+Runde desselben Raums und zu einem Mitglied dieses Raums gehören. Beim Austritt entfällt die
+Stimme automatisch. `round_id` hat bewusst kein `ON UPDATE CASCADE`: ein Rundenwechsel muss
+zuerst die Stimmen löschen (Funktion in Arbeitspaket 006).
+
+Lokal geprüft (PostgreSQL 17 in Docker, Supabase-Rollen `anon`/`authenticated` und
+`auth.uid()` nachgebildet; kein Testcode eingecheckt):
+
+- Beide Migrationen laufen in Reihenfolge fehlerfrei auf einer leeren Datenbank.
+- Ungültige Daten werden abgewiesen: leerer, ungetrimmter und zu langer Name, zweite Runde je
+  Raum, ungültiger Status, ungültige Karte, doppelte Stimme, Stimme einer Nicht-Mitglied-
+  Person, Stimme mit Runde eines anderen Raums, zu kurzes Token. Karten `coffee` und `?` sind erlaubt.
+- Änderung der `round_id` bei vorhandenen Stimmen scheitert; nach Löschen der Stimmen klappt sie.
+- `anon`: `permission denied` auf allen Tabellen. Angemeldete Person sieht nur Daten ihres
+  Raums, Person ohne Mitgliedschaft und Session ohne `sub` sehen nichts.
+- `room_invites` ist für `authenticated` nicht lesbar; INSERT/UPDATE/DELETE sind auf allen
+  Tabellen abgewiesen. Rechteübersicht: ausschließlich `SELECT` für `authenticated` auf vier
+  Tabellen, RLS überall aktiv. Die Supabase-Standardrechte wurden dafür nachgebildet.
+
+Noch offen (braucht ein Supabase-Projekt, das nur du anlegen kannst):
+
+- Migrationen im echten Projekt anwenden (Reihenfolge laut Anleitung).
+- Rechte mit dem öffentlichen Client-Key prüfen (Schnellprüfung in Abschnitt 5 der Anleitung,
+  später durch die App in Arbeitspaket 004/005).
