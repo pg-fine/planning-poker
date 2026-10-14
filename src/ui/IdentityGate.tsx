@@ -33,11 +33,14 @@ export function IdentityGate({ config }: Props) {
   return (
     <>
       <AppRoutes client={getSupabaseClient(config)} />
-      <p className="hint footer">
-        Dieser Browser behält seine Teilnahme (Kennung <code>{state.identity.userId.slice(0, 8)}</code>
-        ). In einem anderen Browser, auf einem anderen Gerät oder nach dem Löschen der
-        Browserdaten giltst du als neue Person und trittst dem Raum erneut bei.
-      </p>
+      <details className="hint footer">
+        <summary>Hilfe zu Browser und Teilnahme</summary>
+        <p>
+          Dieser Browser behält seine Teilnahme (Kennung <code>{state.identity.userId.slice(0, 8)}</code>
+          ). In einem anderen Browser, auf einem anderen Gerät oder nach dem Löschen der
+          Browserdaten giltst du als neue Person und trittst dem Raum erneut bei.
+        </p>
+      </details>
     </>
   )
 }
