@@ -1,6 +1,6 @@
 # 003 – Datenbankschema und Leserechte
 
-- **Status:** Umgesetzt, Prüfung im echten Supabase-Projekt offen
+- **Status:** Erledigt
 - **Abhängigkeiten:** 002
 - **Meilenstein:** M1
 
@@ -58,8 +58,6 @@ Lokal geprüft (PostgreSQL 17 in Docker, Supabase-Rollen `anon`/`authenticated` 
   Tabellen abgewiesen. Rechteübersicht: ausschließlich `SELECT` für `authenticated` auf vier
   Tabellen, RLS überall aktiv. Die Supabase-Standardrechte wurden dafür nachgebildet.
 
-Noch offen (braucht ein Supabase-Projekt, das nur du anlegen kannst):
-
-- Migrationen im echten Projekt anwenden (Reihenfolge laut Anleitung).
-- Rechte mit dem öffentlichen Client-Key prüfen (Schnellprüfung in Abschnitt 5 der Anleitung,
-  später durch die App in Arbeitspaket 004/005).
+Im echten Supabase-Projekt bestätigt (bei Arbeitspaket 004): Als angemeldete anonyme Person
+ohne Mitgliedschaft liefern alle Lesezugriffe mit dem öffentlichen Key 0 Zeilen, `room_invites`
+und alle Schreibzugriffe werden mit `permission denied` abgewiesen.
