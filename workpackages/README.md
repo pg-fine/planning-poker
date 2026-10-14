@@ -45,7 +45,7 @@ Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbe
 | Nr. | Arbeitspaket | Abhängigkeiten | Meilenstein | Status |
 | --- | --- | --- | --- | --- |
 | 001 | [Projektgrundgerüst](001-projektgrundgeruest.md) | – | M1: Grundlage | Erledigt |
-| 002 | [Daten- und Aktionsvertrag](002-daten-und-aktionsvertrag.md) | – | M1 | Offen |
+| 002 | [Daten- und Aktionsvertrag](002-daten-und-aktionsvertrag.md) | – | M1 | Erledigt |
 | 003 | [Datenbankschema und Leserechte](003-datenbankschema-und-leserechte.md) | 002 | M1 | Offen |
 | 004 | [Supabase-Verbindung und Identität](004-supabase-und-identitaet.md) | 001 | M1 | Offen |
 | 005 | [Raumzugang und Mitgliedschaft](005-raumzugang-und-mitgliedschaft.md) | 003, 004 | M2: Gemeinsamer Raum | Offen |

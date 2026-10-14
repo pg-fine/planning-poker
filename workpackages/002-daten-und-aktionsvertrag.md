@@ -1,6 +1,6 @@
 # 002 – Daten- und Aktionsvertrag
 
-- **Status:** Offen
+- **Status:** Erledigt
 - **Abhängigkeiten:** Keine
 - **Meilenstein:** M1
 
@@ -34,5 +34,12 @@ Kleine, eindeutige Verträge für UI und Datenbank festlegen, bevor beide ausein
 
 ## Prüfung und Ergebnis
 
-Verträge anhand einer Runde mit zwei Teilnehmenden auf Papier durchspielen.
-Keine Implementierungstests; offene Detailentscheidungen im Vertragsdokument festhalten.
+Ergebnis: [docs/daten-und-aktionsvertrag.md](../docs/daten-und-aktionsvertrag.md).
+
+- Alle Abnahmekriterien sind dort abgedeckt: Zustandsübergänge (Abschnitt 3), Regeln für
+  neue Runden, verspätete Stimmen und gleichzeitiges Aufdecken (Abschnitt 4 und 6),
+  geschlossene Kartenmenge inklusive `?` und `coffee`/☕ (Abschnitt 2), Verhalten bei
+  Verbindungsabbrüchen (Abschnitt 7).
+- Der Vertrag wurde in Abschnitt 8 an einer Runde mit zwei Teilnehmenden durchgespielt,
+  einschließlich zeitgleicher Aktionen, Aufdecken, Rundenwechsel und späterem Wiederaufruf.
+- Offene Detailentscheidungen stehen in Abschnitt 9. Es wurde kein Code und kein Testcode erstellt.
