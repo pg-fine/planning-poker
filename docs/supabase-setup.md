@@ -30,8 +30,9 @@ The migrations are in `supabase/migrations/`. They must be applied to an empty d
 7. `20261014090600_stable_results.sql` (work package 019: revealed results stay after
    "Remove participation")
 8. `20261014090700_room_name.sql` (work package 022: optional room name)
+9. `20261014090800_remove_member.sql` (work package 024: remove other members)
 
-For a database that is **already set up**, it is enough to run only the new files (7 and 8)
+For a database that is **already set up**, it is enough to run only the new files (7, 8 and 9)
 in this order. The app keeps running before they are applied; without migration 7 the vote
 disappears when participation is removed, as before; without migration 8 there are no room
 names (the input field then produces an error).

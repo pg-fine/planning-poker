@@ -123,6 +123,7 @@ except for room creation and joining, the membership in the room concerned.
 | `create_room`                            | `display_name`, optional `room_name`           | `room_id`, `invite_token`        |
 | `join_room`                              | `invite_token`, `display_name`                 | `room_id`                        |
 | `leave_room`                             | `room_id`                                      | –                                |
+| `remove_member`                          | `room_id`, `user_id`                           | new state (snapshot)             |
 | `get_invite_token`                       | `room_id`                                      | `invite_token`                   |
 | `get_room_state` (snapshot)              | `room_id`                                      | see section 5                    |
 | `start_round`                            | `room_id`, `expected_round_id`, `title`        | new state (snapshot)             |
@@ -143,6 +144,11 @@ Behavior in detail:
   remain. Joining again via the link is possible. A second call returns `not_member`; the
   user interface treats that as success. The user interface only calls the function through
   the confirmed action "Remove participation"; "Back to home" changes no data.
+- **`remove_member`**: removes another member (any member may do this; not oneself, use
+  `leave_room` for that). The vote is handled like in `leave_room`: deleted in an open round,
+  kept with the name in a revealed round until the next round starts (package 024). The removed
+  person can join again via the invitation link. Unknown target or oneself returns
+  `invalid_member`.
 - **`set_room_name`**: sets, changes or removes (empty name) the room name. Any member may do
   this. A name that is too long returns `invalid_room_name`.
 - **`start_round`**: `expected_round_id` is the round ID the caller last saw (`null` if it
@@ -169,6 +175,7 @@ messages.
 | `invalid_name`      | Name empty or longer than 40 characters                              |
 | `invalid_title`     | Title empty or longer than 120 characters                            |
 | `invalid_room_name` | Room name longer than 60 characters                                  |
+| `invalid_member`    | Target of `remove_member` is not a member (any more) or is oneself   |
 | `invalid_card`      | Card value not in the allowed set                                    |
 | `no_round`          | Action requires a round, there is none                               |
 | `round_conflict`    | The given round ID is not (or no longer) the current one             |
@@ -268,7 +275,7 @@ Decided:
 
 Deliberately not part of the MVP and therefore open:
 
-- Renewing the token, removing members, deleting rooms.
+- Renewing the token (so a removed person can always join again via the link), deleting rooms.
 - Cleaning up orphaned rooms. Anonymous identities without membership may be cleaned up
   manually later; nothing deletes rooms automatically (see work package 013).
 - Behavior with very many members. For team size no limit is planned.

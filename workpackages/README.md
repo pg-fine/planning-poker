@@ -67,6 +67,7 @@ processing order; the Dependencies column lists the mandatory prior work.
 | 021 | [Finding permanent rooms again](021-finding-rooms-again.md) | 015 | M7 | Done |
 | 022 | [Room name](022-room-name.md) | 021 | M7 | Done |
 | 023 | [Translation to English](023-english-translation.md) | 022 | M8 | Done |
+| 024 | [Remove members from a room](024-remove-members.md) | 019, 020 | M9 | Done |
 
 ### M1: Foundation
 
@@ -109,6 +110,10 @@ needed product decisions beforehand.
 
 The whole project (user interface, code comments, SQL comments, documentation, work packages
 and file names) is in English.
+
+### M9: Member management
+
+Members can be removed from a room.
 
 ## Prerequisites and operating limits
 
