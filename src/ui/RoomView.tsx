@@ -3,9 +3,11 @@ import type { AppSupabaseClient } from '../supabase/client.ts'
 import { getRoomState } from '../supabase/roomState.ts'
 import { RoomError, describeRoomError, leaveRoom } from '../supabase/rooms.ts'
 import { Link } from './Link.tsx'
+import { RoomNameChange } from './RoomNameChange.tsx'
 import { Participants } from './Participants.tsx'
 import { NameChange } from './NameChange.tsx'
 import { roomUrl } from './routing.ts'
+import { touchRecentRoom } from './storage.ts'
 import { RoundPanel } from './RoundPanel.tsx'
 import { useRoomState } from './useRoomState.ts'
 
@@ -47,6 +49,12 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   useEffect(() => {
     if (isReady) top.current?.focus({ preventScroll: true })
   }, [isReady])
+
+  // Raumnamen in der Liste „Zuletzt verwendete Räume“ aktuell halten.
+  const roomName = result.status === 'ready' ? result.state.name : undefined
+  useEffect(() => {
+    if (roomName !== undefined) touchRecentRoom(token, undefined, roomName)
+  }, [token, roomName])
 
   if (notMember) return null
 
@@ -107,6 +115,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
 
   return (
     <div ref={top} tabIndex={-1} className="focus-target">
+      {state.name && <h2 className="room-name">{state.name}</h2>}
       <div className="room-bar">
         <p className="room-bar__who">
           Du bist als <strong>{state.me.displayName}</strong> dabei ·{' '}
@@ -160,6 +169,13 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
           </div>
           <p className="hint">Teile diesen Link im Teams-Chat. Er bleibt dauerhaft gültig.</p>
         </div>
+        <RoomNameChange
+          client={client}
+          roomId={roomId}
+          currentName={state.name}
+          onState={applyState}
+          offline={!browserOnline}
+        />
         <NameChange
           client={client}
           token={token}
@@ -172,9 +188,9 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
         <h3 className="results-heading">Teilnahme entfernen</h3>
         <p className="hint">
           „Zur Startseite“ verlässt nur diese Ansicht; deine Teilnahme und deine Stimme bleiben
-          erhalten. „Teilnahme entfernen“ löscht dich aus der Mitgliederliste und entfernt deine
-          Stimme, auch aus einem bereits aufgedeckten Ergebnis. Mit dem Link kannst du jederzeit
-          erneut beitreten.
+          erhalten. „Teilnahme entfernen“ löscht dich aus der Mitgliederliste. Deine Stimme wird in einer
+          offenen Runde entfernt; in einem bereits aufgedeckten Ergebnis bleibt sie samt Namen bis
+          zur nächsten Runde stehen. Mit dem Link kannst du jederzeit erneut beitreten.
         </p>
         {leaveError && (
           <p className="error" role="alert">
@@ -184,7 +200,8 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
         {confirmLeave ? (
           <div className="confirm" role="alert">
             <p>
-              <strong>Teilnahme wirklich entfernen?</strong> Deine Stimme wird gelöscht.
+              <strong>Teilnahme wirklich entfernen?</strong> Eine Stimme in der offenen Runde wird
+              gelöscht.
             </p>
             <div className="row">
               <button type="button" onClick={leave} aria-disabled={leaving || undefined}>

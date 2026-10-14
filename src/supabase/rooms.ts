@@ -11,6 +11,7 @@ export const ROOM_ERROR_CODES = [
   'not_member',
   'invalid_name',
   'invalid_title',
+  'invalid_room_name',
   'invalid_card',
   'no_round',
   'round_conflict',
@@ -35,6 +36,7 @@ const MESSAGES: Record<RoomErrorCode, string> = {
   not_member: 'Du bist kein Mitglied dieses Raums.',
   invalid_name: 'Der Name muss 1 bis 40 Zeichen lang sein.',
   invalid_title: 'Der Titel muss 1 bis 120 Zeichen lang sein.',
+  invalid_room_name: 'Der Raumname darf höchstens 60 Zeichen lang sein.',
   invalid_card: 'Diese Karte ist nicht erlaubt.',
   no_round: 'Es gibt noch keine Runde.',
   round_conflict: 'Die Runde wurde inzwischen geändert.',
@@ -84,10 +86,15 @@ export type CreatedRoom = { roomId: string; inviteToken: string }
 export async function createRoom(
   client: AppSupabaseClient,
   displayName: string,
+  roomName: string | null = null,
 ): Promise<CreatedRoom> {
-  const { data, error } = await client.rpc('create_room', {
-    p_display_name: displayName,
-  })
+  // Ohne Raumnamen bleibt der Aufruf wie vor Paket 022 und funktioniert auch ohne die Migration.
+  const { data, error } = await client.rpc(
+    'create_room',
+    roomName === null
+      ? { p_display_name: displayName }
+      : { p_display_name: displayName, p_room_name: roomName },
+  )
   if (error) throw toRoomError(error)
   const result = readObject(data)
   return {
@@ -140,3 +147,4 @@ export async function getInviteToken(
   if (error) throw toRoomError(error)
   return expectString(data, 'invite_token')
 }
+

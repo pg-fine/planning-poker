@@ -493,3 +493,8 @@ a:focus-visible {
   cursor: pointer;
   font-size: 0.9rem;
 }
+
+.room-name {
+  margin: 0 0 0.5rem;
+  overflow-wrap: anywhere;
+}

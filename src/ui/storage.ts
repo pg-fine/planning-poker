@@ -67,7 +67,13 @@ export function forgetRoom(token: string): void {
 }
 
 /** Ein zuletzt verwendeter Raum: nur Einladungstoken, letzter Besuch und der eigene Name dort. */
-export type RecentRoom = { token: string; lastUsed: number; displayName: string }
+export type RecentRoom = {
+  token: string
+  lastUsed: number
+  displayName: string
+  /** Raumname, falls der Raum einen hat; sonst leer. */
+  roomName: string
+}
 
 export function loadRecentRooms(): RecentRoom[] {
   const raw = read(RECENT_KEY)
@@ -83,8 +89,13 @@ export function loadRecentRooms(): RecentRoom[] {
         typeof (entry as RecentRoom).token === 'string' &&
         typeof (entry as RecentRoom).lastUsed === 'number'
       ) {
-        const { token, lastUsed, displayName } = entry as RecentRoom
-        rooms.push({ token, lastUsed, displayName: typeof displayName === 'string' ? displayName : '' })
+        const { token, lastUsed, displayName, roomName } = entry as RecentRoom
+        rooms.push({
+          token,
+          lastUsed,
+          displayName: typeof displayName === 'string' ? displayName : '',
+          roomName: typeof roomName === 'string' ? roomName : '',
+        })
       }
     }
     return rooms.sort((a, b) => b.lastUsed - a.lastUsed).slice(0, MAX_RECENT)
@@ -93,14 +104,22 @@ export function loadRecentRooms(): RecentRoom[] {
   }
 }
 
-/** Markiert den Raum als gerade verwendet; ohne Namen bleibt der bisher gemerkte Name erhalten. */
-export function touchRecentRoom(token: string, displayName?: string): void {
+/**
+ * Markiert den Raum als gerade verwendet. Nicht angegebene Werte (`undefined`) bleiben erhalten;
+ * `roomName: null` löscht einen gemerkten Raumnamen.
+ */
+export function touchRecentRoom(
+  token: string,
+  displayName?: string,
+  roomName?: string | null,
+): void {
   const rooms = loadRecentRooms()
   const previous = rooms.find((room) => room.token === token)
   const entry: RecentRoom = {
     token,
     lastUsed: Date.now(),
     displayName: displayName ?? previous?.displayName ?? '',
+    roomName: roomName === undefined ? (previous?.roomName ?? '') : (roomName ?? ''),
   }
   write(
     RECENT_KEY,

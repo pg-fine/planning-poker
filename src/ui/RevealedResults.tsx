@@ -20,7 +20,7 @@ export function RevealedResults({ votes, members }: Props) {
   const rows = votes
     .map((vote) => ({
       userId: vote.userId,
-      name: names.get(vote.userId) ?? 'Unbekannt',
+      name: names.get(vote.userId) ?? vote.displayName ?? 'Unbekannt',
       card: vote.card,
     }))
     .sort((a, b) => cardOrder(a.card) - cardOrder(b.card) || a.name.localeCompare(b.name, 'de'))

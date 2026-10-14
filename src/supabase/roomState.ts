@@ -3,7 +3,8 @@ import type { AppSupabaseClient } from './client.ts'
 import { RoomError, toRoomError } from './rooms.ts'
 
 export type Member = { userId: string; displayName: string }
-export type Vote = { userId: string; card: CardValue }
+/** `displayName` ist nur gesetzt, wenn die Person die Teilnahme nach dem Aufdecken entfernt hat. */
+export type Vote = { userId: string; card: CardValue; displayName?: string }
 
 export type RoundState = {
   roundId: string
@@ -15,6 +16,8 @@ export type RoundState = {
 /** Zustand eines Raums aus Sicht der aufrufenden Person (siehe Vertrag, Abschnitt 5). */
 export type RoomState = {
   roomId: string
+  /** Optionaler Raumname; `null`, wenn der Raum keinen hat. */
+  name: string | null
   /** Steigt bei jeder sichtbaren Änderung; dient dem Erkennen veralteter Antworten. */
   revision: number
   me: Member
@@ -69,13 +72,17 @@ export function parseRoomState(data: unknown): RoomState {
       votes: asArray(raw.votes, 'votes').map((entry): Vote => {
         const vote = asObject(entry, 'Stimme')
         if (!isCardValue(vote.card)) invalid('card')
-        return { userId: asString(vote.user_id, 'user_id'), card: vote.card }
+        const userId = asString(vote.user_id, 'user_id')
+        return typeof vote.display_name === 'string'
+          ? { userId, card: vote.card, displayName: vote.display_name }
+          : { userId, card: vote.card }
       }),
     }
   }
 
   return {
     roomId: asString(object.room_id, 'room_id'),
+    name: typeof object.name === 'string' ? object.name : null,
     revision: object.revision,
     me: parseMember(object.me),
     members: asArray(object.members, 'members').map(parseMember),
