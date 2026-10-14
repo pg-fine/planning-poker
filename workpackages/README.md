@@ -39,25 +39,25 @@ Externe Voraussetzungen werden als Blocker dokumentiert, nicht als erledigt mark
 
 ## Meilensteine und Arbeitspakete
 
-Alle Pakete haben initial den Status **Offen**. Die Nummerierung ist die empfohlene
+Der Status (Offen, In Arbeit, Erledigt, Blockiert) wird hier und im jeweiligen Paket gepflegt. Die Nummerierung ist die empfohlene
 Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbeiten.
 
-| Nr. | Arbeitspaket | Abhängigkeiten | Meilenstein |
-| --- | --- | --- | --- |
-| 001 | [Projektgrundgerüst](001-projektgrundgeruest.md) | – | M1: Grundlage |
-| 002 | [Daten- und Aktionsvertrag](002-daten-und-aktionsvertrag.md) | – | M1 |
-| 003 | [Datenbankschema und Leserechte](003-datenbankschema-und-leserechte.md) | 002 | M1 |
-| 004 | [Supabase-Verbindung und Identität](004-supabase-und-identitaet.md) | 001 | M1 |
-| 005 | [Raumzugang und Mitgliedschaft](005-raumzugang-und-mitgliedschaft.md) | 003, 004 | M2: Gemeinsamer Raum |
-| 006 | [Rundenwechsel und Aufdecken](006-rundenwechsel-und-aufdecken.md) | 005 | M2 |
-| 007 | [Stimmen speichern und ändern](007-stimmen-speichern.md) | 006 | M2 |
-| 008 | [Raum erstellen und beitreten: Oberfläche](008-raumoberflaeche.md) | 005 | M3: Spielbarer Ablauf |
-| 009 | [Karten und Ergebnisse: Oberfläche](009-pokeroberflaeche.md) | 006, 007, 008 | M3 |
-| 010 | [Echtzeit-Synchronisierung](010-echtzeit.md) | 009 | M3 |
-| 011 | [Wiederverbinden und konkurrierende Aktionen](011-wiederverbinden-und-konflikte.md) | 010 | M4: Verlässliche Nutzung |
-| 012 | [Bedienbarkeit und Fehleranzeigen](012-bedienbarkeit.md) | 011 | M4 |
-| 013 | [Cloud-Einrichtung und Veröffentlichung](013-bereitstellung.md) | 012 | M5: Nutzbares MVP |
-| 014 | [Gemeinsame MVP-Abnahme](014-mvp-abnahme.md) | 013 | M5 |
+| Nr. | Arbeitspaket | Abhängigkeiten | Meilenstein | Status |
+| --- | --- | --- | --- | --- |
+| 001 | [Projektgrundgerüst](001-projektgrundgeruest.md) | – | M1: Grundlage | Erledigt |
+| 002 | [Daten- und Aktionsvertrag](002-daten-und-aktionsvertrag.md) | – | M1 | Offen |
+| 003 | [Datenbankschema und Leserechte](003-datenbankschema-und-leserechte.md) | 002 | M1 | Offen |
+| 004 | [Supabase-Verbindung und Identität](004-supabase-und-identitaet.md) | 001 | M1 | Offen |
+| 005 | [Raumzugang und Mitgliedschaft](005-raumzugang-und-mitgliedschaft.md) | 003, 004 | M2: Gemeinsamer Raum | Offen |
+| 006 | [Rundenwechsel und Aufdecken](006-rundenwechsel-und-aufdecken.md) | 005 | M2 | Offen |
+| 007 | [Stimmen speichern und ändern](007-stimmen-speichern.md) | 006 | M2 | Offen |
+| 008 | [Raum erstellen und beitreten: Oberfläche](008-raumoberflaeche.md) | 005 | M3: Spielbarer Ablauf | Offen |
+| 009 | [Karten und Ergebnisse: Oberfläche](009-pokeroberflaeche.md) | 006, 007, 008 | M3 | Offen |
+| 010 | [Echtzeit-Synchronisierung](010-echtzeit.md) | 009 | M3 | Offen |
+| 011 | [Wiederverbinden und konkurrierende Aktionen](011-wiederverbinden-und-konflikte.md) | 010 | M4: Verlässliche Nutzung | Offen |
+| 012 | [Bedienbarkeit und Fehleranzeigen](012-bedienbarkeit.md) | 011 | M4 | Offen |
+| 013 | [Cloud-Einrichtung und Veröffentlichung](013-bereitstellung.md) | 012 | M5: Nutzbares MVP | Offen |
+| 014 | [Gemeinsame MVP-Abnahme](014-mvp-abnahme.md) | 013 | M5 | Offen |
 
 ### M1: Grundlage
 
