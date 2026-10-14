@@ -1,6 +1,6 @@
 # 010 – Echtzeit-Synchronisierung
 
-- **Status:** Offen
+- **Status:** Umgesetzt; Prüfung offen (Migration im Supabase-Projekt anwenden)
 - **Abhängigkeiten:** 009
 - **Meilenstein:** M3
 
@@ -30,5 +30,23 @@
 
 ## Prüfung und Ergebnis
 
-Parallel in zwei Profilen abstimmen, aufdecken und Raum wechseln. Requests und
-Subscription-Lebenszyklus im Browser prüfen. Kein automatisierter Testcode ohne Bugfund.
+Umsetzung:
+
+- `supabase/migrations/20261014090500_echtzeit.sql`: nimmt nur `public.rooms` in die Publikation
+  `supabase_realtime` auf (idempotent). Die Tabelle enthält weder Namen noch Stimmen; die
+  Leserichtlinie aus 003 (nur Mitglieder) gilt auch für Echtzeit-Ereignisse.
+- `src/ui/useRoomState.ts`: abonniert UPDATE-Ereignisse der eigenen Raumzeile
+  (`id=eq.<roomId>`, Kanalname mit Zufallsanteil). Jedes Ereignis und jedes (erneute)
+  `SUBSCRIBED` lädt den Snapshot per `get_room_state` nach. Überlappende Anforderungen werden
+  zusammengefasst, Zustände mit älterer Revision verworfen. Aufräumen über `removeChannel`.
+- Verbindungsstatus (`connecting`, `live`, `offline`) wird in `RoomView` als Text angezeigt.
+- Nutzt die bereits vorhandene Raumrevision: Austritte, Rundenwechsel und gelöschte Stimmen
+  werden dadurch zuverlässig erkannt (löschende Ereignisse gibt es nicht).
+
+Geprüft ohne die Migration (echtes Projekt, Headless-Chromium): Der Kanal verbindet sich und die
+Anzeige zeigt „Live verbunden“, aber es kommen erwartungsgemäß keine Ereignisse an (Beitritt,
+Runde und Stimmen erscheinen bei der anderen Person nicht). Das bestätigt, dass die Migration
+nötig ist. Typecheck, Lint und Build sind fehlerfrei.
+
+Offen: Nach dem Anwenden der Migration den Browser-Durchlauf mit mehreren Profilen wiederholen
+(Beitritt, Runde, Stimme, Aufdecken, neue Runde, später Beitritt, Austritt live sichtbar).

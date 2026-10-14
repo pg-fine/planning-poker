@@ -53,7 +53,7 @@ Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbe
 | 007 | [Stimmen speichern und ändern](007-stimmen-speichern.md) | 006 | M2 | Erledigt |
 | 008 | [Raum erstellen und beitreten: Oberfläche](008-raumoberflaeche.md) | 005 | M3: Spielbarer Ablauf | Erledigt |
 | 009 | [Karten und Ergebnisse: Oberfläche](009-pokeroberflaeche.md) | 006, 007, 008 | M3 | Erledigt |
-| 010 | [Echtzeit-Synchronisierung](010-echtzeit.md) | 009 | M3 | Offen |
+| 010 | [Echtzeit-Synchronisierung](010-echtzeit.md) | 009 | M3 | Umgesetzt, Prüfung im Supabase-Projekt offen |
 | 011 | [Wiederverbinden und konkurrierende Aktionen](011-wiederverbinden-und-konflikte.md) | 010 | M4: Verlässliche Nutzung | Offen |
 | 012 | [Bedienbarkeit und Fehleranzeigen](012-bedienbarkeit.md) | 011 | M4 | Offen |
 | 013 | [Cloud-Einrichtung und Veröffentlichung](013-bereitstellung.md) | 012 | M5: Nutzbares MVP | Offen |

@@ -26,6 +26,7 @@ Dateinamen** auf eine leere Datenbank angewendet werden:
 3. `20261014090200_raumzugang.sql`
 4. `20261014090300_runden.sql`
 5. `20261014090400_stimmen.sql`
+6. `20261014090500_echtzeit.sql` (nimmt die Tabelle `rooms` in die Echtzeit-Veröffentlichung auf)
 
 Einfachster Weg: Im Dashboard den **SQL Editor** öffnen, den Inhalt der Datei einfügen und
 ausführen, dann die nächste Datei. Wer die Supabase CLI nutzt, kann stattdessen
