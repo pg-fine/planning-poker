@@ -16,7 +16,7 @@ type Props = {
 }
 
 export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) {
-  const { result, reload, applyState } = useRoomState(client, roomId)
+  const { result, reload, applyState, connection } = useRoomState(client, roomId)
   const link = roomUrl(token)
   const linkField = useRef<HTMLInputElement>(null)
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
@@ -82,6 +82,13 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
 
   return (
     <>
+      <p className="hint" role="status">
+        {connection === 'live' && 'Live verbunden: Änderungen erscheinen sofort.'}
+        {connection === 'connecting' && 'Verbindung für Live-Updates wird hergestellt …'}
+        {connection === 'offline' &&
+          'Keine Live-Verbindung. Änderungen anderer erscheinen erst nach einer eigenen Aktion oder dem Neuladen.'}
+      </p>
+
       <RoundPanel client={client} state={state} onState={applyState} />
 
       <section className="card" aria-labelledby="room-title">
