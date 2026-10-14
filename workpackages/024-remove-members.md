@@ -47,4 +47,7 @@ since the migration was not applied in the real project yet: no button for onese
 text, Cancel, "Yes, remove" removes the entry from the list; axe-core without findings. Type check,
 lint and build error-free.
 
-Open: check against the real Supabase project after applying the migration.
+After applying the migration (14.10.2026), verified against the real Supabase project (headless Chromium,
+three separate profiles): removing a member in an open round deletes the vote and the counts update live
+for the others ("1 of 2 voted"); the removed person is sent back to the join form; removing a member after
+the reveal keeps "Cora · 5" in the result; the removed person can join again with the link.
