@@ -1,4 +1,5 @@
--- Manual database cleanup. Run the statements one by one in the Supabase SQL Editor.
+-- Manual database cleanup. Run the statements one by one in the Supabase SQL Editor (select a
+-- block and run only that selection, not the whole file).
 -- Every delete is wrapped in a transaction that ends with ROLLBACK, so nothing is deleted until
 -- you replace "rollback;" with "commit;". Run the previews (1 and 5) first.
 -- This file is not a migration; do not apply it automatically.
@@ -28,9 +29,10 @@ delete from public.rooms r
 where not exists (select 1 from public.room_members m where m.room_id = r.id);
 rollback;  -- to apply: commit;
 
--- 4. Delete a specific room (e.g. test rooms), by ID or by name
+-- 4. Delete a specific room (e.g. test rooms). Template only: remove the leading "-- " of ONE delete line
+--    and fill in the value, otherwise this block does nothing.
 begin;
-delete from public.rooms where id = '<room-id>';
+-- delete from public.rooms where id = '00000000-0000-0000-0000-000000000000';
 -- delete from public.rooms where name ilike 'test%';
 rollback;  -- to apply: commit;
 
