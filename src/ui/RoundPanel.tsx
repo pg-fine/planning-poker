@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import type { CardValue } from '../domain/cards.ts'
+import { cardDescription, type CardValue } from '../domain/cards.ts'
 import { MAX_TITLE_LENGTH } from '../domain/validation.ts'
 import type { AppSupabaseClient } from '../supabase/client.ts'
 import { getRoomState, type RoomState } from '../supabase/roomState.ts'
@@ -34,10 +34,15 @@ function isStaleRound(error: unknown): boolean {
   )
 }
 
+/** Bereich, in dem eine Aktion läuft bzw. ihre Rückmeldung erscheint. */
+type Scope = 'vote' | 'reveal' | 'start'
+
 export function RoundPanel({ client, state, onState, offline }: Props) {
   const { round } = state
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [busyScope, setBusyScope] = useState<Scope | null>(null)
+  const busy = busyScope !== null
+  const [errors, setErrors] = useState<Partial<Record<Scope, string>>>({})
+  const [pendingCard, setPendingCard] = useState<CardValue | null>(null)
   const [title, setTitle] = useState('')
   // Die Rückfrage gilt nur für die Runde, bei der sie gestellt wurde.
   const [confirmFor, setConfirmFor] = useState<string | null>(null)
@@ -63,16 +68,17 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
    * wird der Stand geladen; `wasApplied` entscheidet, ob die Aktion dort bereits sichtbar ist.
    */
   const run = async (
+    scope: Scope,
     action: () => Promise<RoomState>,
     wasApplied?: (fresh: RoomState) => boolean,
   ): Promise<boolean> => {
     if (busy) return false
     if (offline) {
-      setError('Keine Verbindung. Sobald sie wieder besteht, kannst du weitermachen.')
+      setErrors({ [scope]: 'Keine Verbindung. Sobald sie wieder besteht, kannst du weitermachen.' })
       return false
     }
-    setBusy(true)
-    setError(null)
+    setBusyScope(scope)
+    setErrors({})
     try {
       onState(await action())
       return true
@@ -97,16 +103,17 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
           // Aktualisierung fehlgeschlagen: die ursprüngliche Meldung genügt.
         }
       }
-      setError(message)
+      setErrors({ [scope]: message })
       return false
     } finally {
-      setBusy(false)
+      setBusyScope(null)
     }
   }
 
   /** Startet eine neue Runde mit dem Titel; bei Erfolg ist die Rückfrage erledigt. */
   const startWith = async (newTitle: string): Promise<boolean> => {
     const started = await run(
+      'start',
       () => startRound(client, state.roomId, round?.roundId ?? null, newTitle),
       (fresh) =>
         fresh.round !== null &&
@@ -124,16 +131,16 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
     event.preventDefault()
     const trimmed = title.trim()
     if (trimmed === '') {
-      setError('Bitte gib einen Titel für die Schätzung ein.')
+      setErrors({ start: 'Bitte gib einen Titel für die Schätzung ein.' })
       return
     }
     if ([...trimmed].length > MAX_TITLE_LENGTH) {
-      setError(`Der Titel darf höchstens ${MAX_TITLE_LENGTH} Zeichen lang sein.`)
+      setErrors({ start: `Der Titel darf höchstens ${MAX_TITLE_LENGTH} Zeichen lang sein.` })
       return
     }
     // Eine laufende Abstimmung mit Stimmen wird nur nach ausdrücklicher Bestätigung ersetzt.
     if (round?.status === 'open' && round.votes.length > 0 && !confirmReplace) {
-      setError(null)
+      setErrors({})
       setConfirmFor(round.roundId)
       return
     }
@@ -146,7 +153,9 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
 
   const onVote = (card: CardValue) => {
     if (!round) return
+    setPendingCard(card)
     void run(
+      'vote',
       () => castVote(client, state.roomId, round.roundId, card),
       (fresh) =>
         fresh.round?.roundId === round.roundId &&
@@ -157,6 +166,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
   const onReveal = () => {
     if (!round) return
     void run(
+      'reveal',
       () => revealRound(client, state.roomId, round.roundId),
       (fresh) => fresh.round?.roundId === round.roundId && fresh.round.status === 'revealed',
     )
@@ -178,8 +188,15 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
           maxLength={MAX_TITLE_LENGTH}
           placeholder="z. B. STORY-123 Login-Seite"
           readOnly={busy}
+          aria-invalid={errors.start ? true : undefined}
+          aria-describedby={errors.start ? 'start-error' : undefined}
         />
       </div>
+      {errors.start && (
+        <p id="start-error" className="error" role="alert">
+          {errors.start}
+        </p>
+      )}
       {confirmReplace && (
         <div className="confirm" role="alert">
           <p>
@@ -188,7 +205,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
           </p>
           <div className="row">
             <button type="submit" disabled={offline} aria-disabled={busy || undefined}>
-              {busy ? 'Wird gespeichert …' : 'Ja, ersetzen'}
+              {busyScope === 'start' ? 'Wird gespeichert …' : 'Ja, ersetzen'}
             </button>
             <button
               type="button"
@@ -207,7 +224,7 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
           disabled={offline}
           aria-disabled={busy || undefined}
         >
-          {busy
+          {busyScope === 'start'
           ? 'Wird gespeichert …'
           : !round
             ? 'Runde starten'
@@ -232,9 +249,19 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
             <>
               <CardDeck selected={myVote} busy={busy} disabled={offline} onSelect={onVote} />
               <p role="status">
-                {myVote === null
-                  ? 'Du hast noch nicht abgestimmt.'
-                  : 'Deine Stimme ist gespeichert. Du kannst sie bis zum Aufdecken ändern.'}{' '}
+                {busyScope === 'vote' && pendingCard !== null
+                  ? `Speichere deine Schätzung: ${cardDescription(pendingCard)} …`
+                  : myVote === null
+                    ? 'Du hast noch nicht abgestimmt.'
+                    : `Deine Schätzung: ${cardDescription(myVote)} · gespeichert`}
+              </p>
+              {errors.vote && (
+                <p className="error" role="alert">
+                  {errors.vote}
+                </p>
+              )}
+              <p className="hint">
+                {myVote !== null && 'Du kannst sie bis zum Aufdecken ändern. '}
                 Abgegebene Stimmen: <strong>{round.votes.length}</strong>
               </p>
               <button
@@ -243,8 +270,13 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
                 disabled={offline}
                 aria-disabled={busy || undefined}
               >
-                {busy ? 'Wird gespeichert …' : 'Karten aufdecken'}
+                {busyScope === 'reveal' ? 'Wird aufgedeckt …' : 'Karten aufdecken'}
               </button>
+              {errors.reveal && (
+                <p className="error" role="alert">
+                  {errors.reveal}
+                </p>
+              )}
             </>
           ) : (
             <RevealedResults votes={round.votes} members={state.members} />
@@ -270,17 +302,11 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
                 disabled={offline}
                 aria-disabled={busy || undefined}
               >
-                {busy ? 'Wird gespeichert …' : 'Noch einmal schätzen'}
+                {busyScope === 'start' ? 'Wird gespeichert …' : 'Noch einmal schätzen'}
               </button>
             </p>
           )}
         </section>
-      )}
-
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
       )}
     </>
   )

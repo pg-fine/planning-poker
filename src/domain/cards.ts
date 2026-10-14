@@ -27,3 +27,10 @@ export function isCardValue(value: unknown): value is CardValue {
 export function cardLabel(value: CardValue): string {
   return CARDS.find((card) => card.value === value)?.label ?? value
 }
+
+/** Ausgeschriebene Bezeichnung für Texte, z. B. „☕ Kaffeepause“. */
+export function cardDescription(value: CardValue): string {
+  if (value === 'coffee') return '☕ Kaffeepause'
+  if (value === '?') return '? Unklar'
+  return cardLabel(value)
+}

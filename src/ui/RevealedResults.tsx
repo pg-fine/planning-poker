@@ -1,14 +1,8 @@
-import { cardLabel, type CardValue } from '../domain/cards.ts'
+import { cardDescription, type CardValue } from '../domain/cards.ts'
 import { cardOrder, describeAgreement, summarizeVotes } from '../domain/results.ts'
 import type { Member, Vote } from '../supabase/roomState.ts'
 
 type Props = { votes: Vote[]; members: Member[] }
-
-function describeCard(card: CardValue): string {
-  if (card === 'coffee') return '☕ Kaffeepause'
-  if (card === '?') return '? Unklar'
-  return cardLabel(card)
-}
 
 function isSpecial(card: CardValue): boolean {
   return card === '?' || card === 'coffee'
@@ -47,7 +41,7 @@ export function RevealedResults({ votes, members }: Props) {
       <ul className="distribution">
         {summary.distribution.map((entry) => (
           <li key={entry.card}>
-            <span className="distribution__card">{describeCard(entry.card)}</span>
+            <span className="distribution__card">{cardDescription(entry.card)}</span>
             <span className="distribution__track" aria-hidden="true">
               <span
                 className={`distribution__bar${isSpecial(entry.card) ? ' distribution__bar--special' : ''}`}
@@ -66,7 +60,7 @@ export function RevealedResults({ votes, members }: Props) {
         {rows.map((row) => (
           <li key={row.userId}>
             <span className="result-list__name">{row.name}</span>
-            <strong className="result-list__card">{describeCard(row.card)}</strong>
+            <strong className="result-list__card">{cardDescription(row.card)}</strong>
           </li>
         ))}
       </ul>
