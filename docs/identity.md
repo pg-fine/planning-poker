@@ -1,31 +1,31 @@
-# Identität im Browser
+# Identity in the Browser
 
-Teilnehmende melden sich nicht an. Beim ersten Start meldet die App den Browser **anonym**
-bei Supabase an (`signInAnonymously`). Die daraus entstehende Nutzer-ID (`auth.uid()`) ist
-die Identität in allen Räumen. Der Anzeigename ist nur eine Beschriftung und kein Login.
+Participants do not sign in. On first start the app signs the browser in **anonymously** with
+Supabase (`signInAnonymously`). The resulting user ID (`auth.uid()`) is the identity in all
+rooms. The display name is just a label and not a login.
 
-## Verhalten
+## Behavior
 
-| Situation                                        | Ergebnis                                                              |
+| Situation                                        | Result                                                                |
 | ------------------------------------------------ | --------------------------------------------------------------------- |
-| Erster Start in einem Browser-Profil             | Neue anonyme Identität, Session im `localStorage`                     |
-| Neuladen, Browser neu starten                    | Gleiche Identität (gespeicherte Session, Token wird erneuert)         |
-| Zweiter Tab oder zweites Fenster, gleiches Profil | Gleiche Identität; eine Sperre verhindert zwei parallele Erstanmeldungen |
-| Anderes Profil, anderer Browser, anderes Gerät   | Neue Identität, also eine neue Teilnahme                              |
-| Browserdaten gelöscht, Privatfenster geschlossen | Neue Identität. Frühere Mitgliedschaft und Stimme gehören der alten ID |
-| Session ungültig (Nutzer serverseitig gelöscht)  | Gespeicherte Session wird verworfen, es folgt eine neue Anmeldung     |
-| Supabase nicht erreichbar                        | Fehlermeldung mit „Erneut versuchen“; bestehende Session bleibt erhalten |
+| First start in a browser profile                 | New anonymous identity, session in `localStorage`                     |
+| Reload, restart the browser                      | Same identity (stored session, token is renewed)                      |
+| Second tab or second window, same profile        | Same identity; a lock prevents two parallel first sign-ins            |
+| Other profile, other browser, other device       | New identity, i.e. a new participation                                |
+| Browser data cleared, private window closed      | New identity. Former membership and vote belong to the old ID         |
+| Session invalid (user deleted on the server)     | Stored session is discarded, a new sign-in follows                    |
+| Supabase unreachable                             | Error message with "Try again"; existing session is kept              |
 
-Eine neue Identität im selben Raum erscheint als zusätzliches Mitglied. Der alte Eintrag
-bleibt bestehen, solange niemand ihn verlässt; er blockiert aber keine Abstimmung, weil es
-keine Pflichtabstimmenden gibt (siehe `data-and-action-contract.md`).
+A new identity in the same room appears as an additional member. The old entry stays as long
+as nobody removes it; but it does not block any vote because there are no mandatory voters
+(see `data-and-action-contract.md`).
 
-## Fehlerarten der Anmeldung
+## Kinds of sign-in errors
 
-| Art                  | Typische Ursache                                           | Meldung enthält Hinweis auf                   |
+| Kind                 | Typical cause                                              | Message points to                             |
 | -------------------- | ---------------------------------------------------------- | --------------------------------------------- |
-| Konfiguration fehlt  | `.env.local` fehlt oder enthält Platzhalter                | Einrichtungshinweis (vor jeder Anmeldung)     |
-| `anonymous_disabled` | „Allow anonymous sign-ins“ ist aus                         | Schalter im Supabase-Dashboard                |
-| `rate_limited`       | Mehr als 30 Anmeldungen pro Stunde und IP                  | Warten bzw. Limit im Dashboard erhöhen        |
-| `network`            | Offline, pausiertes Projekt, Firmennetz blockiert Supabase | Verbindung prüfen, Projekt reaktivieren       |
-| `unknown`            | z. B. falscher Publishable Key                             | URL und Key prüfen                            |
+| Configuration missing | `.env.local` is missing or contains placeholders          | Setup notice (before any sign-in)             |
+| `anonymous_disabled` | "Allow anonymous sign-ins" is off                          | Switch in the Supabase dashboard              |
+| `rate_limited`       | More than 30 sign-ins per hour and IP                      | Wait or raise the limit in the dashboard      |
+| `network`            | Offline, paused project, corporate network blocks Supabase | Check connection, reactivate project          |
+| `unknown`            | e.g. wrong publishable key                                 | Check URL and key                             |

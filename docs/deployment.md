@@ -1,168 +1,169 @@
-# Veröffentlichung mit Cloudflare Pages und Supabase
+# Deploying with Cloudflare and Supabase
 
-Diese Anleitung bringt die App ins Internet (HTTPS, kostenlose `workers.dev`- bzw. `pages.dev`-Adresse). Du brauchst
-zwei kostenlose Konten, die ihr selbst kontrolliert: **Supabase** und **Cloudflare**. Es ist keine
-IT-Freigabe und kein eigener Server nötig.
+This guide puts the app on the internet (HTTPS, free `workers.dev` or `pages.dev` address).
+You need two free accounts that you control yourselves: **Supabase** and **Cloudflare**. No
+IT approval and no server of your own is needed.
 
-Stand der Plattform-Angaben: Oktober 2026. Bezeichnungen im Dashboard können sich ändern.
+Platform information as of October 2026. Names in the dashboard may change.
 
-## Überblick
+## Overview
 
 ```text
-Browser ──► Cloudflare Pages (statische Dateien aus dist/)
+Browser ──► Cloudflare (static files from dist/)
    │
-   └──────► Supabase (Datenbank, anonyme Anmeldung, Echtzeit)
+   └──────► Supabase (database, anonymous sign-in, realtime)
 ```
 
-Die Web-App enthält zur Laufzeit nur zwei **öffentliche** Werte: die Supabase-Projekt-URL und den
-Publishable Key. Sie werden beim Bauen eingebettet (Variablen `VITE_SUPABASE_URL` und
-`VITE_SUPABASE_PUBLISHABLE_KEY`). Niemals einen `secret`- oder `service_role`-Key verwenden.
+At runtime the web app only contains two **public** values: the Supabase project URL and the
+publishable key. They are embedded at build time (variables `VITE_SUPABASE_URL` and
+`VITE_SUPABASE_PUBLISHABLE_KEY`). Never use a `secret` or `service_role` key.
 
-## 1. Supabase vorbereiten
+## 1. Prepare Supabase
 
-Alles Weitere steht in [`supabase-setup.md`](supabase-setup.md). Kurzfassung:
+Everything else is in [`supabase-setup.md`](supabase-setup.md). In short:
 
-1. Projekt anlegen (Free-Plan).
-2. Alle Migrationen aus `supabase/migrations/` **in der Reihenfolge der Dateinamen** im SQL Editor
-   ausführen.
-3. Anonyme Anmeldung aktivieren (Authentication → Sign In / Providers).
-4. Project URL und Publishable Key notieren (Connect-Dialog).
+1. Create a project (Free plan).
+2. Run all migrations from `supabase/migrations/` **in file name order** in the SQL Editor.
+3. Enable anonymous sign-in (Authentication → Sign In / Providers).
+4. Note the Project URL and publishable key (Connect dialog).
 
-## 2. Cloudflare Pages einrichten
+## 2. Set up Cloudflare
 
-Es gibt zwei Wege. Für beide brauchst du einen kostenlosen Cloudflare-Account.
+There are two ways. For both you need a free Cloudflare account.
 
-### Weg A: Git-Anbindung (empfohlen, wenn ihr ein GitHub-Repository habt)
+### Way A: Git integration (recommended if you have a GitHub repository)
 
-Vorteil: Jeder Push auf `main` veröffentlicht automatisch.
+Advantage: every push to `main` publishes automatically.
 
-Cloudflare führt Pages und Workers zusammen. Das Dashboard zeigt je nach Konto den neueren
-**Workers-Flow** (Feld „Deploy command“) oder den klassischen Pages-Flow. Das Repository ist für
-beides vorbereitet: `wrangler.jsonc` beschreibt die Auslieferung als statische Single-Page-App.
+Cloudflare is merging Pages and Workers. Depending on the account, the dashboard shows the
+newer **Workers flow** (field "Deploy command") or the classic Pages flow. The repository is
+prepared for both: `wrangler.jsonc` describes serving the app as a static single-page app.
 
-**Workers-Flow (Feld „Deploy command“ sichtbar):**
+**Workers flow (field "Deploy command" visible):**
 
-1. Im Cloudflare-Dashboard: **Workers & Pages → Create application → Import a repository** (bzw.
-   „Connect to Git“), das GitHub-Repository auswählen.
-2. Einstellungen:
+1. In the Cloudflare dashboard: **Workers & Pages → Create application → Import a
+   repository** (or "Connect to Git"), select the GitHub repository.
+2. Settings:
 
-   | Einstellung      | Wert                                                              |
-   | ---------------- | ----------------------------------------------------------------- |
-   | Project name     | `planning-poker` (muss dem `name` in `wrangler.jsonc` entsprechen) |
-   | Production branch | `main`                                                           |
-   | Build command    | `npm run build`                                                   |
-   | Deploy command   | `npx wrangler deploy` (Standardwert, nicht ändern)                |
-   | Root directory   | leer lassen                                                       |
+   | Setting           | Value                                                             |
+   | ----------------- | ----------------------------------------------------------------- |
+   | Project name      | `planning-poker` (must match the `name` in `wrangler.jsonc`)      |
+   | Production branch | `main`                                                            |
+   | Build command     | `npm run build`                                                   |
+   | Deploy command    | `npx wrangler deploy` (default value, do not change)              |
+   | Root directory    | leave empty                                                       |
 
-3. Variablen eintragen (siehe unten). Im Workers-Flow gehören sie zu den **Build-Variablen**
-   („Build variables and secrets“), nicht zu den Laufzeit-Variablen: Sie werden beim Bauen in die
-   App eingebettet.
-4. **Save and Deploy**. Die App ist danach unter `https://planning-poker.<konto>.workers.dev`
-   erreichbar.
+3. Enter the variables (see below). In the Workers flow they belong to the **build
+   variables** ("Build variables and secrets"), not to the runtime variables: they are
+   embedded into the app at build time.
+4. **Save and Deploy**. Afterwards the app is reachable at
+   `https://planning-poker.<account>.workers.dev`.
 
-**Klassischer Pages-Flow (kein Feld „Deploy command“):** Build command `npm run build`, Build
-output directory `dist`, Variablen unter Settings → Environment variables. `wrangler.jsonc` wird
-dann nicht gebraucht, stört aber nicht.
+**Classic Pages flow (no "Deploy command" field):** build command `npm run build`, build
+output directory `dist`, variables under Settings → Environment variables. `wrangler.jsonc`
+is then not needed but does no harm.
 
-**Variablen (beide Flows, Production):**
+**Variables (both flows, production):**
 
-| Variable                        | Wert                                         |
-| ------------------------------- | -------------------------------------------- |
-| `VITE_SUPABASE_URL`             | Project URL, z. B. `https://abc.supabase.co` |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Publishable key (`sb_publishable_…`)         |
+| Variable                        | Value                                         |
+| ------------------------------- | --------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Project URL, e.g. `https://abc.supabase.co`   |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Publishable key (`sb_publishable_…`)          |
 
-Die Node-Version (22) wird aus der Datei `.nvmrc` gelesen. Setze sonst `NODE_VERSION=22`.
-Änderungen an den Variablen wirken erst nach einem neuen Build.
+The Node version (22) is read from the `.nvmrc` file. Otherwise set `NODE_VERSION=22`.
+Changes to the variables only take effect after a new build.
 
-### Weg B: Direkter Upload (ohne Git)
+### Way B: Direct upload (without Git)
 
-Nachteil: Ein Direct-Upload-Projekt lässt sich später **nicht** auf Git-Anbindung umstellen; dafür
-müsstest du ein neues Projekt anlegen.
+Disadvantage: a direct-upload project cannot be switched to Git integration later; you would
+have to create a new project.
 
-1. Lokal bauen (mit deiner `.env.local`, siehe `README.md`):
+1. Build locally (with your `.env.local`, see `README.md`):
 
    ```bash
    npm ci
    npm run build
    ```
 
-2. Per Kommandozeile: `npx wrangler login`, dann `npx wrangler deploy` (nutzt `wrangler.jsonc`).
-   Im klassischen Pages-Flow alternativ per Drag and drop: **Workers & Pages → Create application →
-   Pages → Upload assets**, den Ordner `dist/` hineinziehen.
-3. Für jede Aktualisierung neu bauen und erneut hochladen.
+2. On the command line: `npx wrangler login`, then `npx wrangler deploy` (uses
+   `wrangler.jsonc`). In the classic Pages flow alternatively by drag and drop:
+   **Workers & Pages → Create application → Pages → Upload assets**, drag the `dist/` folder
+   in.
+3. For every update, build again and upload again.
 
-### Routing und Header
+### Routing and headers
 
-- Direkte Aufrufe und Neuladen von Raum-Links (`/r/<token>`): Im Workers-Flow sorgt
-  `not_found_handling: single-page-application` in `wrangler.jsonc` dafür, dass `index.html`
-  ausgeliefert wird. Im klassischen Pages-Flow geschieht das automatisch, solange es keine
-  `404.html` gibt. Lege deshalb **keine** `404.html` an.
-- `public/_headers` setzt eine Content-Security-Policy und weitere Sicherheits-Header. Die Policy
-  erlaubt Verbindungen zu `https://*.supabase.co` und `wss://*.supabase.co`. Verwendest du später
-  eine eigene Domain für Supabase, passe `connect-src` an.
+- Direct requests and reloads of room links (`/r/<token>`): in the Workers flow
+  `not_found_handling: single-page-application` in `wrangler.jsonc` makes sure `index.html`
+  is served. In the classic Pages flow this happens automatically as long as there is no
+  `404.html`. Therefore do **not** create a `404.html`.
+- `public/_headers` sets a Content-Security-Policy and further security headers. The policy
+  allows connections to `https://*.supabase.co` and `wss://*.supabase.co`. If you later use a
+  custom domain for Supabase, adjust `connect-src`.
 
-## 3. Prüfen nach der Veröffentlichung
+## 3. Check after publishing
 
-1. Die veröffentlichte Adresse (`*.workers.dev` bzw. `*.pages.dev`) öffnen: Startseite erscheint (kein Einrichtungshinweis).
-2. Raum erstellen, den Link in einem **zweiten Browserprofil oder Privatfenster** öffnen und
-   beitreten.
-3. Abstimmen, aufdecken, neue Runde: beide Fenster aktualisieren sich ohne Neuladen.
-4. Den Raum-Link direkt in einem neuen Tab öffnen und die Seite neu laden.
+1. Open the published address (`*.workers.dev` or `*.pages.dev`): the home page appears (no
+   setup notice).
+2. Create a room, open the link in a **second browser profile or private window** and join.
+3. Vote, reveal, new round: both windows update without reloading.
+4. Open the room link directly in a new tab and reload the page.
 
-Zeigt die Startseite „Einrichtung erforderlich“, fehlen die Variablen im Build (Weg A: Variablen
-setzen und neu deployen; Weg B: lokal mit `.env.local` bauen).
+If the home page shows "Setup required", the variables are missing in the build (Way A: set
+the variables and deploy again; Way B: build locally with `.env.local`).
 
-## 4. Aktualisieren
+## 4. Updating
 
-Reihenfolge bei Änderungen, die die Datenbank betreffen:
+Order for changes that affect the database:
 
-1. **Zuerst die neue Migration** im Supabase SQL Editor ausführen. Migrationen sollen
-   abwärtskompatibel sein, sodass die bisher veröffentlichte App kurz weiterläuft. Ob das bei einer
-   konkreten Änderung gilt, muss beim Erstellen der Migration geprüft werden.
-2. **Danach** das Frontend veröffentlichen (Push bzw. neuer Upload).
+1. **First run the new migration** in the Supabase SQL Editor. Migrations should be backward
+   compatible so that the previously published app keeps working for a short time. Whether
+   that holds for a concrete change must be checked when the migration is created.
+2. **Then** publish the frontend (push or new upload).
 
-Bestehende Raum-Links bleiben gültig. Die Räume liegen in der Datenbank, nicht im Frontend.
+Existing room links stay valid. The rooms live in the database, not in the frontend.
 
-## 5. Betrieb und Grenzen (Free-Pläne)
+## 5. Operation and limits (free plans)
 
-- **Pausierung:** Supabase kann Free-Projekte nach etwa **7 Tagen Inaktivität** pausieren. Dann
-  zeigt die App eine Verbindungsmeldung. Im Supabase-Dashboard das Projekt **wiederherstellen**
-  (Restore); Räume und Raum-Links sind danach wieder verfügbar. Ein Upgrade auf Pro verhindert das.
-- **Anonyme Anmeldungen:** Limit **30 pro Stunde und IP-Adresse**. Jeder Browser meldet sich nur
-  einmal an, danach bleibt die Sitzung. Hinter einer gemeinsamen Firmen-IP teilt sich das Team das
-  Limit; bei Bedarf unter Authentication → Rate Limits anheben. Auch das Erneuern von Sitzungen
-  (Token-Refresh) ist pro IP begrenzt (laut Doku 1800 pro Stunde).
-- **Echtzeit:** Im Free-Plan sind laut Preisseite 200 gleichzeitige Verbindungen und 2 Millionen
-  Nachrichten pro Monat enthalten. Das reicht für kleine Teams. Auslastung im Dashboard prüfen.
-- **Cloudflare Pages Free:** 500 Builds pro Monat, bis zu 20 000 Dateien je Site (die App hat
-  wenige). Keine eigene Domain nötig.
-- **Backups:** Free-Projekte haben keine herunterladbaren Backups. Die Daten sind flüchtig (nur
-  aktuelle Runden) und können jederzeit neu entstehen.
-- **Netz:** Teilnehmende müssen `*.workers.dev` bzw. `*.pages.dev` und `*.supabase.co` (HTTPS und WebSocket) erreichen.
-  Blockiert ein Netz WebSockets, fragt die App alle 5 Sekunden nach und bleibt nutzbar. Auch mit
-  funktionierender Live-Verbindung gleicht sie alle 30 Sekunden den Stand ab, falls ein Ereignis
-  verloren ging.
+- **Pausing:** Supabase may pause free projects after about **7 days of inactivity**. The app
+  then shows a connection message. In the Supabase dashboard **restore** the project;
+  rooms and room links are available again afterwards. An upgrade to Pro prevents this.
+- **Anonymous sign-ins:** limit **30 per hour and IP address**. Each browser signs in only
+  once, after that the session stays. Behind a shared corporate IP the team shares the limit;
+  raise it under Authentication → Rate Limits if needed. Renewing sessions (token refresh) is
+  also limited per IP (according to the docs 1800 per hour).
+- **Realtime:** in the Free plan, according to the pricing page, 200 concurrent connections
+  and 2 million messages per month are included. That is enough for small teams. Check the
+  usage in the dashboard.
+- **Cloudflare Free:** 500 builds per month, up to 20,000 files per site (the app has few).
+  No custom domain needed.
+- **Backups:** free projects have no downloadable backups. The data is transient (only
+  current rounds) and can be recreated at any time.
+- **Network:** participants must be able to reach `*.workers.dev` or `*.pages.dev` and
+  `*.supabase.co` (HTTPS and WebSocket). If a network blocks WebSockets, the app polls every
+  5 seconds and stays usable. Even with a working live connection it reconciles the state
+  every 30 seconds in case an event was lost.
 
-## 6. Aufräumen
+## 6. Cleaning up
 
-Es gibt bewusst keine automatische Löschung: Räume bleiben dauerhaft. Wer manuell aufräumen will:
+There is deliberately no automatic deletion: rooms stay permanently. If you want to clean up
+manually:
 
-- **Räume löschen** (Mitglieder, Runde und Stimmen verschwinden mit): im SQL Editor
-  `delete from public.rooms where id = '<raum-id>';`. Ungenutzte Räume lassen sich z. B. an
-  `revision = 1` (nie benutzt) oder an `created_at` erkennen. Prüfe vorher, dass niemand den Link
-  noch braucht.
-- **Anonyme Nutzer** unter Authentication → Users nur löschen, wenn sie in keinem Raum Mitglied
-  sind: Das Löschen eines Nutzers entfernt seine Mitgliedschaften und Stimmen **und die aktuelle
-  Runde, falls er sie gestartet hat**. Eine pauschale Löschung „älter als X Tage“ kann aktive
-  Teilnehmende treffen.
+- **Delete rooms** (members, round and votes disappear with them): in the SQL Editor
+  `delete from public.rooms where id = '<room-id>';`. Unused rooms can be recognized e.g. by
+  `revision = 1` (never used) or by `created_at`. Check beforehand that nobody still needs
+  the link.
+- **Anonymous users** under Authentication → Users only delete if they are not a member of
+  any room: deleting a user removes their memberships and votes **and the current round if
+  they started it**. A blanket deletion "older than X days" can hit active participants.
 
-## 7. Dokumentation des Ist-Stands
+## 7. Documenting the current state
 
-Nach der ersten Veröffentlichung hier eintragen (nicht committen, falls nicht gewünscht):
+After the first publication, enter here (do not commit if not wanted):
 
-| Angabe                       | Wert |
-| ---------------------------- | ---- |
-| App-URL                      | https://planning-poker.peter-gruszka.workers.dev |
-| Supabase-Projekt (Referenz)  |      |
-| Zuletzt angewendete Migration | 20261014090500_realtime.sql |
-| Deploy-Weg (A oder B)        | A (Git-Anbindung, Workers-Flow) |
+| Item                         | Value |
+| ---------------------------- | ----- |
+| App URL                      | https://planning-poker.peter-gruszka.workers.dev |
+| Supabase project (reference) |       |
+| Last applied migration       | 20261014090700_room_name.sql |
+| Deploy way (A or B)          | A (Git integration, Workers flow) |

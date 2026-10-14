@@ -1,90 +1,89 @@
-# Supabase einrichten
+# Setting up Supabase
 
-Diese Anleitung beschreibt die einmalige Einrichtung des Supabase-Projekts. Sie wächst mit
-den Arbeitspaketen (003 Schema, 004 Anmeldung, 005–007 Funktionen, 010 Echtzeit) und wird in
-Arbeitspaket 013 zur vollständigen Anleitung zusammengeführt. Bezeichnungen im Dashboard
-können sich ändern; die Namen unten sind sinngemäß.
+This guide describes the one-time setup of the Supabase project. It grows with the work
+packages (003 schema, 004 sign-in, 005–007 functions, 010 realtime) and was consolidated into
+the full guide in work package 013. Names in the dashboard may change; the names below are
+approximate.
 
-## 1. Projekt anlegen
+## 1. Create the project
 
-1. Account auf <https://supabase.com> anlegen und eine Organisation mit dem **Free**-Plan wählen.
-2. **New project** wählen, Namen vergeben (z. B. `planning-poker`), eine Region in der Nähe
-   (z. B. Frankfurt) und ein starkes Datenbankpasswort wählen. Das Passwort wird für die App
-   nicht benötigt; sicher aufbewahren, nicht im Repository speichern.
-3. Warten, bis das Projekt bereit ist.
+1. Create an account at <https://supabase.com> and choose an organization with the **Free** plan.
+2. Choose **New project**, assign a name (e.g. `planning-poker`), a region nearby
+   (e.g. Frankfurt) and a strong database password. The app does not need the password;
+   keep it safe, do not store it in the repository.
+3. Wait until the project is ready.
 
-Hinweis: Free-Projekte werden nach etwa einer Woche Inaktivität pausiert und lassen sich im
-Dashboard wieder aktivieren.
+Note: free projects are paused after about a week of inactivity and can be reactivated in
+the dashboard.
 
-## 2. Datenbankschema anwenden
+## 2. Apply the database schema
 
-Die Migrationen liegen unter `supabase/migrations/`. Sie müssen **in der Reihenfolge der
-Dateinamen** auf eine leere Datenbank angewendet werden:
+The migrations are in `supabase/migrations/`. They must be applied to an empty database
+**in file name order**:
 
 1. `20261014090000_tables.sql`
 2. `20261014090100_access_rights.sql`
 3. `20261014090200_room_access.sql`
 4. `20261014090300_rounds.sql`
 5. `20261014090400_votes.sql`
-6. `20261014090500_realtime.sql` (nimmt die Tabelle `rooms` in die Echtzeit-Veröffentlichung auf)
-7. `20261014090600_stable_results.sql` (Arbeitspaket 019: aufgedeckte Ergebnisse bleiben nach
-   „Teilnahme entfernen“ stehen)
-8. `20261014090700_room_name.sql` (Arbeitspaket 022: optionaler Raumname)
+6. `20261014090500_realtime.sql` (adds the table `rooms` to the realtime publication)
+7. `20261014090600_stable_results.sql` (work package 019: revealed results stay after
+   "Remove participation")
+8. `20261014090700_room_name.sql` (work package 022: optional room name)
 
-Bei einer **bereits eingerichteten** Datenbank genügt es, nur die neuen Dateien (7 und 8) in dieser
-Reihenfolge auszuführen. Die App läuft auch vor dem Anwenden weiter; ohne Migration 7 verschwindet
-die Stimme beim Entfernen der Teilnahme wie bisher, ohne Migration 8 gibt es keine Raumnamen
-(das Eingabefeld erzeugt dann einen Fehler).
+For a database that is **already set up**, it is enough to run only the new files (7 and 8)
+in this order. The app keeps running before they are applied; without migration 7 the vote
+disappears when participation is removed, as before; without migration 8 there are no room
+names (the input field then produces an error).
 
-Einfachster Weg: Im Dashboard den **SQL Editor** öffnen, den Inhalt der Datei einfügen und
-ausführen, dann die nächste Datei. Wer die Supabase CLI nutzt, kann stattdessen
-`supabase link` und `supabase db push` verwenden.
+Easiest way: open the **SQL Editor** in the dashboard, paste the content of the file and run
+it, then the next file. If you use the Supabase CLI, you can use `supabase link` and
+`supabase db push` instead.
 
-Danach sollte der **Table Editor** die Tabellen `rooms`, `room_invites`, `room_members`,
-`rounds` und `votes` zeigen. Alle Tabellen haben aktivierte Row Level Security; der Browser
-darf nur Daten von Räumen lesen, in denen die Person Mitglied ist, und nichts direkt schreiben.
+Afterwards the **Table Editor** should show the tables `rooms`, `room_invites`,
+`room_members`, `rounds` and `votes`. All tables have row level security enabled; the browser
+may only read data of rooms the person is a member of and write nothing directly.
 
-## 3. Öffentliche Schlüssel
+## 3. Public keys
 
-Benötigt werden:
+You need:
 
-- die **Project URL** (`https://<project-ref>.supabase.co`) → `VITE_SUPABASE_URL`
-- der **Publishable key** (beginnt mit `sb_publishable_`) → `VITE_SUPABASE_PUBLISHABLE_KEY`
+- the **Project URL** (`https://<project-ref>.supabase.co`) → `VITE_SUPABASE_URL`
+- the **Publishable key** (starts with `sb_publishable_`) → `VITE_SUPABASE_PUBLISHABLE_KEY`
 
-So findest du beides:
+How to find both:
 
-1. Im Dashboard das Projekt öffnen und oben auf **Connect** klicken. Der Dialog zeigt URL
-   und Publishable key zum Kopieren.
-2. Alternativ unter **Project Settings → API Keys**. Falls dort noch kein Publishable key
-   steht, dort einen neuen erzeugen.
+1. Open the project in the dashboard and click **Connect** at the top. The dialog shows the
+   URL and publishable key to copy.
+2. Alternatively under **Project Settings → API Keys**. If there is no publishable key yet,
+   create a new one there.
 
-Der ältere `anon`-Key (langer Schlüssel, beginnt mit `eyJ`) funktioniert noch, wird aber bis
-Ende 2026 abgeschafft; bitte den Publishable key verwenden. Beides kommt in `.env.local`
-(siehe `README.md`). **Niemals** den `service_role`- oder `secret`-Key (`sb_secret_…`) im
-Frontend oder im Repository verwenden.
+The older `anon` key (long key, starts with `eyJ`) still works but will be retired by the end
+of 2026; please use the publishable key. Both go into `.env.local` (see `README.md`).
+**Never** use the `service_role` or `secret` key (`sb_secret_…`) in the frontend or in the
+repository.
 
-## 4. Anonyme Anmeldung aktivieren (Arbeitspaket 004)
+## 4. Enable anonymous sign-in (work package 004)
 
-Unter **Authentication → Sign In / Providers** die Option **Allow anonymous sign-ins**
-aktivieren und speichern. Ohne sie können Teilnehmende nicht ohne Registrierung beitreten.
-Die Anmeldung braucht weder Schlüssel noch Anbieter-Registrierung. Anonyme Nutzer erscheinen
-danach unter **Authentication → Users** als „anonymous“.
+Under **Authentication → Sign In / Providers** enable the option **Allow anonymous
+sign-ins** and save. Without it, participants cannot join without registering. The sign-in
+needs neither keys nor provider registration. Anonymous users then appear under
+**Authentication → Users** as "anonymous".
 
-Hinweise:
+Notes:
 
-- Supabase begrenzt anonyme Anmeldungen auf **30 pro Stunde und IP-Adresse**. Hinter einer
-  gemeinsamen Firmen-IP teilt sich das Team dieses Limit. Jeder Browser meldet sich nur einmal
-  an, danach bleibt die Sitzung erhalten. Bei Bedarf lässt sich das Limit unter
-  **Authentication → Rate Limits** erhöhen.
-- Supabase empfiehlt ein CAPTCHA gegen Missbrauch. Im MVP verzichten wir darauf: Raum-Links
-  sind nicht öffentlich, und eine anonyme Anmeldung allein gewährt keinen Zugriff auf Raumdaten.
-- Anonyme Nutzer nutzen die Rolle `authenticated`. Die Zugriffsrechte aus Arbeitspaket 003
-  stützen sich deshalb auf die Raum-Mitgliedschaft und nicht auf die Rolle.
+- Supabase limits anonymous sign-ins to **30 per hour and IP address**. Behind a shared
+  corporate IP the team shares this limit. Each browser signs in only once, after that the
+  session is kept. If needed, you can raise the limit under **Authentication → Rate Limits**.
+- Supabase recommends a CAPTCHA against abuse. In the MVP we do without it: room links are
+  not public, and an anonymous sign-in alone grants no access to room data.
+- Anonymous users use the role `authenticated`. The access rights from work package 003
+  therefore rely on room membership and not on the role.
 
-## 5. Schnellprüfung der Zugriffsrechte (optional)
+## 5. Quick check of the access rights (optional)
 
-Im **SQL Editor** lässt sich prüfen, dass eine nicht angemeldete Rolle nichts sieht. Die
-Abfrage muss einen Fehler `permission denied for table rooms` liefern:
+In the **SQL Editor** you can verify that a role that is not signed in sees nothing. The
+query must produce the error `permission denied for table rooms`:
 
 ```sql
 begin;
@@ -93,7 +92,7 @@ select count(*) from public.rooms;
 rollback;
 ```
 
-Für `authenticated` ohne Mitgliedschaft muss die Abfrage dagegen `0` ergeben:
+For `authenticated` without membership, the query must instead return `0`:
 
 ```sql
 begin;
