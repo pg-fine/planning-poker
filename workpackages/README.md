@@ -54,7 +54,7 @@ Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbe
 | 008 | [Raum erstellen und beitreten: Oberfläche](008-raumoberflaeche.md) | 005 | M3: Spielbarer Ablauf | Erledigt |
 | 009 | [Karten und Ergebnisse: Oberfläche](009-pokeroberflaeche.md) | 006, 007, 008 | M3 | Erledigt |
 | 010 | [Echtzeit-Synchronisierung](010-echtzeit.md) | 009 | M3 | Erledigt |
-| 011 | [Wiederverbinden und konkurrierende Aktionen](011-wiederverbinden-und-konflikte.md) | 010 | M4: Verlässliche Nutzung | Offen |
+| 011 | [Wiederverbinden und konkurrierende Aktionen](011-wiederverbinden-und-konflikte.md) | 010 | M4: Verlässliche Nutzung | Erledigt |
 | 012 | [Bedienbarkeit und Fehleranzeigen](012-bedienbarkeit.md) | 011 | M4 | Offen |
 | 013 | [Cloud-Einrichtung und Veröffentlichung](013-bereitstellung.md) | 012 | M5: Nutzbares MVP | Offen |
 | 014 | [Gemeinsame MVP-Abnahme](014-mvp-abnahme.md) | 013 | M5 | Offen |
