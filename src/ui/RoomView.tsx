@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { AppSupabaseClient } from '../supabase/client.ts'
 import { RoomError, describeRoomError, leaveRoom } from '../supabase/rooms.ts'
 import { roomUrl } from './routing.ts'
+import { RoundPanel } from './RoundPanel.tsx'
 import { useRoomState } from './useRoomState.ts'
 
 type Props = {
@@ -15,7 +16,7 @@ type Props = {
 }
 
 export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) {
-  const { result, reload } = useRoomState(client, roomId)
+  const { result, reload, applyState } = useRoomState(client, roomId)
   const link = roomUrl(token)
   const linkField = useRef<HTMLInputElement>(null)
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
@@ -81,6 +82,8 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
 
   return (
     <>
+      <RoundPanel client={client} state={state} onState={applyState} />
+
       <section className="card" aria-labelledby="room-title">
         <h2 id="room-title">Dein Raum</h2>
         <p>
