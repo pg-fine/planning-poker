@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import type { AppSupabaseClient } from '../supabase/client.ts'
 import { getRoomState, type RoomState } from '../supabase/roomState.ts'
 import { RoomError } from '../supabase/rooms.ts'
@@ -10,6 +10,22 @@ export type RoomStateResult =
 
 /** Zustand des Echtzeit-Kanals dieses Raums. */
 export type Connection = 'connecting' | 'live' | 'offline'
+
+function subscribeOnline(onChange: () => void): () => void {
+  window.addEventListener('online', onChange)
+  window.addEventListener('offline', onChange)
+  return () => {
+    window.removeEventListener('online', onChange)
+    window.removeEventListener('offline', onChange)
+  }
+}
+
+/** Meldung des Browsers, ob eine Netzwerkverbindung besteht (kann „online“ fälschlich melden). */
+function useBrowserOnline(): boolean {
+  return useSyncExternalStore(subscribeOnline, () => navigator.onLine)
+}
+
+const POLL_INTERVAL_MS = 5000
 
 function isNotMember(error: unknown): boolean {
   return error instanceof RoomError && error.code === 'not_member'
@@ -25,7 +41,10 @@ function isNotMember(error: unknown): boolean {
 export function useRoomState(client: AppSupabaseClient, roomId: string) {
   const [attempt, setAttempt] = useState(0)
   const [result, setResult] = useState<RoomStateResult>({ status: 'loading' })
-  const [connection, setConnection] = useState<Connection>('connecting')
+  const [channelState, setChannelState] = useState<Connection>('connecting')
+  const browserOnline = useBrowserOnline()
+  // Ohne Netzwerk ist die Verbindung sofort „offline“, auch wenn der Kanal es noch nicht bemerkt hat.
+  const connection: Connection = browserOnline ? channelState : 'offline'
 
   const applyState = useCallback((next: RoomState) => {
     setResult((previous) =>
@@ -71,6 +90,24 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
 
     void load()
 
+    // Nach Rückkehr des Netzwerks oder in den Tab (Ruhezustand, Tab-Wechsel) kann sich der
+    // Raum geändert haben, ohne dass ein Ereignis ankam: Stand abgleichen.
+    const onOnline = () => void load()
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void load()
+    }
+    window.addEventListener('online', onOnline)
+    document.addEventListener('visibilitychange', onVisible)
+
+    let channelLive = false
+    // Ohne Live-Kanal (z. B. WebSockets im Firmennetz blockiert) fragt die App ersatzweise
+    // regelmäßig nach, solange der Tab sichtbar ist. Mit Live-Kanal ist das nicht nötig.
+    const poll = window.setInterval(() => {
+      if (!channelLive && document.visibilityState === 'visible' && navigator.onLine) {
+        void load()
+      }
+    }, POLL_INTERVAL_MS)
+
     // Eindeutiger Kanalname je Effektlauf, damit ein noch schließender alter Kanal (z. B. im
     // React-Entwicklungsmodus) nicht wiederverwendet wird.
     const channel = client
@@ -85,26 +122,31 @@ export function useRoomState(client: AppSupabaseClient, roomId: string) {
       .subscribe((status) => {
         if (cancelled) return
         if (status === 'SUBSCRIBED') {
-          setConnection('live')
+          channelLive = true
+          setChannelState('live')
           // Zwischen Erstladen und Abonnement (bzw. während einer Unterbrechung) kann sich
           // etwas geändert haben: nach jedem (erneuten) Verbinden den Stand abgleichen.
           void load()
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          setConnection('offline')
+          channelLive = false
+          setChannelState('offline')
         }
       })
 
     return () => {
       cancelled = true
+      window.removeEventListener('online', onOnline)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.clearInterval(poll)
       void client.removeChannel(channel)
     }
   }, [client, roomId, attempt, applyState])
 
   const reload = useCallback(() => {
     setResult({ status: 'loading' })
-    setConnection('connecting')
+    setChannelState('connecting')
     setAttempt((value) => value + 1)
   }, [])
 
-  return { result, reload, applyState, connection }
+  return { result, reload, applyState, connection, browserOnline }
 }

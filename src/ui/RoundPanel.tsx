@@ -13,6 +13,17 @@ type Props = {
   client: AppSupabaseClient
   state: RoomState
   onState: (state: RoomState) => void
+  /** Keine Verbindung: Aktionen sind gesperrt, bis sie wieder besteht. */
+  offline: boolean
+}
+
+/** Antwort blieb aus oder Verbindung brach ab: Die Aktion ist möglicherweise angekommen. */
+function isUnclear(error: unknown): boolean {
+  return (
+    !(error instanceof RoomError) ||
+    error.code === 'network' ||
+    error.code === 'unknown'
+  )
 }
 
 /** Fehler, nach denen die Ansicht neu geladen wird, weil sich die Runde inzwischen geändert hat. */
@@ -23,7 +34,7 @@ function isStaleRound(error: unknown): boolean {
   )
 }
 
-export function RoundPanel({ client, state, onState }: Props) {
+export function RoundPanel({ client, state, onState, offline }: Props) {
   const { round } = state
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,9 +42,21 @@ export function RoundPanel({ client, state, onState }: Props) {
 
   const myVote = round?.votes.find((vote) => vote.userId === state.me.userId)?.card ?? null
 
-  /** Führt eine Aktion aus und übernimmt erst deren bestätigten Zustand. */
-  const run = async (action: () => Promise<RoomState>): Promise<boolean> => {
+  /**
+   * Führt eine Aktion aus und übernimmt erst deren bestätigten Zustand.
+   *
+   * Bei unklarer Antwort (Verbindungsabbruch) wird die Aktion nie blind wiederholt. Stattdessen
+   * wird der Stand geladen; `wasApplied` entscheidet, ob die Aktion dort bereits sichtbar ist.
+   */
+  const run = async (
+    action: () => Promise<RoomState>,
+    wasApplied?: (fresh: RoomState) => boolean,
+  ): Promise<boolean> => {
     if (busy) return false
+    if (offline) {
+      setError('Keine Verbindung. Sobald sie wieder besteht, kannst du weitermachen.')
+      return false
+    }
     setBusy(true)
     setError(null)
     try {
@@ -41,7 +64,18 @@ export function RoundPanel({ client, state, onState }: Props) {
       return true
     } catch (caught) {
       let message = describeRoomError(caught)
-      if (isStaleRound(caught)) {
+      if (isUnclear(caught)) {
+        try {
+          const fresh = await getRoomState(client, state.roomId)
+          onState(fresh)
+          if (wasApplied?.(fresh)) return true
+          message =
+            'Die Verbindung wurde unterbrochen. Der aktuelle Stand wurde geladen; deine Aktion ist nicht angekommen. Versuche es erneut.'
+        } catch {
+          message =
+            'Keine Verbindung zu Supabase. Deine Aktion ist möglicherweise nicht angekommen. Prüfe den Stand, sobald die Verbindung wieder besteht.'
+        }
+      } else if (isStaleRound(caught)) {
         try {
           onState(await getRoomState(client, state.roomId))
           message += ' Die Ansicht wurde aktualisiert.'
@@ -67,20 +101,32 @@ export function RoundPanel({ client, state, onState }: Props) {
       setError(`Der Titel darf höchstens ${MAX_TITLE_LENGTH} Zeichen lang sein.`)
       return
     }
-    const started = await run(() =>
-      startRound(client, state.roomId, round?.roundId ?? null, trimmed),
+    const started = await run(
+      () => startRound(client, state.roomId, round?.roundId ?? null, trimmed),
+      (fresh) =>
+        fresh.round !== null &&
+        fresh.round.roundId !== (round?.roundId ?? null) &&
+        fresh.round.title === trimmed,
     )
     if (started) setTitle('')
   }
 
   const onVote = (card: CardValue) => {
     if (!round) return
-    void run(() => castVote(client, state.roomId, round.roundId, card))
+    void run(
+      () => castVote(client, state.roomId, round.roundId, card),
+      (fresh) =>
+        fresh.round?.roundId === round.roundId &&
+        fresh.round.votes.some((vote) => vote.userId === state.me.userId && vote.card === card),
+    )
   }
 
   const onReveal = () => {
     if (!round) return
-    void run(() => revealRound(client, state.roomId, round.roundId))
+    void run(
+      () => revealRound(client, state.roomId, round.roundId),
+      (fresh) => fresh.round?.roundId === round.roundId && fresh.round.status === 'revealed',
+    )
   }
 
   return (
@@ -94,14 +140,14 @@ export function RoundPanel({ client, state, onState }: Props) {
 
           {round.status === 'open' ? (
             <>
-              <CardDeck selected={myVote} disabled={busy} onSelect={onVote} />
+              <CardDeck selected={myVote} disabled={busy || offline} onSelect={onVote} />
               <p role="status">
                 {myVote === null
                   ? 'Du hast noch nicht abgestimmt.'
                   : 'Deine Stimme ist gespeichert. Du kannst sie bis zum Aufdecken ändern.'}{' '}
                 Abgegebene Stimmen: <strong>{round.votes.length}</strong>
               </p>
-              <button type="button" onClick={onReveal} disabled={busy}>
+              <button type="button" onClick={onReveal} disabled={busy || offline}>
                 Karten aufdecken
               </button>
             </>
@@ -131,7 +177,7 @@ export function RoundPanel({ client, state, onState }: Props) {
               disabled={busy}
             />
           </div>
-          <button type="submit" disabled={busy}>
+          <button type="submit" disabled={busy || offline}>
             {round ? 'Neue Runde starten' : 'Runde starten'}
           </button>
         </form>

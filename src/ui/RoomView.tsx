@@ -16,7 +16,10 @@ type Props = {
 }
 
 export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) {
-  const { result, reload, applyState, connection } = useRoomState(client, roomId)
+  const { result, reload, applyState, connection, browserOnline } = useRoomState(
+    client,
+    roomId,
+  )
   const link = roomUrl(token)
   const linkField = useRef<HTMLInputElement>(null)
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
@@ -86,10 +89,19 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
         {connection === 'live' && 'Live verbunden: Änderungen erscheinen sofort.'}
         {connection === 'connecting' && 'Verbindung für Live-Updates wird hergestellt …'}
         {connection === 'offline' &&
-          'Keine Live-Verbindung. Änderungen anderer erscheinen erst nach einer eigenen Aktion oder dem Neuladen.'}
+          !browserOnline &&
+          'Keine Verbindung. Aktionen sind pausiert; deine gespeicherte Stimme bleibt erhalten. Sobald die Verbindung zurück ist, wird der Stand automatisch aktualisiert.'}
+        {connection === 'offline' &&
+          browserOnline &&
+          'Keine Live-Verbindung. Der Stand wird alle paar Sekunden abgefragt, Änderungen erscheinen mit kurzer Verzögerung.'}
       </p>
 
-      <RoundPanel client={client} state={state} onState={applyState} />
+      <RoundPanel
+        client={client}
+        state={state}
+        onState={applyState}
+        offline={!browserOnline}
+      />
 
       <section className="card" aria-labelledby="room-title">
         <h2 id="room-title">Dein Raum</h2>
