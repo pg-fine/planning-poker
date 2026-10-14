@@ -146,8 +146,10 @@ Existing room links stay valid. The rooms live in the database, not in the front
 
 ## 6. Cleaning up
 
-There is deliberately no automatic deletion: rooms stay permanently. If you want to clean up
-manually:
+There is deliberately no automatic deletion: rooms stay permanently. Ready-made, previewable SQL
+statements (inactive rooms, rooms without members, orphaned anonymous users) are in
+[`supabase/maintenance/cleanup.sql`](../supabase/maintenance/cleanup.sql); every delete ends with
+`rollback;` until you change it to `commit;`. If you want to clean up manually:
 
 - **Delete rooms** (members, round and votes disappear with them): in the SQL Editor
   `delete from public.rooms where id = '<room-id>';`. Unused rooms can be recognized e.g. by
