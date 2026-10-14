@@ -1,6 +1,6 @@
 # Veröffentlichung mit Cloudflare Pages und Supabase
 
-Diese Anleitung bringt die App ins Internet (HTTPS, kostenlose `pages.dev`-Adresse). Du brauchst
+Diese Anleitung bringt die App ins Internet (HTTPS, kostenlose `workers.dev`- bzw. `pages.dev`-Adresse). Du brauchst
 zwei kostenlose Konten, die ihr selbst kontrolliert: **Supabase** und **Cloudflare**. Es ist keine
 IT-Freigabe und kein eigener Server nötig.
 
@@ -36,28 +36,43 @@ Es gibt zwei Wege. Für beide brauchst du einen kostenlosen Cloudflare-Account.
 
 Vorteil: Jeder Push auf `main` veröffentlicht automatisch.
 
-1. Das Repository zu GitHub pushen (privat oder öffentlich; es enthält keine Geheimnisse).
-2. Im Cloudflare-Dashboard: **Workers & Pages → Create application → Pages → Import an existing
-   Git repository** und das Repository auswählen.
-3. Einstellungen:
+Cloudflare führt Pages und Workers zusammen. Das Dashboard zeigt je nach Konto den neueren
+**Workers-Flow** (Feld „Deploy command“) oder den klassischen Pages-Flow. Das Repository ist für
+beides vorbereitet: `wrangler.jsonc` beschreibt die Auslieferung als statische Single-Page-App.
 
-   | Einstellung            | Wert            |
-   | ---------------------- | --------------- |
-   | Production branch      | `main`          |
-   | Build command          | `npm run build` |
-   | Build output directory | `dist`          |
+**Workers-Flow (Feld „Deploy command“ sichtbar):**
 
-4. Unter **Environment variables** (für Production) setzen:
+1. Im Cloudflare-Dashboard: **Workers & Pages → Create application → Import a repository** (bzw.
+   „Connect to Git“), das GitHub-Repository auswählen.
+2. Einstellungen:
 
-   | Variable                        | Wert                                  |
-   | ------------------------------- | ------------------------------------- |
-   | `VITE_SUPABASE_URL`             | Project URL, z. B. `https://abc.supabase.co` |
-   | `VITE_SUPABASE_PUBLISHABLE_KEY` | Publishable key (`sb_publishable_…`)  |
+   | Einstellung      | Wert                                                              |
+   | ---------------- | ----------------------------------------------------------------- |
+   | Project name     | `planning-poker` (muss dem `name` in `wrangler.jsonc` entsprechen) |
+   | Production branch | `main`                                                           |
+   | Build command    | `npm run build`                                                   |
+   | Deploy command   | `npx wrangler deploy` (Standardwert, nicht ändern)                |
+   | Root directory   | leer lassen                                                       |
 
-   Die Node-Version (22) wird aus der Datei `.nvmrc` gelesen. Setze sonst `NODE_VERSION=22`.
-5. **Save and Deploy**. Danach ist die App unter `https://<projektname>.pages.dev` erreichbar.
+3. Variablen eintragen (siehe unten). Im Workers-Flow gehören sie zu den **Build-Variablen**
+   („Build variables and secrets“), nicht zu den Laufzeit-Variablen: Sie werden beim Bauen in die
+   App eingebettet.
+4. **Save and Deploy**. Die App ist danach unter `https://planning-poker.<konto>.workers.dev`
+   erreichbar.
 
-Änderungen an den Variablen wirken erst nach einem neuen Build (Deployments → Retry deployment).
+**Klassischer Pages-Flow (kein Feld „Deploy command“):** Build command `npm run build`, Build
+output directory `dist`, Variablen unter Settings → Environment variables. `wrangler.jsonc` wird
+dann nicht gebraucht, stört aber nicht.
+
+**Variablen (beide Flows, Production):**
+
+| Variable                        | Wert                                         |
+| ------------------------------- | -------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Project URL, z. B. `https://abc.supabase.co` |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Publishable key (`sb_publishable_…`)         |
+
+Die Node-Version (22) wird aus der Datei `.nvmrc` gelesen. Setze sonst `NODE_VERSION=22`.
+Änderungen an den Variablen wirken erst nach einem neuen Build.
 
 ### Weg B: Direkter Upload (ohne Git)
 
@@ -71,23 +86,24 @@ müsstest du ein neues Projekt anlegen.
    npm run build
    ```
 
-2. Im Dashboard: **Workers & Pages → Create application → Pages → Upload assets** (Drag and drop),
-   Projektnamen vergeben, den Ordner `dist/` hineinziehen, **Deploy site**.
-   Alternativ per Kommandozeile: `npx wrangler login`, dann `npx wrangler pages deploy dist`.
+2. Per Kommandozeile: `npx wrangler login`, dann `npx wrangler deploy` (nutzt `wrangler.jsonc`).
+   Im klassischen Pages-Flow alternativ per Drag and drop: **Workers & Pages → Create application →
+   Pages → Upload assets**, den Ordner `dist/` hineinziehen.
 3. Für jede Aktualisierung neu bauen und erneut hochladen.
 
 ### Routing und Header
 
-- Direkte Aufrufe und Neuladen von Raum-Links (`/r/<token>`) funktionieren ohne Zusatzkonfiguration:
-  Pages liefert bei Projekten ohne `404.html` automatisch `index.html` aus (SPA-Verhalten).
-  Lege deshalb **keine** `404.html` an.
+- Direkte Aufrufe und Neuladen von Raum-Links (`/r/<token>`): Im Workers-Flow sorgt
+  `not_found_handling: single-page-application` in `wrangler.jsonc` dafür, dass `index.html`
+  ausgeliefert wird. Im klassischen Pages-Flow geschieht das automatisch, solange es keine
+  `404.html` gibt. Lege deshalb **keine** `404.html` an.
 - `public/_headers` setzt eine Content-Security-Policy und weitere Sicherheits-Header. Die Policy
   erlaubt Verbindungen zu `https://*.supabase.co` und `wss://*.supabase.co`. Verwendest du später
   eine eigene Domain für Supabase, passe `connect-src` an.
 
 ## 3. Prüfen nach der Veröffentlichung
 
-1. `https://<projektname>.pages.dev` öffnen: Startseite erscheint (kein Einrichtungshinweis).
+1. Die veröffentlichte Adresse (`*.workers.dev` bzw. `*.pages.dev`) öffnen: Startseite erscheint (kein Einrichtungshinweis).
 2. Raum erstellen, den Link in einem **zweiten Browserprofil oder Privatfenster** öffnen und
    beitreten.
 3. Abstimmen, aufdecken, neue Runde: beide Fenster aktualisieren sich ohne Neuladen.
@@ -122,7 +138,7 @@ Bestehende Raum-Links bleiben gültig. Die Räume liegen in der Datenbank, nicht
   wenige). Keine eigene Domain nötig.
 - **Backups:** Free-Projekte haben keine herunterladbaren Backups. Die Daten sind flüchtig (nur
   aktuelle Runden) und können jederzeit neu entstehen.
-- **Netz:** Teilnehmende müssen `*.pages.dev` und `*.supabase.co` (HTTPS und WebSocket) erreichen.
+- **Netz:** Teilnehmende müssen `*.workers.dev` bzw. `*.pages.dev` und `*.supabase.co` (HTTPS und WebSocket) erreichen.
   Blockiert ein Netz WebSockets, fragt die App alle 5 Sekunden nach und bleibt nutzbar.
 
 ## 6. Aufräumen

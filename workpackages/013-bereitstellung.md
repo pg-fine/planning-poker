@@ -46,6 +46,9 @@ Vorbereitet und geprüft:
 - `public/_headers`: Content-Security-Policy (nur eigene Skripte/Styles, Verbindungen zu
   `*.supabase.co` per HTTPS und WebSocket), `X-Frame-Options`, `Permissions-Policy`.
 - `public/favicon.svg` und Verweis in `index.html`.
+- `wrangler.jsonc` (Workers mit statischen Dateien, SPA-Fallback) und `wrangler` als Entwicklungsabhängigkeit,
+  weil das Cloudflare-Dashboard im neueren Flow ein „Deploy command“ (`npx wrangler deploy`) verlangt.
+  Lokal mit `wrangler dev` geprüft: `/r/<token>` liefert die App (200), die Sicherheits-Header greifen.
 - Der Produktions-Build wurde lokal mit einem Server geprüft, der Pages nachbildet (statische Dateien,
   `_headers`, Fallback auf `index.html`), gegen das echte Supabase-Projekt und in Chromium mit zwei
   Profilen: Raum erstellen, direkter Aufruf des Raum-Links, Beitritt, Live-Update über WebSocket
