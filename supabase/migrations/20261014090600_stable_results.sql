@@ -1,14 +1,14 @@
--- Arbeitspaket 019: Aufgedeckte Ergebnisse bleiben stabil, auch wenn jemand die Teilnahme entfernt.
+-- Work package 019: revealed results stay stable, even if someone removes their participation.
 --
--- Bisher löschte "leave_room" über den Fremdschlüssel votes_member_fkey (ON DELETE CASCADE) die
--- Stimme immer mit, auch aus einem bereits aufgedeckten Ergebnis. Jetzt gilt:
---  * Offene Runde: Beim Entfernen der Teilnahme wird die eigene Stimme gelöscht (wie bisher).
---  * Aufgedeckte Runde: Die Stimme bleibt bis zum nächsten Rundenstart erhalten. Der Name wird
---    dazu an der Stimme gespeichert (voter_name), weil die Mitgliedschaft entfällt. Der Name
---    bleibt somit bis zum nächsten Rundenstart im Ergebnis sichtbar (start_round löscht alle Stimmen).
+-- Previously "leave_room" always deleted the vote through the foreign key votes_member_fkey
+-- (ON DELETE CASCADE), even from an already revealed result. Now:
+--  * Open round: when removing participation, the own vote is deleted (as before).
+--  * Revealed round: the vote is kept until the next round starts. The name is stored
+--    on the vote for this (voter_name), because the membership goes away. The name
+--    thus stays visible in the result until the next round starts (start_round deletes all votes).
 --
--- Dafür entfällt die Bindung der Stimme an die Mitgliedschaft. Stimmen werden weiterhin nur über
--- cast_vote geschrieben, und das verlangt eine bestehende Mitgliedschaft.
+-- For this, the binding of the vote to the membership is dropped. Votes are still only written via
+-- cast_vote, and that requires an existing membership.
 
 alter table public.votes drop constraint votes_member_fkey;
 
@@ -17,7 +17,7 @@ alter table public.votes add column voter_name text;
 alter table public.votes add constraint votes_voter_name_valid
   check (voter_name is null or char_length(voter_name) between 1 and 40);
 
--- Snapshot: Stimmen enthalten zusätzlich "display_name", falls die Person nicht mehr Mitglied ist.
+-- Snapshot: votes additionally contain "display_name" if the person is no longer a member.
 create or replace function private.room_snapshot(p_room_id uuid, p_uid uuid)
 returns jsonb
 language sql
@@ -67,7 +67,7 @@ as $$
   where r.id = p_room_id;
 $$;
 
--- Teilnahme entfernen: offene Runde -> Stimme löschen; aufgedeckte Runde -> Stimme mit Namen behalten.
+-- Remove participation: open round -> delete vote; revealed round -> keep vote with name.
 create or replace function public.leave_room(p_room_id uuid)
 returns void
 language plpgsql

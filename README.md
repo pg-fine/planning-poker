@@ -1,68 +1,68 @@
 # Planning Poker
 
-Browser-App zum gemeinsamen Schätzen, die parallel zu einer Teams-Besprechung genutzt
-wird. Ein Raum-Link wird im Teams-Chat geteilt; alle Teilnehmenden öffnen ihn im Browser.
+A browser app for estimating together, used alongside a Teams meeting. A room link is
+shared in the Teams chat; all participants open it in the browser.
 
-Geplanter Technologie-Stack: React, TypeScript und Vite für die Oberfläche,
-Supabase (Free) für Datenbank, anonyme Anmeldung und Echtzeit, Cloudflare Pages (Free)
-für das Hosting. Roadmap und Arbeitspakete stehen in [`workpackages/`](workpackages/README.md).
+Technology stack: React, TypeScript and Vite for the user interface,
+Supabase (Free) for the database, anonymous sign-in and realtime, Cloudflare (Free)
+for hosting. The roadmap and work packages are in [`workpackages/`](workpackages/README.md).
 
-## Voraussetzungen
+## Requirements
 
-- Node.js 22.12 oder neuer (siehe `.nvmrc`)
-- npm (liegt Node.js bei)
+- Node.js 22.12 or newer (see `.nvmrc`)
+- npm (comes with Node.js)
 
-## Lokal starten
+## Run locally
 
 ```bash
-npm ci            # Abhängigkeiten exakt nach package-lock.json installieren
+npm ci            # install dependencies exactly as in package-lock.json
 cp .env.example .env.local
-npm run dev       # Entwicklungsserver, standardmäßig http://localhost:5173
+npm run dev       # development server, by default http://localhost:5173
 ```
 
-Ohne Supabase-Konfiguration startet die App mit einem Einrichtungshinweis. Trage in
-`.env.local` die Projekt-URL und den öffentlichen Publishable-/Anon-Key deines
-Supabase-Projekts ein und starte den Entwicklungsserver neu:
+Without a Supabase configuration the app starts with a setup notice. Enter the project
+URL and the public publishable/anon key of your Supabase project in `.env.local` and
+restart the development server:
 
-| Variable                        | Bedeutung                                   |
-| ------------------------------- | ------------------------------------------- |
-| `VITE_SUPABASE_URL`             | Projekt-URL, z. B. `https://abc.supabase.co` |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Öffentlicher Publishable-/Anon-Key          |
+| Variable                        | Meaning                                      |
+| ------------------------------- | -------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Project URL, e.g. `https://abc.supabase.co`  |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public publishable/anon key                  |
 
-Verwende im Frontend **niemals** einen Service-Role- oder Secret-Key. `.env.local` ist
-über `.gitignore` von der Versionsverwaltung ausgeschlossen.
+**Never** use a service role or secret key in the frontend. `.env.local` is excluded from
+version control via `.gitignore`.
 
-## Befehle
+## Commands
 
-| Befehl              | Zweck                                                         |
+| Command             | Purpose                                                       |
 | ------------------- | ------------------------------------------------------------- |
-| `npm run dev`       | Entwicklungsserver mit Hot Reload                             |
-| `npm run typecheck` | TypeScript-Typprüfung (`tsc -b`)                              |
+| `npm run dev`       | Development server with hot reload                            |
+| `npm run typecheck` | TypeScript type check (`tsc -b`)                              |
 | `npm run lint`      | ESLint                                                        |
-| `npm run build`     | Typprüfung und Produktionsbuild; statische Dateien in `dist/` |
-| `npm run preview`   | Gebauten Stand lokal ansehen                                  |
+| `npm run build`     | Type check and production build; static files in `dist/`      |
+| `npm run preview`   | Preview the built version locally                             |
 
-## Projektstruktur
+## Project structure
 
 ```text
 src/
-  main.tsx        Einstiegspunkt
-  ui/             Oberfläche (React-Komponenten, Routing, Styles)
-  domain/         Fachliche Regeln ohne Abhängigkeiten (Karten, Eingabeprüfung)
-  supabase/       Supabase-Konfiguration, Anmeldung und Datenbankzugriff
+  main.tsx        Entry point
+  ui/             User interface (React components, routing, styles)
+  domain/         Business rules without dependencies (cards, input validation)
+  supabase/       Supabase configuration, sign-in and database access
 supabase/
-  migrations/     SQL-Migrationen (in Dateinamen-Reihenfolge anwenden)
-public/           Statische Dateien (Favicon, Cloudflare-Header)
-docs/             Vertrag, Identität, Supabase-Einrichtung, Bereitstellung
-workpackages/     Roadmap und Arbeitspakete
+  migrations/     SQL migrations (apply in file name order)
+public/           Static files (favicon, Cloudflare headers)
+docs/             Contract, identity, Supabase setup, deployment
+workpackages/     Roadmap and work packages
 ```
 
-## Veröffentlichen
+## Deployment
 
-Schritt-für-Schritt-Anleitung für Supabase und Cloudflare Pages (beide Free-Pläne):
+Step-by-step guide for Supabase and Cloudflare (both free plans):
 [`docs/deployment.md`](docs/deployment.md).
 
-## Qualitätssicherung
+## Quality assurance
 
-Testcode wird ausschließlich geschrieben, wenn ein konkreter Bug auffällt. Geprüft wird
-durch Typecheck, Lint, Build und manuelle Funktionsprüfungen.
+Test code is only written when a concrete bug turns up. Checks are done with type
+check, lint, build and manual functional checks.

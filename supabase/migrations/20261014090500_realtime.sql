@@ -1,11 +1,11 @@
--- Arbeitspaket 010: Echtzeit-Signal für Raumänderungen.
--- Jede sichtbare Änderung (Beitritt, Austritt, Namen, Runde, Aufdecken, Stimme) erhöht
--- rooms.revision. Die App abonniert Änderungen ihrer Raumzeile und lädt bei jedem Signal den
--- Snapshot per get_room_state nach. Die Daten selbst laufen nicht über den Echtzeitkanal.
+-- Work package 010: realtime signal for room changes.
+-- Every visible change (join, leave, names, round, reveal, vote) increases
+-- rooms.revision. The app subscribes to changes of its room row and reloads the
+-- snapshot via get_room_state on every signal. The data itself does not travel over the realtime channel.
 --
--- Nur die Tabelle "rooms" wird veröffentlicht: Sie enthält weder Namen noch Stimmen, und die
--- RLS-Richtlinie (nur Mitglieder dürfen lesen) gilt auch für Echtzeit-Ereignisse. Fremde
--- erhalten keine Ereignisse.
+-- Only the table "rooms" is published: it contains neither names nor votes, and the
+-- RLS policy (only members may read) also applies to realtime events. Strangers
+-- receive no events.
 
 do $$
 begin

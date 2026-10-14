@@ -1,15 +1,15 @@
--- Arbeitspaket 003: Zugriffsrechte und Row Level Security.
--- Grundsatz: Der Browser darf nur lesen, und nur Daten von Räumen, in denen die Person
--- Mitglied ist. Alle Änderungen laufen später über Datenbankfunktionen (Arbeitspakete 005-007).
+-- Work package 003: access rights and row level security.
+-- Principle: the browser may only read, and only data of rooms the person is a member of.
+-- All changes later go through database functions (work packages 005-007).
 
--- Interner Schemaname für Hilfsfunktionen. Wird von der Supabase-API nicht veröffentlicht
--- (nur das Schema "public" ist als API freigegeben).
+-- Internal schema name for helper functions. Not exposed by the Supabase API
+-- (only the schema "public" is released as API).
 create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
 grant usage on schema private to authenticated;
 
--- Mitgliedschaftsprüfung für die Policies. SECURITY DEFINER umgeht RLS auf room_members und
--- vermeidet so eine rekursive Policy. Fester search_path, nur eigene Mitgliedschaft prüfbar.
+-- Membership check for the policies. SECURITY DEFINER bypasses RLS on room_members and
+-- thus avoids a recursive policy. Fixed search_path, only own membership can be checked.
 create function private.is_room_member(p_room_id uuid)
 returns boolean
 language sql
@@ -28,23 +28,23 @@ $$;
 revoke all on function private.is_room_member(uuid) from public, anon, authenticated;
 grant execute on function private.is_room_member(uuid) to authenticated;
 
--- RLS überall aktivieren.
+-- Enable RLS everywhere.
 alter table public.rooms        enable row level security;
 alter table public.room_invites enable row level security;
 alter table public.room_members enable row level security;
 alter table public.rounds       enable row level security;
 alter table public.votes        enable row level security;
 
--- Vorhandene (auch von Supabase standardmäßig vergebene) Rechte entziehen, dann gezielt vergeben.
+-- Revoke existing rights (including those granted by Supabase by default), then grant selectively.
 revoke all on public.rooms        from public, anon, authenticated;
 revoke all on public.room_invites from public, anon, authenticated;
 revoke all on public.room_members from public, anon, authenticated;
 revoke all on public.rounds       from public, anon, authenticated;
 revoke all on public.votes        from public, anon, authenticated;
 
--- Nur Lesen, nur für angemeldete Personen (anonyme Anmeldung zählt als "authenticated").
--- room_invites bleibt ohne jedes Recht und ohne Policy: nur SECURITY-DEFINER-Funktionen
--- greifen darauf zu.
+-- Read only, only for signed-in people (anonymous sign-in counts as "authenticated").
+-- room_invites stays without any right and without a policy: only SECURITY DEFINER functions
+-- access it.
 grant select on public.rooms        to authenticated;
 grant select on public.room_members to authenticated;
 grant select on public.rounds       to authenticated;
@@ -66,5 +66,5 @@ create policy votes_select_members on public.votes
   for select to authenticated
   using (private.is_room_member(room_id));
 
--- Schreibzugriffe sind absichtlich nicht freigegeben: keine INSERT/UPDATE/DELETE-Rechte
--- und keine entsprechenden Policies. Freigaben erfolgen gezielt durch Funktionen in 005-007.
+-- Write access is deliberately not granted: no INSERT/UPDATE/DELETE rights
+-- and no matching policies. Access is granted selectively by functions in 005-007.

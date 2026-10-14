@@ -1,11 +1,11 @@
--- Arbeitspaket 006: Rundenwechsel und Aufdecken, plus der gemeinsame Zustands-Snapshot.
--- Rechte, Fehlercodes und Konkurrenzverhalten: docs/data-and-action-contract.md, Abschnitt 4-6.
+-- Work package 006: round switching and reveal, plus the shared state snapshot.
+-- Rights, error codes and concurrency behavior: docs/data-and-action-contract.md, sections 4-6.
 
--- Prüft die Mitgliedschaft der aufrufenden Person und sperrt danach die Raumzeile.
--- Alle schreibenden Aktionen eines Raums laufen dadurch nacheinander. Ohne Mitgliedschaft
--- (auch bei unbekanntem Raum) gibt es immer denselben Fehler "not_member". Die Prüfung vor der
--- Sperre verhindert, dass Fremde mit einer geratenen Raum-ID Sperren halten; die Prüfung
--- danach fängt Austritte ab, die zwischen Prüfung und Sperre passiert sind.
+-- Checks the caller's membership and then locks the room row.
+-- All write actions of a room thereby run one after another. Without membership
+-- (also for an unknown room) there is always the same error "not_member". The check before the
+-- lock prevents strangers from holding locks with a guessed room ID; the check
+-- afterwards catches leaves that happened between the check and the lock.
 create function private.lock_room_as_member(p_room_id uuid, p_uid uuid)
 returns void
 language plpgsql
@@ -30,10 +30,10 @@ $$;
 
 revoke all on function private.lock_room_as_member(uuid, uuid) from public, anon, authenticated;
 
--- Zustands-Snapshot eines Raums (Aufbau: docs/data-and-action-contract.md, Abschnitt 5).
--- Es ist bewusst eine einzige SQL-Anweisung: Sie sieht einen konsistenten Datenstand,
--- auch wenn parallel andere Transaktionen schreiben.
--- Aufrufer müssen die Mitgliedschaft vorher geprüft haben.
+-- State snapshot of a room (structure: docs/data-and-action-contract.md, section 5).
+-- It is deliberately a single SQL statement: it sees a consistent data state,
+-- even if other transactions write in parallel.
+-- Callers must have checked membership beforehand.
 create function private.room_snapshot(p_room_id uuid, p_uid uuid)
 returns jsonb
 language sql
@@ -81,7 +81,7 @@ $$;
 
 revoke all on function private.room_snapshot(uuid, uuid) from public, anon, authenticated;
 
--- Aktuellen Zustand lesen (Erstladen, Wiederverbinden, Abgleich nach Echtzeit-Signal).
+-- Read the current state (initial load, reconnect, reconciliation after a realtime signal).
 create function public.get_room_state(p_room_id uuid)
 returns jsonb
 language plpgsql
@@ -102,10 +102,10 @@ begin
 end;
 $$;
 
--- Neue Runde starten. Ersetzt die vorhandene Runde vollständig (neue round_id, alle Stimmen
--- gelöscht). p_expected_round_id ist die Runden-ID, die der Aufrufer zuletzt gesehen hat
--- (null, wenn er noch keine kannte). Weicht sie von der aktuellen ab, hat jemand anderes
--- inzwischen gewechselt: "round_conflict", und die neuere Runde bleibt unangetastet.
+-- Start a new round. Replaces the existing round completely (new round_id, all votes
+-- deleted). p_expected_round_id is the round ID the caller last saw
+-- (null if it did not know one yet). If it differs from the current one, someone else has
+-- switched in the meantime: "round_conflict", and the newer round stays untouched.
 create function public.start_round(
   p_room_id uuid,
   p_expected_round_id uuid,
@@ -133,8 +133,8 @@ begin
     raise exception 'round_conflict' using errcode = 'P0001';
   end if;
 
-  -- Erst die Stimmen entfernen: Der Fremdschlüssel erlaubt keine Änderung der round_id,
-  -- solange noch Stimmen darauf verweisen.
+    -- Remove the votes first: the foreign key does not allow changing round_id
+    -- while votes still refer to it.
   delete from public.votes where room_id = p_room_id;
 
   if v_current is null then
@@ -155,8 +155,8 @@ begin
 end;
 $$;
 
--- Runde aufdecken. Gilt nur für die übergebene Runde; eine schon aufgedeckte Runde bleibt
--- unverändert (Wiederholung ist unschädlich). Eine Runde ohne Stimmen darf aufgedeckt werden.
+-- Reveal the round. Only applies to the given round; an already revealed round stays
+-- unchanged (repeating is harmless). A round without votes may be revealed.
 create function public.reveal_round(p_room_id uuid, p_round_id uuid)
 returns jsonb
 language plpgsql

@@ -1,15 +1,15 @@
--- Arbeitspaket 005: Raumzugang und Mitgliedschaft.
--- Erstellen, Beitreten und Verlassen laufen ausschließlich über diese Funktionen; der Browser
--- hat keine Schreibrechte auf die Tabellen (siehe vorherige Migration).
+-- Work package 005: room access and membership.
+-- Creating, joining and leaving go exclusively through these functions; the browser
+-- has no write rights on the tables (see previous migration).
 --
--- Alle Funktionen:
---  * SECURITY DEFINER mit leerem search_path (alle Namen sind schema-qualifiziert),
---  * prüfen auth.uid() selbst und verwenden nie eine vom Aufrufer übergebene Nutzer-ID,
---  * sind nur für angemeldete Personen (auch anonyme) ausführbar, nicht für "anon",
---  * melden fachliche Fehler als stabilen Code im Meldungstext (SQLSTATE P0001),
---    siehe docs/data-and-action-contract.md, Abschnitt 4.
+-- All functions:
+--  * SECURITY DEFINER with an empty search_path (all names are schema-qualified),
+--  * check auth.uid() themselves and never use a user ID passed by the caller,
+--  * are only executable by signed-in people (including anonymous), not by "anon",
+--  * report business errors as a stable code in the message text (SQLSTATE P0001),
+--    see docs/data-and-action-contract.md, section 4.
 
--- Namen prüfen: Leerraum am Rand entfernen, danach 1-40 Zeichen.
+-- Validate names: trim whitespace at the edges, then 1-40 characters.
 create function private.normalize_display_name(p_name text)
 returns text
 language plpgsql
@@ -26,12 +26,12 @@ begin
 end;
 $$;
 
--- Nur von den Funktionen unten (als Eigentümer) aufgerufen; kein Recht für API-Rollen.
+-- Only called by the functions below (as owner); no right for API roles.
 revoke all on function private.normalize_display_name(text) from public, anon, authenticated;
 
--- Raum anlegen und den Ersteller als erstes Mitglied eintragen (eine Transaktion).
--- Das Token besteht aus zwei zufälligen UUIDs ohne Bindestriche: 64 Hex-Zeichen mit
--- etwa 244 Bit Zufall aus dem kryptografischen Zufallsgenerator des Servers.
+-- Create a room and register the creator as its first member (one transaction).
+-- The token consists of two random UUIDs without hyphens: 64 hex characters with
+-- about 244 bits of randomness from the server's cryptographic random generator.
 create function public.create_room(p_display_name text)
 returns jsonb
 language plpgsql
@@ -59,8 +59,8 @@ begin
 end;
 $$;
 
--- Mit Einladungstoken beitreten. Wiederholtes Beitreten ist unschädlich: es entsteht kein
--- Duplikat, höchstens wird der Anzeigename aktualisiert. Ein unbekanntes Token verrät nichts.
+-- Join with an invitation token. Joining repeatedly is harmless: no duplicate is created,
+-- at most the display name is updated. An unknown token reveals nothing.
 create function public.join_room(p_invite_token text, p_display_name text)
 returns jsonb
 language plpgsql
@@ -85,7 +85,7 @@ begin
     raise exception 'invalid_token' using errcode = 'P0001';
   end if;
 
-  -- Raum sperren: Beitritte, Austritte und spätere Rundenaktionen laufen nacheinander.
+    -- Lock the room: joins, leaves and later round actions run one after another.
   perform 1 from public.rooms r where r.id = v_room for update;
 
   select m.display_name into v_old_name
@@ -107,8 +107,8 @@ begin
 end;
 $$;
 
--- Raum verlassen: Mitgliedschaft und eigene Stimme verschwinden (Fremdschlüssel mit
--- ON DELETE CASCADE). Raum und aktuelle Runde bleiben bestehen; der Link bleibt gültig.
+-- Leave the room: membership and own vote disappear (foreign key with
+-- ON DELETE CASCADE). Room and current round remain; the link stays valid.
 create function public.leave_room(p_room_id uuid)
 returns void
 language plpgsql
@@ -134,7 +134,7 @@ begin
 end;
 $$;
 
--- Einladungstoken für Mitglieder, damit sie den Link kopieren können.
+-- Invitation token for members so they can copy the link.
 create function public.get_invite_token(p_room_id uuid)
 returns text
 language plpgsql
@@ -155,7 +155,7 @@ begin
   join public.room_members m on m.room_id = i.room_id and m.user_id = v_uid
   where i.room_id = p_room_id;
   if v_token is null then
-    -- Gleiche Antwort für unbekannte Räume und fremde Räume.
+        -- Same answer for unknown rooms and rooms of others.
     raise exception 'not_member' using errcode = 'P0001';
   end if;
 
@@ -163,8 +163,8 @@ begin
 end;
 $$;
 
--- Ausführungsrechte: nur angemeldete Personen. Supabase vergibt auf neue Funktionen im
--- Schema "public" standardmäßig Rechte an anon; diese werden hier ausdrücklich entzogen.
+-- Execute rights: only signed-in people. Supabase grants rights to anon on new functions in the
+-- schema "public" by default; these are explicitly revoked here.
 revoke all on function public.create_room(text)         from public, anon, authenticated;
 revoke all on function public.join_room(text, text)     from public, anon, authenticated;
 revoke all on function public.leave_room(uuid)          from public, anon, authenticated;

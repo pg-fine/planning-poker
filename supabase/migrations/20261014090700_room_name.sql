@@ -1,15 +1,15 @@
--- Arbeitspaket 022: Optionaler Raumname.
+-- Work package 022: optional room name.
 --
--- Der Name gehört zum Raum (rooms.name, höchstens 60 Zeichen, NULL = ohne Namen). Er wird beim
--- Erstellen optional mitgegeben und kann von jedem Mitglied geändert oder entfernt werden.
--- Bestehende Räume bleiben ohne Namen gültig.
+-- The name belongs to the room (rooms.name, at most 60 characters, NULL = no name). It is optionally
+-- passed when creating and can be changed or removed by any member.
+-- Existing rooms remain valid without a name.
 
 alter table public.rooms add column name text;
 
 alter table public.rooms add constraint rooms_name_valid
   check (name is null or (name = btrim(name) and char_length(name) between 1 and 60));
 
--- Leerer Name bedeutet "kein Name"; zu lange Namen sind ein Fehler.
+-- An empty name means "no name"; names that are too long are an error.
 create function private.normalize_room_name(p_name text)
 returns text
 language plpgsql
@@ -31,7 +31,7 @@ $$;
 
 revoke all on function private.normalize_room_name(text) from public, anon, authenticated;
 
--- create_room mit optionalem Raumnamen. Alte Aufrufe mit nur einem Argument funktionieren weiter.
+-- create_room with an optional room name. Old calls with only one argument keep working.
 drop function public.create_room(text);
 
 create function public.create_room(p_display_name text, p_room_name text default null)
@@ -66,7 +66,7 @@ $$;
 revoke all on function public.create_room(text, text) from public, anon, authenticated;
 grant execute on function public.create_room(text, text) to authenticated;
 
--- Raumnamen ändern (oder mit leerem Namen entfernen). Nur Mitglieder.
+-- Change the room name (or remove it with an empty name). Members only.
 create function public.set_room_name(p_room_id uuid, p_name text)
 returns jsonb
 language plpgsql
@@ -90,7 +90,7 @@ $$;
 revoke all on function public.set_room_name(uuid, text) from public, anon, authenticated;
 grant execute on function public.set_room_name(uuid, text) to authenticated;
 
--- Snapshot um "name" erweitern (übernimmt die Änderung aus 20261014090600).
+-- Extend the snapshot with "name" (takes over the change from 20261014090600).
 create or replace function private.room_snapshot(p_room_id uuid, p_uid uuid)
 returns jsonb
 language sql

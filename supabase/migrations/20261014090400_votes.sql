@@ -1,9 +1,9 @@
--- Arbeitspaket 007: Stimme abgeben und ändern.
--- Eine Person hat je Raum höchstens eine Stimme (Primärschlüssel room_id + user_id). Die
--- Stimme gehört immer zur aktuellen Runde: Rundenwechsel löschen alle Stimmen (006).
+-- Work package 007: cast and change a vote.
+-- A person has at most one vote per room (primary key room_id + user_id). The
+-- vote always belongs to the current round: round switches delete all votes (006).
 --
--- Stimmen sind für Mitglieder des Raums lesbar, auch vor dem Aufdecken (bewusste Entscheidung:
--- das Verbergen ist eine Vereinbarung der Oberfläche, siehe docs/data-and-action-contract.md).
+-- Votes are readable by members of the room, even before the reveal (deliberate decision:
+-- hiding them is an agreement of the user interface, see docs/data-and-action-contract.md).
 
 create function public.cast_vote(p_room_id uuid, p_round_id uuid, p_card text)
 returns jsonb
@@ -17,7 +17,7 @@ declare
   v_status  text;
   v_changed integer;
 begin
-  -- Die Nutzer-ID kommt ausschließlich aus der Session; es gibt keinen Parameter dafür.
+    -- The user ID comes exclusively from the session; there is no parameter for it.
   perform private.lock_room_as_member(p_room_id, v_uid);
 
   if p_card is null or p_card not in ('0', '1', '2', '3', '5', '8', '13', '21', '?', 'coffee') then
@@ -36,8 +36,8 @@ begin
     raise exception 'round_not_open' using errcode = 'P0001';
   end if;
 
-  -- Neue Stimme anlegen oder die eigene ersetzen. Gleiche Karte erneut zu senden ändert
-  -- nichts (keine Revisionserhöhung, kein Echtzeit-Signal).
+    -- Create a new vote or replace the own one. Sending the same card again changes
+    -- nothing (no revision increase, no realtime signal).
   insert into public.votes as v (room_id, user_id, round_id, card)
   values (p_room_id, v_uid, v_current, p_card)
   on conflict (room_id, user_id)
