@@ -22,6 +22,8 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   )
   const link = roomUrl(token)
   const linkField = useRef<HTMLInputElement>(null)
+  const top = useRef<HTMLDivElement>(null)
+  const isReady = result.status === 'ready'
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
   const [leaving, setLeaving] = useState(false)
   const [leaveError, setLeaveError] = useState<string | null>(null)
@@ -34,6 +36,11 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   useEffect(() => {
     if (notMember) onNotMember()
   }, [notMember, onNotMember])
+
+  // Beim ersten Anzeigen des Raums den Fokus an den Anfang setzen (der Beitritts-Knopf ist weg).
+  useEffect(() => {
+    if (isReady) top.current?.focus({ preventScroll: true })
+  }, [isReady])
 
   if (notMember) return null
 
@@ -84,7 +91,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   }
 
   return (
-    <>
+    <div ref={top} tabIndex={-1} className="focus-target">
       <p className="hint" role="status">
         {connection === 'live' && 'Live verbunden: Änderungen erscheinen sofort.'}
         {connection === 'connecting' && 'Verbindung für Live-Updates wird hergestellt …'}
@@ -148,10 +155,15 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
             {leaveError}
           </p>
         )}
-        <button type="button" className="secondary" onClick={leave} disabled={leaving}>
+        <button
+          type="button"
+          className="secondary"
+          onClick={leave}
+          aria-disabled={leaving || undefined}
+        >
           {leaving ? 'Raum wird verlassen …' : 'Raum verlassen'}
         </button>
       </section>
-    </>
+    </div>
   )
 }

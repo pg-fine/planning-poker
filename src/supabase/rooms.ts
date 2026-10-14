@@ -39,7 +39,8 @@ const MESSAGES: Record<RoomErrorCode, string> = {
   no_round: 'Es gibt noch keine Runde.',
   round_conflict: 'Die Runde wurde inzwischen geändert.',
   round_not_open: 'Die Runde ist bereits aufgedeckt.',
-  network: 'Keine Verbindung zu Supabase. Prüfe deine Internetverbindung.',
+  network:
+    'Supabase ist nicht erreichbar. Prüfe deine Internetverbindung. Mögliche weitere Ursachen: Ein kostenloses Supabase-Projekt wird nach längerer Inaktivität pausiert und muss im Dashboard reaktiviert werden, oder das Netzwerk blockiert die Verbindung.',
   unknown: 'Unerwarteter Fehler. Versuche es erneut.',
 }
 

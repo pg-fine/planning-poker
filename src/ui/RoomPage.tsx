@@ -85,13 +85,13 @@ export function RoomPage({ client, token }: Props) {
       <h2 id="join-title">Raum beitreten</h2>
       <p>Du wurdest zu einer Schätzrunde eingeladen. Gib deinen Namen ein, um mitzumachen.</p>
       <form onSubmit={onSubmit} noValidate>
-        <NameField value={name} onChange={setName} disabled={busy} />
+        <NameField value={name} onChange={setName} readOnly={busy} />
         {error && (
           <p className="error" role="alert">
             {error}
           </p>
         )}
-        <button type="submit" disabled={busy}>
+        <button type="submit" aria-disabled={busy || undefined}>
           {busy ? 'Du trittst bei …' : 'Beitreten'}
         </button>
       </form>

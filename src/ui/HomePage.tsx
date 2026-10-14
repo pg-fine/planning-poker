@@ -40,13 +40,13 @@ export function HomePage({ client }: { client: AppSupabaseClient }) {
         einen Namen ein und schätzt mit. Der Link bleibt dauerhaft gültig.
       </p>
       <form onSubmit={onSubmit} noValidate>
-        <NameField value={name} onChange={setName} disabled={busy} />
+        <NameField value={name} onChange={setName} readOnly={busy} />
         {error && (
           <p className="error" role="alert">
             {error}
           </p>
         )}
-        <button type="submit" disabled={busy}>
+        <button type="submit" aria-disabled={busy || undefined}>
           {busy ? 'Raum wird erstellt …' : 'Raum erstellen'}
         </button>
       </form>

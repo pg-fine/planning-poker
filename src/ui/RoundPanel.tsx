@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { CardValue } from '../domain/cards.ts'
 import { MAX_TITLE_LENGTH } from '../domain/validation.ts'
 import type { AppSupabaseClient } from '../supabase/client.ts'
@@ -39,6 +39,17 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [title, setTitle] = useState('')
+  const heading = useRef<HTMLHeadingElement>(null)
+
+  // Beim Aufdecken verschwindet der fokussierte Knopf. Ist der Fokus dann verloren, setzen wir ihn auf
+  // das Ergebnis, damit Tastatur- und Screenreader-Nutzende dort weitermachen. Wer gerade in einem
+  // Feld tippt, behält den Fokus.
+  const revealed = round?.status === 'revealed'
+  useEffect(() => {
+    if (revealed && (!document.activeElement || document.activeElement === document.body)) {
+      heading.current?.focus({ preventScroll: true })
+    }
+  }, [revealed, round?.roundId])
 
   const myVote = round?.votes.find((vote) => vote.userId === state.me.userId)?.card ?? null
 
@@ -134,21 +145,26 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
       {round && (
         <section className="card" aria-labelledby="round-title">
           <p className="hint">{round.status === 'open' ? 'Abstimmung läuft' : 'Aufgedeckt'}</p>
-          <h2 id="round-title" className="round-title">
+          <h2 id="round-title" className="round-title" ref={heading} tabIndex={-1}>
             {round.title}
           </h2>
 
           {round.status === 'open' ? (
             <>
-              <CardDeck selected={myVote} disabled={busy || offline} onSelect={onVote} />
+              <CardDeck selected={myVote} busy={busy} disabled={offline} onSelect={onVote} />
               <p role="status">
                 {myVote === null
                   ? 'Du hast noch nicht abgestimmt.'
                   : 'Deine Stimme ist gespeichert. Du kannst sie bis zum Aufdecken ändern.'}{' '}
                 Abgegebene Stimmen: <strong>{round.votes.length}</strong>
               </p>
-              <button type="button" onClick={onReveal} disabled={busy || offline}>
-                Karten aufdecken
+              <button
+                type="button"
+                onClick={onReveal}
+                disabled={offline}
+                aria-disabled={busy || undefined}
+              >
+                {busy ? 'Wird gespeichert …' : 'Karten aufdecken'}
               </button>
             </>
           ) : (
@@ -174,11 +190,11 @@ export function RoundPanel({ client, state, onState, offline }: Props) {
               onChange={(event) => setTitle(event.target.value)}
               maxLength={MAX_TITLE_LENGTH}
               placeholder="z. B. STORY-123 Login-Seite"
-              disabled={busy}
+              readOnly={busy}
             />
           </div>
-          <button type="submit" disabled={busy || offline}>
-            {round ? 'Neue Runde starten' : 'Runde starten'}
+          <button type="submit" disabled={offline} aria-disabled={busy || undefined}>
+            {busy ? 'Wird gespeichert …' : round ? 'Neue Runde starten' : 'Runde starten'}
           </button>
         </form>
       </section>

@@ -8,6 +8,7 @@
   --accent: #5b5fc7;
   --notice-bg: #fff8e1;
   --notice-border: #e0b400;
+  --on-accent: #ffffff;
   font-family:
     system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     sans-serif;
@@ -24,6 +25,7 @@
     --accent: #9ea1ff;
     --notice-bg: #3a3320;
     --notice-border: #b8920a;
+    --on-accent: #10121a;
   }
 }
 
@@ -88,7 +90,7 @@ button {
   border: 1px solid var(--accent);
   border-radius: 0.375rem;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   cursor: pointer;
 }
 
@@ -209,7 +211,7 @@ a {
 .card-button--selected {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .result-list {
@@ -236,4 +238,30 @@ a {
 
 .success {
   font-weight: 600;
+}
+
+/* Lange Wörter (Namen, Titel, Links) dürfen nie das Layout sprengen. */
+.card {
+  overflow-wrap: anywhere;
+}
+
+/* Programmatischer Fokus-Anker (Seitenwechsel): kein Rahmen, da kein bedienbares Element. */
+.focus-target:focus,
+.page__main:focus,
+.round-title:focus {
+  outline: none;
+}
+
+button[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+input[readonly]:not(#invite-link) {
+  opacity: 0.8;
+}
+
+a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
 }
