@@ -1,5 +1,5 @@
 import { cardLabel, type CardValue } from '../domain/cards.ts'
-import { cardOrder, summarizeVotes } from '../domain/results.ts'
+import { cardOrder, describeAgreement, summarizeVotes } from '../domain/results.ts'
 import type { Member, Vote } from '../supabase/roomState.ts'
 
 type Props = { votes: Vote[]; members: Member[] }
@@ -8,6 +8,10 @@ function describeCard(card: CardValue): string {
   if (card === 'coffee') return '☕ Kaffeepause'
   if (card === '?') return '? Unklar'
   return cardLabel(card)
+}
+
+function isSpecial(card: CardValue): boolean {
+  return card === '?' || card === 'coffee'
 }
 
 const numberFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 })
@@ -28,13 +32,36 @@ export function RevealedResults({ votes, members }: Props) {
     .sort((a, b) => cardOrder(a.card) - cardOrder(b.card) || a.name.localeCompare(b.name, 'de'))
   const summary = summarizeVotes(votes)
 
+  const agreement = describeAgreement(summary)
+  const maxCount = Math.max(...summary.distribution.map((entry) => entry.count))
+
   return (
     <div>
-      {summary.unanimous && (
+      {agreement && (
         <p className="success" role="status">
-          Einigkeit: Alle haben {describeCard(summary.distribution[0]!.card)} gewählt.
+          {agreement}
         </p>
       )}
+
+      <h3 className="results-heading">Verteilung</h3>
+      <ul className="distribution">
+        {summary.distribution.map((entry) => (
+          <li key={entry.card}>
+            <span className="distribution__card">{describeCard(entry.card)}</span>
+            <span className="distribution__track" aria-hidden="true">
+              <span
+                className={`distribution__bar${isSpecial(entry.card) ? ' distribution__bar--special' : ''}`}
+                style={{ width: `${(entry.count / maxCount) * 100}%` }}
+              />
+            </span>
+            <span className="distribution__count">
+              {entry.count} {entry.count === 1 ? 'Stimme' : 'Stimmen'}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <h3 className="results-heading">Wer hat was gewählt?</h3>
       <ul className="result-list">
         {rows.map((row) => (
           <li key={row.userId}>
@@ -43,14 +70,13 @@ export function RevealedResults({ votes, members }: Props) {
           </li>
         ))}
       </ul>
-      <p className="hint">
-        Verteilung:{' '}
-        {summary.distribution
-          .map((entry) => `${describeCard(entry.card)} × ${entry.count}`)
-          .join(', ')}
-        {summary.average !== null &&
-          ` · Mittelwert der Zahlenkarten: ${numberFormat.format(summary.average)}`}
-      </p>
+
+      {summary.average !== null && (
+        <p className="hint">
+          Rechnerischer Mittelwert der Zahlenkarten: {numberFormat.format(summary.average)}. Er ist
+          nur ein Anhaltspunkt; wichtiger ist die Diskussion über die Unterschiede.
+        </p>
+      )}
     </div>
   )
 }

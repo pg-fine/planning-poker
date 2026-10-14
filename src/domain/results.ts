@@ -35,6 +35,19 @@ export function summarizeVotes(votes: readonly { card: CardValue }[]): VoteSumma
   }
 }
 
+/**
+ * Aussage zur Übereinstimmung der Stimmen oder `null`, wenn sie nicht einheitlich sind (oder es
+ * nur eine Stimme gibt). Gleiche Sonderkarten sind keine Einigkeit über den Aufwand und werden
+ * deshalb gesondert benannt.
+ */
+export function describeAgreement(summary: VoteSummary): string | null {
+  if (!summary.unanimous) return null
+  const card = summary.distribution[0]!.card
+  if (card === '?') return 'Alle abgegebenen Stimmen: noch unklar.'
+  if (card === 'coffee') return 'Alle abgegebenen Stimmen: Kaffeepause.'
+  return `Alle abgegebenen Schätzungen liegen bei ${card}.`
+}
+
 /** Sortierwert einer Karte im Kartensatz (für stabile Anzeigereihenfolge). */
 export function cardOrder(card: CardValue): number {
   return CARDS.findIndex((entry) => entry.value === card)

@@ -364,3 +364,58 @@ a:focus-visible {
 .confirm p {
   margin: 0 0 0.5rem;
 }
+
+/* Ergebnisverteilung: Balken sind Zusatz; die Anzahl steht immer als Text daneben. */
+.results-heading {
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.distribution {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.distribution li {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) 5.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+}
+
+.distribution__card {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.distribution__track {
+  display: block;
+  height: 0.9rem;
+  border-radius: 0.25rem;
+  background: rgb(127 127 127 / 0.15);
+}
+
+.distribution__bar {
+  display: block;
+  height: 100%;
+  border-radius: 0.25rem;
+  background: var(--accent);
+}
+
+.distribution__bar--special {
+  background: var(--muted);
+}
+
+.distribution__count {
+  text-align: right;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 24rem) {
+  .distribution li {
+    grid-template-columns: 5rem minmax(0, 1fr) 4.5rem;
+  }
+}
