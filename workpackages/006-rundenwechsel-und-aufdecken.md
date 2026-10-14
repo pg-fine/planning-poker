@@ -1,6 +1,6 @@
 # 006 – Rundenwechsel und Aufdecken
 
-- **Status:** Offen
+- **Status:** Umgesetzt und lokal geprüft; Prüfung im Supabase-Projekt offen (Migration anwenden)
 - **Abhängigkeiten:** 005
 - **Meilenstein:** M2
 
@@ -30,5 +30,29 @@ Alle Mitglieder können eine Runde konsistent starten und manuell aufdecken.
 
 ## Prüfung und Ergebnis
 
-Rundenstart und Aufdecken manuell durchführen, anschließend mit zwei Sessions fast
-gleichzeitig auslösen. Datenbankzustand kontrollieren. Testcode nur nach Bugfund.
+Umsetzung:
+
+- `supabase/migrations/20261014090300_runden.sql`: `start_round`, `reveal_round`,
+  `get_room_state` sowie intern `private.lock_room_as_member` (Mitgliedschaft prüfen, Raumzeile
+  sperren, erneut prüfen) und `private.room_snapshot` (ein einziges SQL-Statement, damit der
+  Snapshot konsistent ist).
+- `src/supabase/rounds.ts` (`startRound`, `revealRound`), `src/supabase/roomState.ts`
+  (`getRoomState`, geprüfte Typen `RoomState`), `src/domain/cards.ts` (Kartenmenge).
+
+Lokal geprüft (PostgreSQL 17 in Docker, mehrere Nutzer; kein Testcode eingecheckt):
+
+- Erste Runde: Titel wird getrimmt, Titel leer/`null`/121 Zeichen → `invalid_title`;
+  `start_round` mit `expected = null`, obwohl es schon eine Runde gibt → `round_conflict`.
+- Neue Runde mit korrekter erwarteter ID entfernt alle Stimmen, vergibt neue `round_id`, Status
+  `open`. Zweiter Klick mit der alten ID → `round_conflict`, die neuere Runde bleibt.
+- Acht gleichzeitige `start_round` mit gleicher erwarteter ID: genau einer gewinnt, sieben
+  erhalten `round_conflict`.
+- Aufdecken: wirkt nur für die übergebene Runde. Wiederholtes Aufdecken lässt Zustand und
+  Revision unverändert. Verspätetes Aufdecken der alten Runde deckt die neue nicht auf.
+  Ohne Runde `no_round`. Aufdecken und Rundenwechsel gleichzeitig enden in einem konsistenten Stand.
+- Fremde Personen und unbekannte Räume erhalten überall `not_member`; `anon` hat kein Ausführungsrecht.
+- Snapshot enthält `me`, Mitglieder, Runde samt Stimmen und Revision. Das Frontend parst ihn
+  streng (ungültige Karte wird abgelehnt). Typecheck und Lint sind fehlerfrei.
+
+Offen (braucht dein Supabase-Projekt): Migration `20261014090300_runden.sql` anwenden und die
+Funktionen mit dem öffentlichen Key gegenprüfen (mache ich, sobald sie angewendet ist).
