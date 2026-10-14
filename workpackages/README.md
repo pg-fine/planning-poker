@@ -58,6 +58,13 @@ Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbe
 | 012 | [Bedienbarkeit und Fehleranzeigen](012-bedienbarkeit.md) | 011 | M4 | Erledigt |
 | 013 | [Cloud-Einrichtung und Veröffentlichung](013-bereitstellung.md) | 012 | M5: Nutzbares MVP | Erledigt |
 | 014 | [Gemeinsame MVP-Abnahme](014-mvp-abnahme.md) | 013 | M5 | Erledigt |
+| 015 | [Kompakter Raumkopf und Hierarchie](015-raumkopf-und-hierarchie.md) | 014 | M6: UX-Iteration 1 | Offen |
+| 016 | [Phasen und „Noch einmal schätzen“](016-phasen-und-neue-runde.md) | 015 | M6 | Offen |
+| 017 | [Ergebnisverteilung und Ergebnistexte](017-ergebnisdarstellung.md) | 015 | M6 | Offen |
+| 018 | [Rückmeldungen nahe an der Aktion](018-lokale-rueckmeldungen.md) | 015 | M6 | Offen |
+| 019 | [Verlassen und Teilnahme entfernen](019-verlassen-und-teilnahme-entfernen.md) | 016 | M7: UX-Iteration 2 | Blockiert |
+| 020 | [Teilnehmerstatus](020-teilnehmerstatus.md) | 016 | M7 | Blockiert |
+| 021 | [Dauerhafte Räume wiederfinden](021-raeume-wiederfinden.md) | 015 | M7 | Offen |
 
 ### M1: Grundlage
 
@@ -85,6 +92,17 @@ unbemerkten Zustandsverluste. Die App ist auf Desktop und schmalen Ansichten nut
 
 Die App ist über HTTPS erreichbar, mit zwei getrennten Identitäten abgenommen und
 anhand der Anleitung aus dem Repository erneut bereitstellbar.
+
+### M6: UX-Iteration 1
+
+Eine Person erkennt im Meeting innerhalb weniger Sekunden: welche Story geschätzt wird, welche
+Karte sie gewählt hat und was der nächste Schritt ist. Grundlage ist eine heuristische
+UX-Bewertung; echtes Nutzerverhalten sollte zusätzlich beobachtet werden.
+
+### M7: UX-Iteration 2
+
+Teilnehmerstatus, stabile Ergebnisse beim Verlassen und wiederauffindbare Räume. 019 und 020
+benötigen vorab Produktentscheidungen.
 
 ## Voraussetzungen und Betriebsgrenzen
 
