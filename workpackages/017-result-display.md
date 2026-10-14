@@ -1,47 +1,47 @@
-# 017 – Ergebnisverteilung und präzisere Ergebnistexte
+# 017 – Result distribution and more precise result texts
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 015
-- **Meilenstein:** M6: UX-Iteration 1
-- **Herkunft:** UX-Bewertung (Punkt 4), Priorität hoch, Aufwand klein bis mittel
+- **Status:** Done
+- **Dependencies:** 015
+- **Milestone:** M6: UX iteration 1
+- **Origin:** UX assessment (point 4), priority high, effort small to medium
 
-## Ziel
+## Goal
 
-Das aufgedeckte Ergebnis ist Ausgangspunkt der Diskussion: Unterschiede in den Einschätzungen
-sind auf einen Blick erkennbar.
+The revealed result is the starting point for the discussion: differences in the estimates
+are recognizable at a glance.
 
-## Aufgaben
+## Tasks
 
-- Verteilung als einfache Balkendarstellung (Wert, Balken, Anzahl „3 Stimmen“/„1 Stimme“);
-  Balken zusätzlich per Text/Zahl lesbar, nicht nur grafisch.
-- Darunter bleiben Personen und ihre Werte sichtbar.
-- Mittelwert nachrangig darstellen, nicht als empfohlene Endschätzung.
-- „Einigkeit“ präzisieren (Logik in `src/domain/results.ts`):
-  - Alle Zahlenstimmen gleich: „Alle abgegebenen Schätzungen liegen bei 5.“
-  - Nur `?`: „Alle abgegebenen Stimmen: noch unklar.“
-  - Nur `☕`: „Alle abgegebenen Stimmen: Kaffeepause.“
-- Sonderkarten nicht als Einigkeit über den Aufwand werten.
-- Randfälle: keine Stimmen, eine Stimme, Mischung aus Zahlen und Sonderkarten.
+- Distribution as a simple bar display (value, bar, count "3 votes"/"1 vote");
+  bars additionally readable as text/number, not only graphically.
+- Below it, people and their values stay visible.
+- Display the average as secondary, not as a recommended final estimate.
+- Make "agreement" more precise (logic in `src/domain/results.ts`):
+  - All number votes equal: "All estimates cast are at 5."
+  - Only `?`: "All votes cast: still unclear."
+  - Only `☕`: "All votes cast: coffee break."
+- Do not count special cards as agreement on the effort.
+- Edge cases: no votes, one vote, mix of numbers and special cards.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Gleiche Sonderkarten erzeugen keine Aussage über Einigkeit beim Aufwand.
-- Balken sind im Hell- und Dunkelmodus kontrastreich und für Screenreader beschriftet.
-- Typecheck, Lint, Build; manuelle Prüfung der Randfälle.
+- Identical special cards produce no statement about agreement on the effort.
+- Bars have high contrast in light and dark mode and are labeled for screen readers.
+- Type check, lint, build; manual check of the edge cases.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Änderungen:
+Changes:
 
-- `src/domain/results.ts`: neue Funktion `describeAgreement` liefert die präzisen Aussagen
-  („Alle abgegebenen Schätzungen liegen bei 5.“, „… noch unklar.“, „… Kaffeepause.“); bei weniger
-  als zwei Stimmen oder gemischten Stimmen gibt es keine Aussage.
-- `src/ui/RevealedResults.tsx`: Abschnitt „Verteilung“ mit Balken, Kartenwert und Text „n Stimme(n)“
-  (Balken `aria-hidden`, die Anzahl steht immer als Text; Sonderkarten in neutraler Farbe), darunter
-  „Wer hat was gewählt?“. Der Mittelwert steht nachrangig als „Rechnerischer Mittelwert … nur ein
-  Anhaltspunkt“.
+- `src/domain/results.ts`: new function `describeAgreement` delivers the precise statements
+  ("All estimates cast are at 5.", "… still unclear.", "… coffee break."); with fewer
+  than two votes or mixed votes there is no statement.
+- `src/ui/RevealedResults.tsx`: section "Distribution" with bars, card value and text "n vote(s)"
+  (bars `aria-hidden`, the count is always given as text; special cards in a neutral color), below it
+  "Who chose what?". The average is secondary as "Calculated average … only a rough
+  guide".
 
-Geprüft (Headless-Chromium über Playwright, zwei getrennte Profile, echtes Supabase-Projekt, kein
-Testcode eingecheckt): gemischte Stimmen (5/8), gleiche Zahl, nur `?`, nur `☕`, `?` mit Zahl; 1000 px
-hell und 320 px dunkel ohne Layoutbruch; axe-core ohne Befunde. Typecheck, Lint, Build fehlerfrei.
-Nicht geprüft: sehr viele verschiedene Karten gleichzeitig, aufgedeckte Runde ohne Stimmen im Browser.
+Verified (headless Chromium via Playwright, two separate profiles, real Supabase project, no
+test code checked in): mixed votes (5/8), same number, only `?`, only `☕`, `?` with a number; 1000 px
+light and 320 px dark without layout break; axe-core without findings. Type check, lint, build error-free.
+Not verified: very many different cards at the same time, revealed round without votes in the browser.

@@ -1,129 +1,134 @@
-# Roadmap: Planning-Poker-MVP
+# Roadmap: Planning Poker MVP
 
-## Ziel und festgelegter Umfang
+## Goal and fixed scope
 
-Eine deutschsprachige Browser-App begleitet eure Teams-Besprechung. Der Raum-Link
-wird im Teams-Chat geteilt; die Teilnehmenden öffnen ihn im Browser.
+An English-language browser app accompanies your Teams meeting. The room link is shared in
+the Teams chat; participants open it in the browser.
 
-- React, TypeScript und Vite für die Oberfläche.
-- Cloudflare Pages Free für statisches Hosting mit einer `pages.dev`-Adresse.
-- Supabase Free für PostgreSQL, anonyme Anmeldung und Echtzeit-Updates.
-- Eigene Accounts und eigener Quellcode; kein selbst betriebener Backenddienst.
-- Wiederverwendbare Raum-Links ohne automatische Raumlöschung.
-- Teilnahme mit Anzeigename, ohne sichtbare Registrierung.
-- Karten: `0`, `1`, `2`, `3`, `5`, `8`, `13`, `21`, `?`, `☕`.
-- Stimmen werden sofort gespeichert, bis zum Aufdecken nur in der UI verborgen.
-  Das ist eine bewusste Fairness-Vereinbarung, keine technische Geheimhaltung.
-- Alle Raum-Mitglieder dürfen aufdecken und neue Runden starten.
-- Jede Person ändert ausschließlich ihre eigene Stimme, solange die Runde offen ist.
-- Nur die aktuelle Runde bleibt gespeichert; eine neue Runde ersetzt Titel und Stimmen.
-- Teams-Integration, automatische Teams-Identität, Historie und Ticket-Integrationen
-  gehören nicht zum MVP.
+- React, TypeScript and Vite for the user interface.
+- Cloudflare (Workers/Pages Free) for static hosting with a `workers.dev`/`pages.dev` address.
+- Supabase Free for PostgreSQL, anonymous sign-in and realtime updates.
+- Own accounts and own source code; no self-operated backend service.
+- Reusable room links without automatic room deletion.
+- Participation with a display name, without visible registration.
+- Cards: `0`, `1`, `2`, `3`, `5`, `8`, `13`, `21`, `?`, `☕`.
+- Votes are saved immediately and only hidden in the UI until the reveal.
+  This is a deliberate fairness agreement, not technical secrecy.
+- All room members may reveal and start new rounds.
+- Each person only changes their own vote, as long as the round is open.
+- Only the current round is stored; a new round replaces title and votes.
+- Teams integration, automatic Teams identity, history and ticket integrations
+  are not part of the MVP.
 
-## Arbeitsweise und Qualität
+## Working method and quality
 
-**Testcode wird ausschließlich geschrieben, wenn ein konkreter Bug auffällt.**
-Kein vorsorgliches Testframework, keine automatisch erzeugten Tests und kein TDD
-für neue Funktionen. Ein gefundener Bug wird mit Reproduktion, erwartetem und
-tatsächlichem Verhalten dokumentiert. Ein gezielter Regressionstest darf dann
-ergänzt werden, wenn er zur Absicherung der Korrektur sinnvoll ist.
+**Test code is only written when a concrete bug turns up.**
+No precautionary test framework, no automatically generated tests and no TDD
+for new features. A bug found is documented with reproduction, expected and
+actual behavior. A targeted regression test may then be added if it is useful
+to secure the fix.
 
-Die Abnahme erfolgt ansonsten durch Code-/SQL-Review, Typecheck, Lint, Build und
-manuelle Funktionsprüfungen. Prüfungen mit mehreren Personen verwenden getrennte
-Browser-Profile; zwei Tabs desselben Profils teilen normalerweise eine Identität.
+Acceptance otherwise happens through code/SQL review, type check, lint, build and
+manual functional checks. Checks involving several people use separate
+browser profiles; two tabs of the same profile normally share one identity.
 
-Jedes Paket ist ein kleiner, fachlich zusammenhängender Schritt. Es soll einzeln
-reviewbar und commitbar sein. Abhängigkeiten müssen vor Abschluss erfüllt sein.
-Status und tatsächliche Prüfergebnisse werden bei der Umsetzung im Paket ergänzt.
-Externe Voraussetzungen werden als Blocker dokumentiert, nicht als erledigt markiert.
+Each package is a small, functionally coherent step. It should be reviewable and
+committable on its own. Dependencies must be met before completion.
+Status and actual test results are added to the package during implementation.
+External prerequisites are documented as blockers, not marked as done.
 
-## Meilensteine und Arbeitspakete
+## Milestones and work packages
 
-Der Status (Offen, In Arbeit, Erledigt, Blockiert) wird hier und im jeweiligen Paket gepflegt. Die Nummerierung ist die empfohlene
-Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbeiten.
+The status (Open, In progress, Done, Blocked) is maintained here and in the respective package. The numbering is the recommended
+processing order; the Dependencies column lists the mandatory prior work.
 
-| Nr. | Arbeitspaket | Abhängigkeiten | Meilenstein | Status |
+| No. | Work package | Dependencies | Milestone | Status |
 | --- | --- | --- | --- | --- |
-| 001 | [Projektgrundgerüst](001-project-scaffold.md) | – | M1: Grundlage | Erledigt |
-| 002 | [Daten- und Aktionsvertrag](002-data-and-action-contract.md) | – | M1 | Erledigt |
-| 003 | [Datenbankschema und Leserechte](003-database-schema-and-read-access.md) | 002 | M1 | Erledigt |
-| 004 | [Supabase-Verbindung und Identität](004-supabase-and-identity.md) | 001 | M1 | Erledigt |
-| 005 | [Raumzugang und Mitgliedschaft](005-room-access-and-membership.md) | 003, 004 | M2: Gemeinsamer Raum | Erledigt |
-| 006 | [Rundenwechsel und Aufdecken](006-round-switching-and-reveal.md) | 005 | M2 | Erledigt |
-| 007 | [Stimmen speichern und ändern](007-saving-votes.md) | 006 | M2 | Erledigt |
-| 008 | [Raum erstellen und beitreten: Oberfläche](008-room-ui.md) | 005 | M3: Spielbarer Ablauf | Erledigt |
-| 009 | [Karten und Ergebnisse: Oberfläche](009-poker-ui.md) | 006, 007, 008 | M3 | Erledigt |
-| 010 | [Echtzeit-Synchronisierung](010-realtime.md) | 009 | M3 | Erledigt |
-| 011 | [Wiederverbinden und konkurrierende Aktionen](011-reconnect-and-conflicts.md) | 010 | M4: Verlässliche Nutzung | Erledigt |
-| 012 | [Bedienbarkeit und Fehleranzeigen](012-usability.md) | 011 | M4 | Erledigt |
-| 013 | [Cloud-Einrichtung und Veröffentlichung](013-deployment.md) | 012 | M5: Nutzbares MVP | Erledigt |
-| 014 | [Gemeinsame MVP-Abnahme](014-mvp-acceptance.md) | 013 | M5 | Erledigt |
-| 015 | [Kompakter Raumkopf und Hierarchie](015-room-header-and-hierarchy.md) | 014 | M6: UX-Iteration 1 | Erledigt |
-| 016 | [Phasen und „Noch einmal schätzen“](016-phases-and-new-round.md) | 015 | M6 | Erledigt |
-| 017 | [Ergebnisverteilung und Ergebnistexte](017-result-display.md) | 015 | M6 | Erledigt |
-| 018 | [Rückmeldungen nahe an der Aktion](018-local-feedback.md) | 015 | M6 | Erledigt |
-| 019 | [Verlassen und Teilnahme entfernen](019-leave-and-remove-participation.md) | 016 | M7: UX-Iteration 2 | Erledigt |
-| 020 | [Teilnehmerstatus](020-participant-status.md) | 016 | M7 | Erledigt |
-| 021 | [Dauerhafte Räume wiederfinden](021-finding-rooms-again.md) | 015 | M7 | Erledigt |
-| 022 | [Raumname](022-room-name.md) | 021 | M7 | Erledigt |
+| 001 | [Project scaffold](001-project-scaffold.md) | – | M1: Foundation | Done |
+| 002 | [Data and action contract](002-data-and-action-contract.md) | – | M1 | Done |
+| 003 | [Database schema and read access](003-database-schema-and-read-access.md) | 002 | M1 | Done |
+| 004 | [Supabase connection and identity](004-supabase-and-identity.md) | 001 | M1 | Done |
+| 005 | [Room access and membership](005-room-access-and-membership.md) | 003, 004 | M2: Shared room | Done |
+| 006 | [Round switching and reveal](006-round-switching-and-reveal.md) | 005 | M2 | Done |
+| 007 | [Saving and changing votes](007-saving-votes.md) | 006 | M2 | Done |
+| 008 | [Create and join a room: user interface](008-room-ui.md) | 005 | M3: Playable flow | Done |
+| 009 | [Cards and results: user interface](009-poker-ui.md) | 006, 007, 008 | M3 | Done |
+| 010 | [Realtime synchronization](010-realtime.md) | 009 | M3 | Done |
+| 011 | [Reconnecting and concurrent actions](011-reconnect-and-conflicts.md) | 010 | M4: Reliable use | Done |
+| 012 | [Usability and error displays](012-usability.md) | 011 | M4 | Done |
+| 013 | [Cloud setup and publishing](013-deployment.md) | 012 | M5: Usable MVP | Done |
+| 014 | [Joint MVP acceptance](014-mvp-acceptance.md) | 013 | M5 | Done |
+| 015 | [Compact room header and hierarchy](015-room-header-and-hierarchy.md) | 014 | M6: UX iteration 1 | Done |
+| 016 | [Phases and "Estimate again"](016-phases-and-new-round.md) | 015 | M6 | Done |
+| 017 | [Result distribution and result texts](017-result-display.md) | 015 | M6 | Done |
+| 018 | [Feedback close to the action](018-local-feedback.md) | 015 | M6 | Done |
+| 019 | [Leaving and removing participation](019-leave-and-remove-participation.md) | 016 | M7: UX iteration 2 | Done |
+| 020 | [Participant status](020-participant-status.md) | 016 | M7 | Done |
+| 021 | [Finding permanent rooms again](021-finding-rooms-again.md) | 015 | M7 | Done |
+| 022 | [Room name](022-room-name.md) | 021 | M7 | Done |
+| 023 | [Translation to English](023-english-translation.md) | 022 | M8 | Done |
 
-### M1: Grundlage
+### M1: Foundation
 
-Die App baut erfolgreich; Datenmodell und Zugriffsmodell sind definiert und die
-anonyme Anmeldung funktioniert. Für echte Datenbank-/Auth-Prüfungen wird bereits
-ein Supabase-Free-Projekt benötigt. Dessen erste Einrichtung wird in 003 und 004
-festgehalten und später in 013 zu einer vollständigen Anleitung zusammengeführt.
+The app builds successfully; data model and access model are defined and anonymous
+sign-in works. A Supabase Free project is already needed for real database/auth checks.
+Its first setup is recorded in 003 and 004 and later merged into a complete guide in 013.
 
-### M2: Gemeinsamer Raum
+### M2: Shared room
 
-Raumzugang, Rundenwechsel und Abstimmungen funktionieren über die Datenbank-API.
-Raumfremde Zugriffe sind ausgeschlossen, konkurrierende Aktionen sind definiert.
+Room access, round switching and voting work via the database API.
+Access by outsiders is excluded, concurrent actions are defined.
 
-### M3: Spielbarer Ablauf
+### M3: Playable flow
 
-Zwei Personen können über die Oberfläche beitreten, abstimmen, live Änderungen
-sehen, aufdecken und eine neue Runde beginnen.
+Two people can join via the user interface, vote, see changes live,
+reveal and start a new round.
 
-### M4: Verlässliche Nutzung
+### M4: Reliable use
 
-Neuladen, Verbindungsabbrüche und mehrere Tabs erzeugen keine Doppelstimmen oder
-unbemerkten Zustandsverluste. Die App ist auf Desktop und schmalen Ansichten nutzbar.
+Reloading, connection loss and multiple tabs produce no double votes or
+unnoticed loss of state. The app is usable on desktop and narrow views.
 
-### M5: Nutzbares MVP
+### M5: Usable MVP
 
-Die App ist über HTTPS erreichbar, mit zwei getrennten Identitäten abgenommen und
-anhand der Anleitung aus dem Repository erneut bereitstellbar.
+The app is reachable via HTTPS, accepted with two separate identities and
+can be deployed again using the guide from the repository.
 
-### M6: UX-Iteration 1
+### M6: UX iteration 1
 
-Eine Person erkennt im Meeting innerhalb weniger Sekunden: welche Story geschätzt wird, welche
-Karte sie gewählt hat und was der nächste Schritt ist. Grundlage ist eine heuristische
-UX-Bewertung; echtes Nutzerverhalten sollte zusätzlich beobachtet werden.
+In the meeting, a person recognizes within a few seconds: which story is being estimated,
+which card they chose and what the next step is. The basis is a heuristic UX assessment;
+real user behavior should additionally be observed.
 
-### M7: UX-Iteration 2
+### M7: UX iteration 2
 
-Teilnehmerstatus, stabile Ergebnisse beim Verlassen und wiederauffindbare Räume. 019 und 020
-benötigen vorab Produktentscheidungen.
+Participant status, stable results when leaving and findable rooms. 019 and 020
+needed product decisions beforehand.
 
-## Voraussetzungen und Betriebsgrenzen
+### M8: English
 
-- Die Projektkonten werden vom Nutzer bzw. Team angelegt und kontrolliert.
-- Im Frontend stehen nur Supabase-Projekt-URL und Publishable-/Anon-Key.
-  Service-Role-/Secret-Keys und Account-Zugangsdaten gehören weder ins Frontend noch ins Git.
-- Teilnehmende müssen die Webseiten von Cloudflare Pages und Supabase erreichen können.
-- Supabase Free kann nach einer Woche Inaktivität pausieren. Ein dauerhaft gültiger
-  Raum-Link garantiert daher keine ununterbrochene Verfügbarkeit; Wiederaufnahme
-  im Dashboard gehört zur Betriebsanleitung.
-- Freikontingente und aktuelle Plattformanforderungen werden bei Einrichtung geprüft.
-- Anonyme Identität bleibt im Browser gespeichert. Ein anderes Profil/Gerät oder
-  gelöschte Browserdaten erzeugen eine neue Identität; Namen sind kein Login.
-- Persistente Räume und Mitgliedschaften werden nicht mit flüchtiger Online-Präsenz
-  gleichgesetzt. Frühere Teilnehmende dürfen die neue Runde nicht als fehlende Stimmen blockieren.
+The whole project (user interface, code comments, SQL comments, documentation, work packages
+and file names) is in English.
 
-## Quellen
+## Prerequisites and operating limits
+
+- The project accounts are created and controlled by the user or team.
+- The frontend only contains the Supabase project URL and publishable/anon key.
+  Service role/secret keys and account credentials belong neither in the frontend nor in Git.
+- Participants must be able to reach the websites of Cloudflare and Supabase.
+- Supabase Free may pause after a week of inactivity. A permanently valid
+  room link therefore does not guarantee uninterrupted availability; resuming
+  in the dashboard is part of the operating guide.
+- Free quotas and current platform requirements are checked at setup.
+- The anonymous identity stays stored in the browser. Another profile/device or
+  cleared browser data produce a new identity; names are not a login.
+- Persistent rooms and memberships are not equated with transient online presence.
+  Former participants must not block the new round as missing votes.
+
+## Sources
 
 - [Cloudflare Pages: Limits](https://developers.cloudflare.com/pages/platform/limits/)
-- [Supabase: Free-Plan](https://supabase.com/pricing)
-- [Supabase: anonyme Anmeldung](https://supabase.com/docs/guides/auth/auth-anonymous)
+- [Supabase: Free plan](https://supabase.com/pricing)
+- [Supabase: anonymous sign-in](https://supabase.com/docs/guides/auth/auth-anonymous)
 - [Supabase: Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
 - [Supabase: Postgres Changes](https://supabase.com/docs/guides/realtime/postgres-changes)

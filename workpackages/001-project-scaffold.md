@@ -1,48 +1,48 @@
-# 001 – Projektgrundgerüst
+# 001 – Project scaffold
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** Keine
-- **Meilenstein:** M1
+- **Status:** Done
+- **Dependencies:** None
+- **Milestone:** M1
 
-## Ziel
+## Goal
 
-Eine lokal startbare, statisch baubare React-/TypeScript-App als Basis schaffen.
+Create a React/TypeScript app as a basis that can be started locally and built statically.
 
-## Aufgaben
+## Tasks
 
-- Vite mit React und TypeScript einrichten; eine unterstützte Node-Version festhalten.
-- Paketmanager festlegen und Lockdatei einchecken.
-- Verzeichnisse für Oberfläche, Fachlogik und Supabase-Zugriff anlegen, sobald benötigt.
-- Deutsche Startansicht mit App-Namen und einfachem Seitenlayout erstellen.
-- Befehle für Entwicklung, Typecheck, Lint und Produktionsbuild bereitstellen.
-- `.gitignore` und `.env.example` mit Platzhaltern für Supabase-URL und öffentlichen Key anlegen.
-- Lokalen Start und Build im Projekt-README beschreiben.
+- Set up Vite with React and TypeScript; fix a supported Node version.
+- Decide on the package manager and check in the lock file.
+- Create directories for the user interface, business logic and Supabase access as soon as needed.
+- Create a start view with the app name and a simple page layout.
+- Provide commands for development, type check, lint and production build.
+- Create `.gitignore` and `.env.example` with placeholders for the Supabase URL and public key.
+- Describe local start and build in the project README.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Installation anhand der Lockdatei und lokaler Start funktionieren.
-- Typecheck, Lint und Build laufen erfolgreich; der Build erzeugt statische Dateien in `dist/`.
-- Ohne Supabase-Konfiguration startet die App mit verständlichem Einrichtungshinweis.
-- Kein Testframework und kein Testcode werden vorsorglich angelegt.
+- Installation from the lock file and local start work.
+- Type check, lint and build run successfully; the build produces static files in `dist/`.
+- Without a Supabase configuration the app starts with an understandable setup notice.
+- No test framework and no test code are created as a precaution.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Geprüft mit Node.js 22.22.1 und npm 9.2.0 (Linux-Sandbox):
+Verified with Node.js 22.22.1 and npm 9.2.0 (Linux sandbox):
 
-- `npm ci` aus frischem `node_modules`: erfolgreich, 0 Schwachstellen gemeldet.
-- `npm run typecheck`, `npm run lint`, `npm run build`: jeweils fehlerfrei; der Build
-  erzeugt `dist/` (HTML, CSS, JS).
-- `npm run dev`: Entwicklungsserver antwortet mit HTTP 200.
-- Startansicht ohne Supabase-Konfiguration (serverseitig gerendert): zeigt den
-  deutschen Einrichtungshinweis mit den fehlenden Variablen. Die Konfigurationsprüfung
-  unterscheidet fehlende, ungültige (`ftp://`, keine URL) und gültige Werte.
+- `npm ci` from a fresh `node_modules`: successful, 0 vulnerabilities reported.
+- `npm run typecheck`, `npm run lint`, `npm run build`: each error-free; the build
+  produces `dist/` (HTML, CSS, JS).
+- `npm run dev`: the development server answers with HTTP 200.
+- Start view without a Supabase configuration (server-side rendered): shows the setup notice
+  with the missing variables. The configuration check distinguishes missing, invalid
+  (`ftp://`, no URL) and valid values.
 
-Nicht geprüft: Darstellung in einem echten Browser (in der Sandbox ist keiner
-verfügbar) und der Zustand mit gültiger Supabase-Konfiguration im Browser. Bitte beim
-ersten `npm run dev` kurz ansehen.
+Not verified: rendering in a real browser (none is available in the sandbox) and the state
+with a valid Supabase configuration in the browser. Please take a short look on the first
+`npm run dev`.
 
-Entscheidungen:
+Decisions:
 
-- Paketmanager npm (Lockdatei `package-lock.json`), Node.js >= 22.12 (`.nvmrc`, `engines`).
-- TypeScript 6.0 statt 7.x, weil `typescript-eslint` derzeit nur TypeScript < 6.1 unterstützt.
-- Kein Testframework und kein Testcode angelegt.
+- Package manager npm (lock file `package-lock.json`), Node.js >= 22.12 (`.nvmrc`, `engines`).
+- TypeScript 6.0 instead of 7.x, because `typescript-eslint` currently only supports TypeScript < 6.1.
+- No test framework and no test code created.

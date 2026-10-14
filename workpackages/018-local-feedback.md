@@ -1,45 +1,45 @@
-# 018 – Rückmeldungen nahe an der Aktion
+# 018 – Feedback close to the action
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 015
-- **Meilenstein:** M6: UX-Iteration 1
-- **Herkunft:** UX-Bewertung (Punkt 7), Priorität mittel, Aufwand klein
+- **Status:** Done
+- **Dependencies:** 015
+- **Milestone:** M6: UX iteration 1
+- **Origin:** UX assessment (point 7), priority medium, effort small
 
-## Ziel
+## Goal
 
-Speicherstatus und Fehler erscheinen dort, wo die Aktion stattfand.
+Save status and errors appear where the action took place.
 
-## Aufgaben
+## Tasks
 
-- Speichern direkt bei der Kartenwahl anzeigen; danach kurz „Deine Schätzung: 8 · gespeichert“.
-- Nicht mehrere Knöpfe gleichzeitig auf „Wird gespeichert …“ setzen.
-- Abstimmfehler bei den Karten, Titelfehler am Titelfeld.
-- Technische Erklärungen (Browserkennung, Supabase) hinter „Hilfe“ (mit 015 abstimmen).
-- Fokus- und `aria`-Verhalten aus 012 beibehalten; Statusmeldungen für Screenreader (`aria-live`).
+- Show saving directly at the card selection; afterwards briefly "Your estimate: 8 · saved".
+- Do not set several buttons to "Saving …" at the same time.
+- Voting errors at the cards, title errors at the title field.
+- Technical explanations (browser ID, Supabase) behind "Help" (coordinate with 015).
+- Keep focus and `aria` behavior from 012; status messages for screen readers (`aria-live`).
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Ein Abstimmfehler erscheint nie beim Formular für die nächste Runde und umgekehrt.
-- Eingaben gehen bei Fehlern nicht verloren.
-- Typecheck, Lint, Build; manuelle Prüfung inkl. simuliertem Netzwerkfehler.
+- A voting error never appears at the form for the next round and vice versa.
+- Inputs are not lost on errors.
+- Type check, lint, build; manual check including a simulated network error.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Änderungen (`RoundPanel.tsx`, `cards.ts`):
+Changes (`RoundPanel.tsx`, `cards.ts`):
 
-- Laufende Aktionen und Fehler sind nach Bereich getrennt (`vote`, `reveal`, `start`): Es zeigt nur
-  der Knopf des betroffenen Bereichs „Wird gespeichert …“ bzw. „Wird aufgedeckt …“; während einer
-  Aktion bleiben die übrigen Aktionen wie bisher gesperrt.
-- Bei der Kartenwahl steht direkt unter den Karten „Speichere deine Schätzung: 8 …“ und danach
-  „Deine Schätzung: 8 · gespeichert“ (`role="status"`).
-- Abstimmfehler erscheinen unter den Karten, Aufdeck-Fehler unter „Karten aufdecken“, Titelfehler
-  direkt am Titelfeld (`aria-invalid`, `aria-describedby`). Der gemeinsame Fehlerblock am Ende entfällt.
-- `cardDescription` aus der Ergebnisansicht liegt jetzt in `src/domain/cards.ts` und wird auch für
-  die Statusmeldung genutzt.
-- Technische Hinweise zu Browserkennung/Identität liegen bereits seit 015 hinter „Hilfe“.
+- Running actions and errors are separated by area (`vote`, `reveal`, `start`): only
+  the button of the affected area shows "Saving …" or "Revealing …"; during an
+  action the other actions stay blocked as before.
+- At the card selection, directly below the cards, "Saving your estimate: 8 …" and then
+  "Your estimate: 8 · saved" (`role="status"`) appear.
+- Voting errors appear below the cards, reveal errors below "Reveal cards", title errors
+  directly at the title field (`aria-invalid`, `aria-describedby`). The shared error block at the end is removed.
+- `cardDescription` from the result view is now in `src/domain/cards.ts` and is also used for
+  the status message.
+- Technical notices on browser ID/identity have been behind "Help" since 015.
 
-Geprüft (Headless-Chromium über Playwright, echtes Supabase-Projekt, kein Testcode eingecheckt):
-leerer Titel → Fehler am Titelfeld; Kartenwahl → „Deine Schätzung: 8 · gespeichert“; bei abgebrochenen
-Anfragen erscheinen Abstimm- und Aufdeckfehler an der jeweiligen Stelle, die Auswahl bleibt erhalten;
-axe-core ohne Befunde. Typecheck, Lint, Build fehlerfrei.
-Offen: Fehlermeldungen nennen weiterhin „Supabase“ (technischer Begriff, aber nur im Fehlerfall).
+Verified (headless Chromium via Playwright, real Supabase project, no test code checked in):
+empty title → error at the title field; card selection → "Your estimate: 8 · saved"; with aborted
+requests, voting and reveal errors appear at the respective place, the selection is kept;
+axe-core without findings. Type check, lint, build error-free.
+Open: error messages still mention "Supabase" (technical term, but only in the error case).

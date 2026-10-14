@@ -1,61 +1,61 @@
-# 007 – Stimmen speichern und ändern
+# 007 – Saving and changing votes
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 006
-- **Meilenstein:** M2
+- **Status:** Done
+- **Dependencies:** 006
+- **Milestone:** M2
 
-## Ziel
+## Goal
 
-Pro Identität genau eine gültige Stimme für die offene aktuelle Runde speichern.
+Store exactly one valid vote per identity for the open current round.
 
-## Aufgaben
+## Tasks
 
-- Datenbankfunktion zur Stimmabgabe mit Raum-/Runden-ID und Kartenwert implementieren.
-- Nutzer-ID aus der Auth-Session ableiten, nicht aus frei übergebenen Parametern.
-- Mitgliedschaft, aktuelle Runden-ID, offenen Status und Kartenwert prüfen.
-- Bestehende eigene Stimme aktualisieren statt weitere Stimmen einzufügen.
-- Stimmabgabe mit Aufdecken/Rundenwechsel über dieselbe Sperrstrategie koordinieren.
-- Lesen aller Stimmen nur für Raum-Mitglieder erlauben; Werte werden bewusst bereits
-  vor dem Aufdecken ausgeliefert und später durch die UI verborgen.
-- Frontend-Zugriff mit typisierten Ergebnissen und fachlichen Fehlern ergänzen.
+- Implement a database function for casting a vote with room/round ID and card value.
+- Derive the user ID from the auth session, not from freely passed parameters.
+- Check membership, current round ID, open status and card value.
+- Update an existing own vote instead of inserting further votes.
+- Coordinate casting a vote with reveal/round switch via the same locking strategy.
+- Allow reading all votes only for room members; values are deliberately delivered
+  before the reveal and hidden later by the UI.
+- Add frontend access with typed results and business errors.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Eine zweite Auswahl ersetzt die erste; die Stimmenanzahl bleibt gleich.
-- Stimmen für alte oder aufgedeckte Runden werden abgelehnt.
-- Fremde Stimmen können nicht verändert werden, auch nicht durch direkte API-Aufrufe.
-- Gleichzeitiges Aufdecken und Abstimmen hat ein konsistentes Ergebnis:
-  Stimme vor Aufdecken angenommen oder nach Aufdecken abgewiesen.
+- A second selection replaces the first; the number of votes stays the same.
+- Votes for old or revealed rounds are rejected.
+- Other people's votes cannot be changed, not even by direct API calls.
+- Simultaneous reveal and voting has a consistent result:
+  vote accepted before the reveal or rejected after the reveal.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Umsetzung:
+Implementation:
 
 - `supabase/migrations/20261014090400_votes.sql`: `cast_vote(room_id, round_id, card)`.
-  Nutzer-ID nur aus der Session. Prüfreihenfolge: Mitgliedschaft, Karte, Runde vorhanden,
-  Runden-ID aktuell, Runde offen. Upsert auf (Raum, Person); gleiche Karte erneut ändert nichts.
-- `src/supabase/votes.ts`: `castVote` mit typisiertem `CardValue`.
-- Lesen aller Stimmen für Mitglieder erfolgt über den Snapshot (und RLS aus 003). Die Werte
-  werden bewusst schon vor dem Aufdecken geliefert; die Oberfläche verbirgt sie (009).
+  User ID only from the session. Order of checks: membership, card, round present,
+  round ID current, round open. Upsert on (room, person); sending the same card again changes nothing.
+- `src/supabase/votes.ts`: `castVote` with typed `CardValue`.
+- Reading all votes for members happens via the snapshot (and RLS from 003). The values
+  are deliberately delivered before the reveal; the user interface hides them (009).
 
-Lokal geprüft (PostgreSQL 17 in Docker, mehrere Nutzer; kein Testcode eingecheckt):
+Verified locally (PostgreSQL 17 in Docker, several users; no test code checked in):
 
-- Ungültige Karten (`4`, `null`, `coffee ` mit Leerzeichen) → `invalid_card`; Fremde und
-  unbekannte Räume → `not_member`; `anon` hat kein Ausführungsrecht.
-- Zweite Auswahl ersetzt die erste, die Stimmenzahl bleibt gleich. Eine Karte erneut zu senden
-  ändert Revision und Stimme nicht; echte Änderungen erhöhen die Revision um 1.
-- Sonderkarten `?` und `coffee` werden gespeichert.
-- Fremde Stimmen lassen sich per direktem Zugriff weder ändern, einfügen noch löschen.
-- Nach dem Aufdecken → `round_not_open`, Stimmen unverändert. Nach Rundenwechsel → `round_conflict`
-  für die alte Runden-ID, die neue Runde bleibt leer.
-- Austritt entfernt die eigene Stimme.
-- Sechs gleichzeitige Stimmabgaben derselben Person plus gleichzeitiges Aufdecken: genau eine
-  Stimme bleibt bestehen; vor dem Aufdecken angenommene Stimmen sind gültig, eine danach
-  eintreffende erhält `round_not_open`.
-- Typecheck und Lint sind fehlerfrei.
+- Invalid cards (`4`, `null`, `coffee ` with a space) → `invalid_card`; other people's and
+  unknown rooms → `not_member`; `anon` has no execution right.
+- A second selection replaces the first, the number of votes stays the same. Sending a card again
+  changes neither revision nor vote; real changes increase the revision by 1.
+- Special cards `?` and `coffee` are stored.
+- Other people's votes can neither be changed, inserted nor deleted by direct access.
+- After the reveal → `round_not_open`, votes unchanged. After a round switch → `round_conflict`
+  for the old round ID, the new round stays empty.
+- Leaving removes the own vote.
+- Six simultaneous votes by the same person plus a simultaneous reveal: exactly one
+  vote remains; votes accepted before the reveal are valid, one arriving afterwards
+  gets `round_not_open`.
+- Type check and lint are error-free.
 
-Im echten Supabase-Projekt bestätigt: Alle Migrationen sind angewendet. Ein vollständiger Ablauf
-mit drei anonymen Identitäten über die TypeScript-Module der App (Raum erstellen, Beitreten,
-Token, Runde, Abstimmen und Ändern, Aufdecken, neue Runde, Konflikte, Austritt und Wiederbeitritt,
-fremde Person ohne Zugriff, direkte Schreibzugriffe gesperrt) lief mit 21 von 21 Prüfungen
-fehlerfrei. Dabei ist ein Testraum im Projekt entstanden (ohne Bedeutung).
+Confirmed in the real Supabase project: all migrations are applied. A complete flow
+with three anonymous identities via the app's TypeScript modules (create room, join,
+token, round, vote and change, reveal, new round, conflicts, leave and rejoin,
+outsider without access, direct write access blocked) ran with 21 of 21 checks
+without errors. A test room was created in the project (without meaning).

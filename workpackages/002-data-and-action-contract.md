@@ -1,45 +1,45 @@
-# 002 – Daten- und Aktionsvertrag
+# 002 – Data and action contract
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** Keine
-- **Meilenstein:** M1
+- **Status:** Done
+- **Dependencies:** None
+- **Milestone:** M1
 
-## Ziel
+## Goal
 
-Kleine, eindeutige Verträge für UI und Datenbank festlegen, bevor beide auseinanderlaufen.
+Define small, unambiguous contracts for the UI and the database before the two drift apart.
 
-## Aufgaben
+## Tasks
 
-- Modell für Raum, Mitgliedschaft, aktuelle Runde und Stimme dokumentieren.
-- Interne Raum-ID und geheimes Einladungstoken voneinander trennen.
-- Eine frische Runden-ID pro Rundenwechsel vorsehen; alte Runden werden ersetzt.
-- Zustände festlegen: noch keine Runde, Abstimmung offen, aufgedeckt.
-- Für Erstellen, Beitreten, neue Runde, Aufdecken, Abstimmen und Verlassen
-  Eingaben, Rückgaben und fachliche Fehler definieren.
-- Einmalige Stimme je Runde und anonymer Nutzer-ID festlegen; doppelte Namen zulassen.
-- Gleichzeitige Aktionen definieren: Mutationen tragen die erwartete Runden-ID;
-  alte Aktionen werden abgewiesen, wiederholtes Aufdecken ist unschädlich.
-- Titel- und Namenslängen festlegen; Leerwerte nach Trimmen ablehnen.
-- Mitgliedschaft, Online-Präsenz und vorhandene Stimme getrennt behandeln.
-- Verlassen festlegen: Mitgliedschaft entfernen, eigene aktuelle Stimme entfernen;
-  erneuter Beitritt ist mit demselben Raum-Link möglich.
+- Document the model for room, membership, current round and vote.
+- Separate the internal room ID from the secret invitation token.
+- Provide a fresh round ID per round switch; old rounds are replaced.
+- Define the states: no round yet, voting open, revealed.
+- Define inputs, return values and business errors for creating, joining, new round, reveal,
+  voting and leaving.
+- Define a single vote per round and anonymous user ID; allow duplicate names.
+- Define concurrent actions: mutations carry the expected round ID;
+  old actions are rejected, repeated reveal is harmless.
+- Define title and name lengths; reject empty values after trimming.
+- Treat membership, online presence and existing vote separately.
+- Define leaving: remove the membership, remove the own current vote;
+  joining again is possible with the same room link.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Ein kurzes Architektur-/Vertragsdokument enthält Zustandsübergänge und Beispiele.
-- Für neue Runden, verspätete Stimmen und gleichzeitiges Aufdecken gibt es eindeutige Regeln.
-- Kartenwerte inklusive `?` und `☕` sind als abgeschlossene Wertemenge definiert.
-- Die aktuelle Runde bleibt bei Verbindungsabbrüchen erhalten; ein neuer Aufruf
-  startet nicht automatisch eine neue Runde.
+- A short architecture/contract document contains state transitions and examples.
+- There are clear rules for new rounds, late votes and simultaneous reveal.
+- Card values including `?` and `☕` are defined as a closed set of values.
+- The current round is kept during connection loss; a new call does not
+  automatically start a new round.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Ergebnis: [docs/data-and-action-contract.md](../docs/data-and-action-contract.md).
+Result: [docs/data-and-action-contract.md](../docs/data-and-action-contract.md).
 
-- Alle Abnahmekriterien sind dort abgedeckt: Zustandsübergänge (Abschnitt 3), Regeln für
-  neue Runden, verspätete Stimmen und gleichzeitiges Aufdecken (Abschnitt 4 und 6),
-  geschlossene Kartenmenge inklusive `?` und `coffee`/☕ (Abschnitt 2), Verhalten bei
-  Verbindungsabbrüchen (Abschnitt 7).
-- Der Vertrag wurde in Abschnitt 8 an einer Runde mit zwei Teilnehmenden durchgespielt,
-  einschließlich zeitgleicher Aktionen, Aufdecken, Rundenwechsel und späterem Wiederaufruf.
-- Offene Detailentscheidungen stehen in Abschnitt 9. Es wurde kein Code und kein Testcode erstellt.
+- All acceptance criteria are covered there: state transitions (section 3), rules for
+  new rounds, late votes and simultaneous reveal (sections 4 and 6),
+  closed card set including `?` and `coffee`/☕ (section 2), behavior during
+  connection loss (section 7).
+- The contract was played through in section 8 with a round of two participants,
+  including simultaneous actions, reveal, round switch and later reopening.
+- Open detail decisions are in section 9. No code and no test code was created.

@@ -1,70 +1,69 @@
-# 019 – „Zur Startseite“ und „Teilnahme entfernen“ trennen
+# 019 – Separate "Back to home" from "Remove participation"
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 016
-- **Meilenstein:** M7: UX-Iteration 2
-- **Herkunft:** UX-Bewertung (Punkt 6), Priorität hoch, Aufwand mittel
+- **Status:** Done
+- **Dependencies:** 016
+- **Milestone:** M7: UX iteration 2
+- **Origin:** UX assessment (point 6), priority high, effort medium
 
-## Ziel
+## Goal
 
-Wer nach der Besprechung geht, verändert dadurch kein aufgedecktes Ergebnis.
+Someone who leaves after the meeting does not thereby change a revealed result.
 
-## Entscheidung
+## Decision
 
-Dies ändert eine bewusste Produktregel: Bisher entfernt „Raum verlassen“ auch die eigene Stimme,
-selbst nach dem Aufdecken (siehe MVP-Abnahme, Szenario 10). Vor der Umsetzung muss der
-Auftraggeber die neue Regel bestätigen.
+This changes a deliberate product rule: so far "Leave room" also removed the own vote,
+even after the reveal (see MVP acceptance, scenario 10). Before implementation the
+client had to confirm the new rule.
 
-## Aufgaben (nach Bestätigung)
+## Tasks (after confirmation)
 
-- „Zur Startseite“ beendet nur die Ansicht, ohne Datenänderung.
-- „Teilnahme entfernen“ als ausdrückliche, bestätigte Aktion mit Datenänderung.
-- Aufgedeckte Ergebnisse bleiben bis zum nächsten Rundenstart stabil; Entfernen wirkt dann nur
-  auf offene Runden (Anpassung in Migrationen/RPC prüfen).
-- `docs/data-and-action-contract.md` und `docs/identity.md` aktualisieren.
-- Szenario 10 der Abnahme anpassen.
+- "Back to home" only ends the view, without changing data.
+- "Remove participation" as an explicit, confirmed action that changes data.
+- Revealed results stay stable until the next round starts; removing then only affects
+  open rounds (check adjustment in migrations/RPC).
+- Update `docs/data-and-action-contract.md` and `docs/identity.md`.
+- Adjust scenario 10 of the acceptance.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Verlassen nach dem Aufdecken ändert das Ergebnis nicht.
-- „Teilnahme entfernen“ ist klar benannt und erfordert Bestätigung.
-- Datenisolation und Rechte (003) bleiben erhalten; Schema-Änderung dokumentiert.
+- Leaving after the reveal does not change the result.
+- "Remove participation" is clearly named and requires confirmation.
+- Data isolation and rights (003) are kept; schema change documented.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Umgesetzt (ohne Datenbankänderung):
+Implemented (without a database change):
 
-- „Zur Startseite“ (Link in der Raumkopfzeile) verlässt nur die Ansicht; Mitgliedschaft und Stimme
-  bleiben, der Raum steht weiter in „Zuletzt verwendete Räume“.
-- „Teilnahme entfernen“ (unter „Raum und Hilfe“) ruft wie bisher `leave_room` auf, jetzt mit
-  Bestätigung („Teilnahme wirklich entfernen? Deine Stimme wird gelöscht.“) und mit Hinweis, dass die
-  Stimme auch aus einem aufgedeckten Ergebnis verschwindet.
-- `docs/data-and-action-contract.md` ergänzt.
+- "Back to home" (link in the room header) only leaves the view; membership and vote
+  stay, the room stays in "Recently used rooms".
+- "Remove participation" (under "Room and help") calls `leave_room` as before, now with
+  confirmation ("Really remove your participation? ...") and with a notice on what happens to the vote.
+- `docs/data-and-action-contract.md` extended.
 
-Geprüft (Headless-Chromium über Playwright, zwei getrennte Profile, echtes Supabase-Projekt): Startseite
-lässt Stimme und Mitgliedschaft unverändert (zweite Person sieht 1 Stimme, 2 Mitglieder); Rückkehr
-über die Liste zeigt die gespeicherte Stimme; Abbrechen belässt alles; „Ja, entfernen“ führt zur
-Startseite, die zweite Person sieht 1 Mitglied und 0 Stimmen; axe-core ohne Befunde.
+Verified (headless Chromium via Playwright, two separate profiles, real Supabase project): the home page
+leaves vote and membership unchanged (second person sees 1 vote, 2 members); returning
+via the list shows the saved vote; Cancel leaves everything; "Yes, remove" leads to the
+home page, the second person sees 1 member and 0 votes; axe-core without findings.
 
-Datenbank (Migration `supabase/migrations/20261014090600_stable_results.sql`):
+Database (migration `supabase/migrations/20261014090600_stable_results.sql`):
 
-- Der Fremdschlüssel `votes_member_fkey` (Kaskade) entfällt; neue Spalte `votes.voter_name`.
-- `leave_room`: In einer offenen Runde wird die Stimme gelöscht (wie bisher). In einer aufgedeckten
-  Runde bleibt sie samt Namen (`voter_name`) bis zum nächsten Rundenstart erhalten.
-- Der Snapshot liefert bei solchen Stimmen zusätzlich `display_name`; `RevealedResults` nutzt ihn,
-  wenn die Person nicht mehr in der Mitgliederliste steht.
-- Datenschutz: Der Name einer Person, die nach dem Aufdecken die Teilnahme entfernt, bleibt bis zum
-  nächsten Rundenstart im Ergebnis sichtbar (der Hinweis steht in der Oberfläche).
-- Die App funktioniert auch vor dem Anwenden der Migration (dann wie bisher: Stimme verschwindet).
+- The foreign key `votes_member_fkey` (cascade) is dropped; new column `votes.voter_name`.
+- `leave_room`: in an open round the vote is deleted (as before). In a revealed
+  round it is kept together with the name (`voter_name`) until the next round starts.
+- For such votes the snapshot additionally delivers `display_name`; `RevealedResults` uses it
+  if the person is no longer in the member list.
+- Privacy: the name of a person who removes their participation after the reveal stays visible in the
+  result until the next round starts (the notice is in the user interface).
+- The app also works before the migration is applied (then as before: the vote disappears).
 
-Geprüft: Die Migrationen 1-8 wurden in einer lokalen PostgreSQL-16-Datenbank (Docker, mit Nachbau von
-`auth.uid()` und den Rollen) nacheinander angewendet und die Funktionen mit zwei Benutzern
-durchgespielt: Entfernen in offener Runde löscht die Stimme; Entfernen nach dem Aufdecken behält
-Stimme und Namen im Snapshot der anderen Person; Mitgliederzahl sinkt; die nächste Runde löscht alle
-Stimmen; Nicht-Mitglieder sehen nichts. Die Oberfläche wurde mit einer nachgestellten Antwort
-(Browser-Abfangen der Snapshot-Antwort) geprüft, da die Migration im echten Projekt noch nicht
-eingespielt ist: Eine Stimme mit `display_name` erscheint mit dem Namen im Ergebnis.
-Nach dem Einspielen der Migration (14.10.2026) gegen das echte Supabase-Projekt geprüft (Headless-Chromium,
-zwei getrennte Profile): Entfernen in offener Runde löscht die Stimme (andere Person sieht 1 Stimme);
-Entfernen nach dem Aufdecken lässt „Ben · 8“ im Ergebnis der anderen Person stehen; „Noch einmal
-schätzen“ räumt auf (0 Stimmen); axe-core ohne Befunde.
+Verified: migrations 1-8 were applied one after another in a local PostgreSQL 16 database (Docker, with a replica of
+`auth.uid()` and the roles) and the functions were played through with two users:
+removing in an open round deletes the vote; removing after the reveal keeps
+vote and name in the other person's snapshot; member count drops; the next round deletes all
+votes; non-members see nothing. The user interface was checked with a simulated response
+(browser interception of the snapshot response), since the migration was not yet applied
+in the real project: a vote with `display_name` appears with the name in the result.
+After applying the migration (14.10.2026), verified against the real Supabase project (headless Chromium,
+two separate profiles): removing in an open round deletes the vote (other person sees 1 vote);
+removing after the reveal leaves "Ben · 8" in the other person's result; "Estimate
+again" cleans up (0 votes); axe-core without findings.

@@ -1,59 +1,59 @@
-# 016 – Phasenabhängige Aktionen und „Noch einmal schätzen“
+# 016 – Phase-dependent actions and "Estimate again"
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 015
-- **Meilenstein:** M6: UX-Iteration 1
-- **Herkunft:** UX-Bewertung (Punkt 2), Priorität hoch, Aufwand mittel
+- **Status:** Done
+- **Dependencies:** 015
+- **Milestone:** M6: UX iteration 1
+- **Origin:** UX assessment (point 2), priority high, effort medium
 
-## Ziel
+## Goal
 
-Der Ablauf gliedert sich in drei eindeutige Phasen mit je einer Hauptaktion. Das Formular
-„Neue Runde“ konkurriert nicht mehr mit einer laufenden Abstimmung.
+The flow is divided into three clear phases with one main action each. The "New round"
+form no longer competes with a running vote.
 
-| Phase | Hauptaktion |
+| Phase | Main action |
 | --- | --- |
-| Noch keine Runde | Schätzung starten |
-| Abstimmung läuft | Karte wählen, danach Aufdecken |
-| Ergebnis sichtbar | Nächste Story |
+| No round yet | Start estimate |
+| Voting in progress | Choose a card, then reveal |
+| Result visible | Next story |
 
-## Aufgaben
+## Tasks
 
-- Phase aus dem vorhandenen Rundenstatus ableiten; nur die passende Hauptaktion hervorheben.
-- „Neue Runde“ während laufender Abstimmung zurücknehmen (z. B. nachrangige Aktion).
-- „Noch einmal schätzen“: dieselbe Story mit gleichem Titel erneut starten, ohne den Titel
-  nochmals einzugeben. Prüfen, ob der Aktionsvertrag (002) dafür erweitert werden muss oder der
-  Client die bestehende Aktion „Runde starten“ mit altem Titel nutzen kann.
-- Beim Ersetzen einer laufenden Runde mit vorhandenen Stimmen bestätigen lassen:
-  „Laufende Abstimmung ersetzen? Die bisherigen Stimmen werden entfernt.“
-- Konkurrierende Aktionen (011) weiterhin korrekt behandeln.
+- Derive the phase from the existing round status; only highlight the matching main action.
+- Take back "New round" during a running vote (e.g. as a secondary action).
+- "Estimate again": start the same story again with the same title, without entering the title
+  again. Check whether the action contract (002) must be extended for this or whether the
+  client can use the existing action "start round" with the old title.
+- When replacing a running round with existing votes, ask for confirmation:
+  "Replace the running vote? The votes cast so far will be removed."
+- Keep handling concurrent actions (011) correctly.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- In jeder Phase ist genau eine Hauptaktion eindeutig erkennbar.
-- „Noch einmal schätzen“ entfernt die alten Stimmen und übernimmt den Titel.
-- Eine laufende Abstimmung mit Stimmen wird nicht ohne Rückfrage ersetzt.
-- Typecheck, Lint, Build; manuelle Prüfung mit zwei getrennten Browserprofilen.
+- In every phase exactly one main action is clearly recognizable.
+- "Estimate again" removes the old votes and takes over the title.
+- A running vote with votes is not replaced without confirmation.
+- Type check, lint, build; manual check with two separate browser profiles.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Änderungen (`RoundPanel.tsx`):
+Changes (`RoundPanel.tsx`):
 
-- Phase „Noch keine Runde“: nur „Erste Runde starten“ mit Titelfeld.
-- Phase „Abstimmung läuft“: Karten und „Karten aufdecken“ sind die Hauptaktion. Die Möglichkeit, eine
-  andere Story zu starten, ist unter „Stattdessen eine andere Story schätzen“ eingeklappt und
-  nachrangig dargestellt.
-- Phase „Ergebnis sichtbar“: Abschnitt „Nächste Story“ mit „Nächste Story starten“ (Hauptaktion)
-  und „Noch einmal schätzen“.
-- „Noch einmal schätzen“ nutzt die bestehende Aktion „Runde starten“ mit dem Titel der aktuellen
-  Runde. Der Aktionsvertrag (002) musste nicht erweitert werden; Konfliktbehandlung und Prüfung
-  „wurde die Aktion angewendet?“ (011) greifen unverändert.
-- Beim Ersetzen einer laufenden Runde mit Stimmen erscheint die Rückfrage „Laufende Abstimmung
-  ersetzen? Die bisherigen Stimmen werden entfernt.“ mit „Ja, ersetzen“ und „Abbrechen“. Ohne
-  Stimmen wird direkt ersetzt. Die Rückfrage gilt nur für die Runde, bei der sie gestellt wurde.
+- Phase "No round yet": only "Start the first round" with a title field.
+- Phase "Voting in progress": cards and "Reveal cards" are the main action. The option to start
+  another story is collapsed under "Estimate a different story instead" and
+  displayed as secondary.
+- Phase "Result visible": section "Next story" with "Start next story" (main action)
+  and "Estimate again".
+- "Estimate again" uses the existing action "start round" with the title of the current
+  round. The action contract (002) did not need to be extended; conflict handling and the check
+  "was the action applied?" (011) apply unchanged.
+- When replacing a running round with votes, the confirmation "Replace the running vote?
+  The votes cast so far will be removed." appears with "Yes, replace" and "Cancel". Without
+  votes it is replaced directly. The confirmation only applies to the round for which it was asked.
 
-Geprüft (Headless-Chromium über Playwright, zwei getrennte Browserprofile, echtes Supabase-Projekt,
-kein Testcode eingecheckt): Raum erstellen, Runde starten, Beitritt der zweiten Person; Rückfrage
-erscheint mit Stimmen, Abbrechen lässt die Runde unverändert; Aufdecken zeigt „Nächste Story“ und
-„Noch einmal schätzen“; Letzteres startet bei der anderen Person dieselbe Story mit 0 Stimmen;
-Ersetzen ohne Stimmen erfolgt ohne Rückfrage. Typecheck, Lint, Build fehlerfrei.
-Nicht geprüft: gleichzeitige Aktionen beider Personen in genau diesem Ablauf (Logik unverändert aus 011).
+Verified (headless Chromium via Playwright, two separate browser profiles, real Supabase project,
+no test code checked in): create room, start round, second person joins; confirmation
+appears with votes, Cancel leaves the round unchanged; reveal shows "Next story" and
+"Estimate again"; the latter starts the same story with 0 votes for the other person;
+replacing without votes happens without confirmation. Type check, lint, build error-free.
+Not verified: simultaneous actions of both people in exactly this flow (logic unchanged from 011).

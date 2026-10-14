@@ -1,71 +1,71 @@
-# 011 – Wiederverbinden und konkurrierende Aktionen
+# 011 – Reconnecting and concurrent actions
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 010
-- **Meilenstein:** M4
+- **Status:** Done
+- **Dependencies:** 010
+- **Milestone:** M4
 
-## Ziel
+## Goal
 
-Bei Netzproblemen und gleichzeitiger Bedienung einen nachvollziehbaren Zustand erhalten.
+Keep a traceable state during network problems and simultaneous use.
 
-## Aufgaben
+## Tasks
 
-- Nach Reconnect sowie Rückkehr in einen länger inaktiven Tab aktuellen Zustand laden.
-- Verbindungsverlust kenntlich machen und Mutationen bei bekannter Offline-Situation sperren.
-- Fehlgeschlagene Aktionen nicht stillschweigend als erfolgreich anzeigen.
-- Bei unklarer Antwort zuerst Zustand abgleichen; nicht blind neue Runden erneut erzeugen.
-- Bei Versions-/Rundenkonflikten aktualisieren und verständlich zum erneuten Handeln auffordern.
-- Mehrere Tabs derselben Identität als eine Stimme behandeln; gespeicherte Auswahl abgleichen.
-- Mitgliedschaftsliste nicht als aktuelle Online-Liste oder Pflichtabstimmendenliste darstellen.
-- Verbindungsabbruch erhält gespeicherte Stimmen; bewusstes Verlassen nutzt die
-  Löschregeln aus 005 und aktualisiert andere Ansichten.
+- Load the current state after reconnect and after returning to a long-inactive tab.
+- Make connection loss recognizable and block mutations when the offline situation is known.
+- Do not silently display failed actions as successful.
+- On an unclear response, reconcile the state first; do not blindly create new rounds again.
+- On version/round conflicts, update and understandably prompt to act again.
+- Treat multiple tabs of the same identity as one vote; reconcile the stored selection.
+- Do not display the membership list as a current online list or a list of mandatory voters.
+- Connection loss keeps stored votes; deliberate leaving uses the
+  deletion rules from 005 and updates other views.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Offline/Online-Wechsel stellt den aktuellen Rundenzustand ohne manuelles Neuladen wieder her.
-- Nach zwischenzeitlichem Rundenwechsel wird keine alte Auswahl in die neue Runde übertragen.
-- Mehrere Tabs erzeugen keine Doppelstimmen.
-- Zwei gleichzeitige neue Runden bzw. Aufdecken während Stimmabgabe führen zu
-  konsistenten Anzeigen und nachvollziehbaren Konfliktmeldungen.
+- An offline/online change restores the current round state without manual reloading.
+- After a round switch in the meantime, no old selection is carried into the new round.
+- Multiple tabs produce no double votes.
+- Two simultaneous new rounds or a reveal during voting lead to
+  consistent displays and traceable conflict messages.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Umsetzung:
+Implementation:
 
-- `useRoomState`: lädt den Stand zusätzlich bei „Netzwerk wieder da“ (`online`) und bei Rückkehr
-  in den Tab (`visibilitychange`). Der Browser-Netzwerkstatus fließt in die Verbindungsanzeige ein.
-  Ohne Live-Kanal (z. B. WebSockets im Firmennetz blockiert) fragt die App alle 5 Sekunden nach,
-  solange der Tab sichtbar ist.
-- `RoundPanel`: Aktionen sind nur bei fehlendem Netzwerk gesperrt, nicht schon bei ausgefallenem
-  Live-Kanal. Bei unklarer Antwort (Verbindungsabbruch) wird nie blind wiederholt: Es wird der Stand
-  geladen und geprüft, ob die Aktion dort sichtbar ist (Stimme, neue Runde mit diesem Titel,
-  aufgedeckt). Wenn ja, gilt sie als erfolgreich, sonst erscheint eine klare Meldung.
-- `RoomView`: Statustexte für „live“, „keine Live-Verbindung (Abfrage-Modus)“ und „keine Verbindung“
-  (Aktionen pausiert, gespeicherte Stimme bleibt erhalten).
-- Konfliktmeldungen (`round_conflict`, `round_not_open`) laden den Stand nach, wie in 009.
-- Mehrere Tabs: die gewählte Karte stammt immer aus dem gespeicherten Stand, nie aus lokalem
-  Gedächtnis. Dadurch wandert keine alte Auswahl in eine neue Runde.
+- `useRoomState`: additionally loads the state on "network back" (`online`) and on returning
+  to the tab (`visibilitychange`). The browser's network status flows into the connection display.
+  Without a live channel (e.g. WebSockets blocked in a corporate network) the app polls every 5 seconds
+  as long as the tab is visible.
+- `RoundPanel`: actions are only blocked when there is no network, not already when the
+  live channel has failed. On an unclear response (connection dropped) nothing is ever repeated blindly: the state
+  is loaded and it is checked whether the action is visible there (vote, new round with this title,
+  revealed). If so, it counts as successful, otherwise a clear message appears.
+- `RoomView`: status texts for "live", "no live connection (polling mode)" and "no connection"
+  (actions paused, saved vote is kept).
+- Conflict messages (`round_conflict`, `round_not_open`) reload the state, as in 009.
+- Multiple tabs: the chosen card always comes from the stored state, never from local
+  memory. Therefore no old selection migrates into a new round.
 
-Im Browser geprüft (Headless-Chromium über Playwright, mehrere Profile, echtes Supabase-Projekt;
-kein Testcode eingecheckt):
+Verified in the browser (headless Chromium via Playwright, several profiles, real Supabase project;
+no test code checked in):
 
-- Netzwerk aus: Hinweis erscheint, Karten und Aufdecken gesperrt, gespeicherte Auswahl bleibt
-  sichtbar. Währenddessen deckt eine andere Person auf und startet eine neue Runde; nach Netzwerk
-  an erscheint die neue Runde ohne Neuladen und ohne die alte Auswahl.
-- Stimme, neue Runde und Aufdecken mit verlorener Antwort (Anfrage kam an): kein Fehler, korrekter
-  Zustand, bei der neuen Runde keine zweite Runde und geleerte Eingabe.
-- Anfrage kam nicht an: Meldung „nicht angekommen“, bisherige Stimme bleibt.
-- Zwei Tabs derselben Identität: Auswahl wird live übernommen und ersetzt sich gegenseitig,
-  Stimmenzahl 1, Mitglieder unverändert.
-- WebSocket blockiert: Hinweis „Keine Live-Verbindung“, Aktionen bleiben nutzbar, Änderungen
-  erscheinen nach etwa 5 Sekunden, Abstimmen funktioniert.
-- Keine JavaScript-Fehler. Typecheck, Lint und Build sind fehlerfrei.
+- Network off: notice appears, cards and reveal blocked, saved selection stays
+  visible. Meanwhile another person reveals and starts a new round; after the network
+  is on again the new round appears without reloading and without the old selection.
+- Vote, new round and reveal with a lost response (request arrived): no error, correct
+  state, for the new round no second round and the input is cleared.
+- Request did not arrive: message "did not arrive", previous vote stays.
+- Two tabs of the same identity: the selection is adopted live and they replace each other,
+  number of votes 1, members unchanged.
+- WebSocket blocked: notice "No live connection", actions stay usable, changes
+  appear after about 5 seconds, voting works.
+- No JavaScript errors. Type check, lint and build are error-free.
 
-Nachtrag (bei der Prüfung der veröffentlichten App): Ein einzelner Durchlauf zeigte ein Live-Update
-nicht, vier weitere liefen fehlerfrei. Als Absicherung gleicht die App nun auch mit Live-Kanal alle
-30 Sekunden den Stand ab. Geprüft, indem im Browser alle Live-Ereignisse verworfen wurden: Die
-Änderung erscheint nach höchstens 30 Sekunden. Die genaue Ursache des einmaligen Ausfalls ist nicht
-bewiesen.
+Addendum (when checking the published app): a single run did not show a live update,
+four further runs were error-free. As a safeguard the app now also reconciles the state every
+30 seconds with a live channel. Verified by discarding all live events in the browser: the
+change appears after at most 30 seconds. The exact cause of the one-time failure is not
+proven.
 
-Nicht geprüft: Rückkehr in einen im Hintergrund schlafenden Tab (nur per Code abgesichert) und
-echte Verbindungsabbrüche mitten im Echtzeit-Kanal (nur über Netzwerk-Emulation).
+Not verified: returning to a tab sleeping in the background (only secured by code) and
+real connection drops in the middle of the realtime channel (only via network emulation).

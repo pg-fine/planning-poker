@@ -1,66 +1,66 @@
-# 005 – Raumzugang und Mitgliedschaft
+# 005 – Room access and membership
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 003, 004
-- **Meilenstein:** M2
+- **Status:** Done
+- **Dependencies:** 003, 004
+- **Milestone:** M2
 
-## Ziel
+## Goal
 
-Dauerhafte Räume über einen Einladungslink zugänglich machen und Zugriffe begrenzen.
+Make permanent rooms accessible via an invitation link and limit access.
 
-## Aufgaben
+## Tasks
 
-- Datenbankfunktionen für Raum erstellen, mit Token beitreten und Raum verlassen implementieren.
-- Kryptografisch zufälliges Einladungstoken mit mindestens 128 Bit Entropie erzeugen.
-- Raum-Erstellung und erste Mitgliedschaft in einer Transaktion durchführen.
-- Namen serverseitig validieren und Mitgliedschaft pro Nutzer/Raum eindeutig halten.
-- Erneutes Beitreten idempotent gestalten und Namensänderung ermöglichen.
-- Raum-Mitgliedern das Kopieren des bestehenden Links ermöglichen, ohne eine öffentliche
-  Liste von Räumen oder Tokens anzubieten.
-- Beim Verlassen Mitgliedschaft und eigene aktuelle Stimme atomar entfernen;
-  Runde und Raum bleiben erhalten.
-- Bei privilegierten SQL-Funktionen Authentifizierung und Berechtigung explizit prüfen,
-  Ausführungsrechte begrenzen und einen festen `search_path` verwenden.
-- Typisierte Frontend-Zugriffsfunktionen bereitstellen.
+- Implement database functions to create a room, join with a token and leave a room.
+- Generate a cryptographically random invitation token with at least 128 bits of entropy.
+- Perform room creation and the first membership in one transaction.
+- Validate names on the server and keep membership unique per user/room.
+- Make joining again idempotent and allow changing the name.
+- Allow room members to copy the existing link without offering a public
+  list of rooms or tokens.
+- When leaving, remove membership and own current vote atomically;
+  round and room are kept.
+- For privileged SQL functions, check authentication and authorization explicitly,
+  limit execution rights and use a fixed `search_path`.
+- Provide typed frontend access functions.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Ein Link führt wiederholt in denselben Raum; es gibt keine automatische Ablaufzeit.
-- Ungültige Tokens erzeugen keine Mitgliedschaft und verraten keine fremden Raumdaten.
-- Erneutes Beitreten derselben Identität erzeugt kein Duplikat.
-- Nach Verlassen sind direkte Raumabfragen gesperrt; erneuter Beitritt per Link funktioniert.
+- A link leads to the same room repeatedly; there is no automatic expiry.
+- Invalid tokens create no membership and reveal no data of other rooms.
+- Joining again with the same identity creates no duplicate.
+- After leaving, direct room queries are blocked; joining again via the link works.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Umsetzung:
+Implementation:
 
 - `supabase/migrations/20261014090200_room_access.sql`: `create_room`, `join_room`,
-  `leave_room`, `get_invite_token` (SECURITY DEFINER, leerer `search_path`, `auth.uid()`
-  aus der Session, Ausführung nur für `authenticated`, nicht für `anon`) und die interne
-  Namensprüfung `private.normalize_display_name`.
-- `src/supabase/rooms.ts`: typisierte Funktionen `createRoom`, `joinRoom`, `leaveRoom`,
-  `getInviteToken`, Fehlercodes als `RoomError` mit deutschen Meldungen.
-- Einladungstoken: zwei zufällige UUIDs ohne Bindestriche (64 Hex-Zeichen, ca. 244 Bit),
-  damit keine Erweiterung (pgcrypto) nötig ist. Der Vertrag wurde entsprechend angepasst.
+  `leave_room`, `get_invite_token` (SECURITY DEFINER, empty `search_path`, `auth.uid()`
+  from the session, execution only for `authenticated`, not for `anon`) and the internal
+  name check `private.normalize_display_name`.
+- `src/supabase/rooms.ts`: typed functions `createRoom`, `joinRoom`, `leaveRoom`,
+  `getInviteToken`, error codes as `RoomError` with messages.
+- Invitation token: two random UUIDs without hyphens (64 hex characters, about 244 bits),
+  so no extension (pgcrypto) is needed. The contract was adjusted accordingly.
 
-Lokal geprüft (PostgreSQL 17 in Docker, Supabase-Rollen und `auth.uid()` nachgebildet,
-mehrere Nutzer; kein Testcode eingecheckt):
+Verified locally (PostgreSQL 17 in Docker, Supabase roles and `auth.uid()` simulated,
+several users; no test code checked in):
 
-- `anon` darf keine der Funktionen ausführen; ohne Nutzer-ID in der Session `not_authenticated`.
-- Ungültige Namen (leer, nur Leerraum, `null`, 41 Zeichen) → `invalid_name`; Leerraum am Rand
-  wird entfernt. Ungültiges oder fehlendes Token → `invalid_token`, ohne Raumdaten preiszugeben.
-- Beitritt ist idempotent: wiederholtes Beitreten erzeugt kein Duplikat; Namensänderung
-  erhöht die Raumrevision, ein gleicher Name nicht (Revision 1 → 2 → 3 → 4 bei Austritt).
-- Zwölf gleichzeitige Beitritte derselben Person mit wechselnden Namen: kein Fehler, genau eine
-  Mitgliedschaft (Raumsperre).
-- Fremde Personen erhalten für Token und Austritt `not_member`, auch für nicht existierende Räume.
-- Austritt entfernt Mitgliedschaft und eigene Stimme; Raum, Runde und fremde Stimmen bleiben.
-  Danach sind Raumabfragen und Token gesperrt; erneuter Beitritt per Link klappt, die alte
-  Stimme kommt nicht zurück. Direkte Schreibzugriffe und `room_invites` bleiben gesperrt.
-- Typecheck, Lint und Build sind fehlerfrei.
+- `anon` may not execute any of the functions; without a user ID in the session `not_authenticated`.
+- Invalid names (empty, whitespace only, `null`, 41 characters) → `invalid_name`; whitespace at
+  the edges is removed. Invalid or missing token → `invalid_token`, without revealing room data.
+- Joining is idempotent: joining repeatedly creates no duplicate; a name change
+  increases the room revision, an identical name does not (revision 1 → 2 → 3 → 4 on leaving).
+- Twelve simultaneous joins by the same person with changing names: no error, exactly one
+  membership (room lock).
+- Other people get `not_member` for token and leaving, also for non-existent rooms.
+- Leaving removes membership and own vote; room, round and other people's votes stay.
+  Afterwards room queries and token are blocked; joining again via the link works, the old
+  vote does not come back. Direct write access and `room_invites` stay blocked.
+- Type check, lint and build are error-free.
 
-Im echten Supabase-Projekt bestätigt: Alle Migrationen sind angewendet. Ein vollständiger Ablauf
-mit drei anonymen Identitäten über die TypeScript-Module der App (Raum erstellen, Beitreten,
-Token, Runde, Abstimmen und Ändern, Aufdecken, neue Runde, Konflikte, Austritt und Wiederbeitritt,
-fremde Person ohne Zugriff, direkte Schreibzugriffe gesperrt) lief mit 21 von 21 Prüfungen
-fehlerfrei. Dabei ist ein Testraum im Projekt entstanden (ohne Bedeutung).
+Confirmed in the real Supabase project: all migrations are applied. A complete flow
+with three anonymous identities via the app's TypeScript modules (create room, join,
+token, round, vote and change, reveal, new round, conflicts, leave and rejoin,
+outsider without access, direct write access blocked) ran with 21 of 21 checks
+without errors. A test room was created in the project (without meaning).

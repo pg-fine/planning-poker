@@ -1,61 +1,61 @@
-# 006 – Rundenwechsel und Aufdecken
+# 006 – Round switching and reveal
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 005
-- **Meilenstein:** M2
+- **Status:** Done
+- **Dependencies:** 005
+- **Milestone:** M2
 
-## Ziel
+## Goal
 
-Alle Mitglieder können eine Runde konsistent starten und manuell aufdecken.
+All members can start a round consistently and reveal it manually.
 
-## Aufgaben
+## Tasks
 
-- Datenbankfunktionen für neue Runde und Aufdecken bereitstellen.
-- Mitgliedschaft und Titel serverseitig validieren.
-- Bei neuer Runde eine frische Runden-ID erzeugen und alte Stimmen/Rundendaten entfernen.
-- Austausch in einer Transaktion durchführen und konkurrierende Mutationen durch
-  Sperren sowie Prüfung der erwarteten Runden-ID koordinieren.
-- Aufdecken nur auf die erwartete aktuelle Runde anwenden; mehrfaches Aufdecken
-  derselben Runde ohne weitere Zustandsänderung beantworten.
-- Auch eine Runde ohne Stimmen darf manuell aufgedeckt werden.
-- Fachliche Konflikte in strukturierte Fehler für die Oberfläche übersetzen.
+- Provide database functions for a new round and for revealing.
+- Validate membership and title on the server.
+- On a new round, generate a fresh round ID and remove old votes/round data.
+- Perform the replacement in one transaction and coordinate concurrent mutations through
+  locks and a check of the expected round ID.
+- Apply a reveal only to the expected current round; answer repeated reveal
+  of the same round without further state change.
+- A round without votes may also be revealed manually.
+- Translate business conflicts into structured errors for the user interface.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Ein Rundenwechsel entfernt alte Stimmen vollständig und öffnet die neue Abstimmung.
-- Zwei gleichzeitige Rundenwechsel mit gleicher erwarteter ID ersetzen nicht unbemerkt
-  die gerade neu erzeugte Runde; nur einer wird akzeptiert.
-- Ein verspätetes Aufdecken der vorherigen Runde deckt nicht die neue Runde auf.
-- Alle Mitglieder haben dieselben Rechte, fremde Nutzer keine Steuerrechte.
+- A round switch removes old votes completely and opens the new voting.
+- Two simultaneous round switches with the same expected ID do not silently replace
+  the round just created; only one is accepted.
+- A late reveal of the previous round does not reveal the new round.
+- All members have the same rights, outsiders have no control rights.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Umsetzung:
+Implementation:
 
 - `supabase/migrations/20261014090300_rounds.sql`: `start_round`, `reveal_round`,
-  `get_room_state` sowie intern `private.lock_room_as_member` (Mitgliedschaft prüfen, Raumzeile
-  sperren, erneut prüfen) und `private.room_snapshot` (ein einziges SQL-Statement, damit der
-  Snapshot konsistent ist).
+  `get_room_state` and internally `private.lock_room_as_member` (check membership, lock room
+  row, check again) and `private.room_snapshot` (a single SQL statement so the
+  snapshot is consistent).
 - `src/supabase/rounds.ts` (`startRound`, `revealRound`), `src/supabase/roomState.ts`
-  (`getRoomState`, geprüfte Typen `RoomState`), `src/domain/cards.ts` (Kartenmenge).
+  (`getRoomState`, validated types `RoomState`), `src/domain/cards.ts` (card set).
 
-Lokal geprüft (PostgreSQL 17 in Docker, mehrere Nutzer; kein Testcode eingecheckt):
+Verified locally (PostgreSQL 17 in Docker, several users; no test code checked in):
 
-- Erste Runde: Titel wird getrimmt, Titel leer/`null`/121 Zeichen → `invalid_title`;
-  `start_round` mit `expected = null`, obwohl es schon eine Runde gibt → `round_conflict`.
-- Neue Runde mit korrekter erwarteter ID entfernt alle Stimmen, vergibt neue `round_id`, Status
-  `open`. Zweiter Klick mit der alten ID → `round_conflict`, die neuere Runde bleibt.
-- Acht gleichzeitige `start_round` mit gleicher erwarteter ID: genau einer gewinnt, sieben
-  erhalten `round_conflict`.
-- Aufdecken: wirkt nur für die übergebene Runde. Wiederholtes Aufdecken lässt Zustand und
-  Revision unverändert. Verspätetes Aufdecken der alten Runde deckt die neue nicht auf.
-  Ohne Runde `no_round`. Aufdecken und Rundenwechsel gleichzeitig enden in einem konsistenten Stand.
-- Fremde Personen und unbekannte Räume erhalten überall `not_member`; `anon` hat kein Ausführungsrecht.
-- Snapshot enthält `me`, Mitglieder, Runde samt Stimmen und Revision. Das Frontend parst ihn
-  streng (ungültige Karte wird abgelehnt). Typecheck und Lint sind fehlerfrei.
+- First round: title is trimmed, title empty/`null`/121 characters → `invalid_title`;
+  `start_round` with `expected = null` although a round already exists → `round_conflict`.
+- A new round with the correct expected ID removes all votes, assigns a new `round_id`, status
+  `open`. A second click with the old ID → `round_conflict`, the newer round stays.
+- Eight simultaneous `start_round` with the same expected ID: exactly one wins, seven
+  get `round_conflict`.
+- Reveal: only works for the given round. Repeated reveal leaves state and
+  revision unchanged. A late reveal of the old round does not reveal the new one.
+  Without a round `no_round`. Reveal and round switch at the same time end in a consistent state.
+- Other people and unknown rooms get `not_member` everywhere; `anon` has no execution right.
+- The snapshot contains `me`, members, round including votes and revision. The frontend parses it
+  strictly (invalid card is rejected). Type check and lint are error-free.
 
-Im echten Supabase-Projekt bestätigt: Alle Migrationen sind angewendet. Ein vollständiger Ablauf
-mit drei anonymen Identitäten über die TypeScript-Module der App (Raum erstellen, Beitreten,
-Token, Runde, Abstimmen und Ändern, Aufdecken, neue Runde, Konflikte, Austritt und Wiederbeitritt,
-fremde Person ohne Zugriff, direkte Schreibzugriffe gesperrt) lief mit 21 von 21 Prüfungen
-fehlerfrei. Dabei ist ein Testraum im Projekt entstanden (ohne Bedeutung).
+Confirmed in the real Supabase project: all migrations are applied. A complete flow
+with three anonymous identities via the app's TypeScript modules (create room, join,
+token, round, vote and change, reveal, new round, conflicts, leave and rejoin,
+outsider without access, direct write access blocked) ran with 21 of 21 checks
+without errors. A test room was created in the project (without meaning).

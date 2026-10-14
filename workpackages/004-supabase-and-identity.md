@@ -1,68 +1,68 @@
-# 004 – Supabase-Verbindung und Identität
+# 004 – Supabase connection and identity
 
-- **Status:** Erledigt (Anmeldung im Browser-UI noch nicht von dir gesehen)
-- **Abhängigkeiten:** 001
-- **Meilenstein:** M1
+- **Status:** Done (sign-in in the browser UI not yet seen by you)
+- **Dependencies:** 001
+- **Milestone:** M1
 
-## Ziel
+## Goal
 
-Teilnehmenden ohne Registrierung eine wiedererkennbare Browser-Identität geben.
+Give participants a recognizable browser identity without registration.
 
-## Aufgaben
+## Tasks
 
-- Supabase-Client mit Projekt-URL und öffentlichem Publishable-/Anon-Key konfigurieren.
-- Aktivieren anonymer Anmeldung im Supabase-Projekt dokumentieren.
-- Bestehende Session laden; nur bei fehlender Session anonym anmelden.
-- Gleichzeitige Initialisierung innerhalb der App deduplizieren.
-- Session-Wiederherstellung, Ladezustand und Auth-Fehler bereitstellen.
-- Anzeigenamen als fachliche Eingabe behandeln, nicht als Authentifizierung.
-- Verhalten bei gelöschten Browserdaten oder abgelaufener Session dokumentieren.
+- Configure the Supabase client with the project URL and public publishable/anon key.
+- Document enabling anonymous sign-in in the Supabase project.
+- Load an existing session; only sign in anonymously if there is no session.
+- Deduplicate concurrent initialization within the app.
+- Provide session restoration, loading state and auth errors.
+- Treat display names as business input, not as authentication.
+- Document behavior with cleared browser data or an expired session.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Beim ersten Einstieg entsteht ohne E-Mail/Passwort eine anonyme Identität.
-- Neuladen nutzt die vorhandene Identität wieder.
-- Zusätzliche Tabs mit bereits gespeicherter Session verwenden dieselbe Identität.
-- Bei Auth-Fehlern bleibt eine verständliche Meldung mit erneutem Versuch sichtbar.
-- Fehlende Konfiguration und nicht aktivierte anonyme Anmeldung sind unterscheidbar.
+- On first entry an anonymous identity is created without email/password.
+- Reloading reuses the existing identity.
+- Additional tabs with an already stored session use the same identity.
+- On auth errors an understandable message with a retry stays visible.
+- Missing configuration and anonymous sign-in not enabled are distinguishable.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Umsetzung:
+Implementation:
 
-- `src/supabase/client.ts`: ein gemeinsamer Client je Fenster (Session im `localStorage`,
-  keine URL-Auswertung).
-- `src/supabase/identity.ts`: `ensureIdentity` (Session wiederverwenden, ungültige Session
-  verwerfen, sonst anonym anmelden; Dedupe innerhalb der App, Browser-Sperre über Tabs;
-  Fehlerarten `anonymous_disabled`, `rate_limited`, `network`, `unknown`) und deutsche Meldungen.
-- `src/ui/useIdentity.ts`, `src/ui/IdentityGate.tsx`: Ladezustand, Fehler mit
-  „Erneut versuchen“, Bereit-Ansicht mit gekürzter Kennung des Browsers.
-- `docs/identity.md`: Verhalten bei gelöschten Browserdaten, anderem Profil, ungültiger
-  Session und die Fehlerarten.
+- `src/supabase/client.ts`: one shared client per window (session in `localStorage`,
+  no URL evaluation).
+- `src/supabase/identity.ts`: `ensureIdentity` (reuse session, discard invalid session,
+  otherwise sign in anonymously; dedupe within the app, browser lock across tabs;
+  error kinds `anonymous_disabled`, `rate_limited`, `network`, `unknown`) and messages.
+- `src/ui/useIdentity.ts`, `src/ui/IdentityGate.tsx`: loading state, error with
+  "Try again", ready view with a shortened ID of the browser.
+- `docs/identity.md`: behavior with cleared browser data, another profile, invalid
+  session and the error kinds.
 
-Gegen das echte Supabase-Projekt geprüft (Node-Skripte mit dateibasiertem `localStorage`
-als „Browser-Profil“, kein Testcode eingecheckt):
+Verified against the real Supabase project (Node scripts with a file-based `localStorage`
+as "browser profile", no test code checked in):
 
-- Erste Anmeldung ohne E-Mail/Passwort erzeugt eine anonyme Identität (`is_anonymous`).
-- Drei gleichzeitige Aufrufe teilen sich einen Vorgang und liefern dieselbe ID.
-- Neuladen (gleiches Profil, zweimal) behält dieselbe ID; ein anderes Profil bekommt eine neue.
-- Absichtlich beschädigte Session wird verworfen und durch eine neue Identität ersetzt.
-- Unerreichbare Adresse ergibt `network`, falscher Key `unknown`; ein erneuter Aufruf
-  startet jeweils einen neuen Versuch.
-- Als angemeldete anonyme Person ohne Mitgliedschaft: `rooms`, `room_members`, `rounds`,
-  `votes` liefern 0 Zeilen, `room_invites` und jedes Schreiben werden mit `42501 permission
-  denied` abgewiesen. Damit sind Migration und Leserechte aus Arbeitspaket 003 im echten
-  Projekt bestätigt (Prüfung mit dem öffentlichen Key).
-- Typecheck, Lint und Build sind fehlerfrei.
+- The first sign-in without email/password creates an anonymous identity (`is_anonymous`).
+- Three concurrent calls share one operation and return the same ID.
+- Reloading (same profile, twice) keeps the same ID; another profile gets a new one.
+- A deliberately corrupted session is discarded and replaced by a new identity.
+- An unreachable address yields `network`, a wrong key `unknown`; a repeated call
+  starts a new attempt each time.
+- As a signed-in anonymous person without membership: `rooms`, `room_members`, `rounds`,
+  `votes` return 0 rows, `room_invites` and any write are rejected with `42501 permission
+  denied`. This confirms the migration and read rights from work package 003 in the real
+  project (check with the public key).
+- Type check, lint and build are error-free.
 
-Nicht geprüft:
+Not verified:
 
-- Der Fall „anonyme Anmeldung deaktiviert“ (Schalter ist bei dir aktiv; Fehlercode wird nur
-  anhand der Supabase-Dokumentation erkannt) und der Rate-Limit-Fall.
-- Die Darstellung im echten Browser und das Verhalten mehrerer Tabs (die Browser-Sperre
-  ist nur durch Code-Review abgesichert).
+- The case "anonymous sign-in disabled" (the switch is on for you; the error code is only
+  recognized based on the Supabase documentation) and the rate limit case.
+- Rendering in a real browser and the behavior of multiple tabs (the browser lock
+  is only secured by code review).
 
-Bitte einmal `npm run dev` starten: Es sollte „Bereit“ mit einer Kennung erscheinen, die
-nach Neuladen und in einem zweiten Tab gleich bleibt, in einem Privatfenster aber anders ist.
-Beim Testen sind einige anonyme Testnutzer im Projekt entstanden (unter Authentication →
-Users sichtbar, ohne Bedeutung, dürfen gelöscht werden).
+Please start `npm run dev` once: "Ready" with an ID should appear, which stays the same
+after reloading and in a second tab, but differs in a private window.
+During testing some anonymous test users were created in the project (visible under Authentication →
+Users, without meaning, may be deleted).

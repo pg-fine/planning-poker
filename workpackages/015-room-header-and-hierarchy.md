@@ -1,50 +1,49 @@
-# 015 – Kompakter Raumkopf und klare Hierarchie
+# 015 – Compact room header and clear hierarchy
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 014
-- **Meilenstein:** M6: UX-Iteration 1
-- **Herkunft:** UX-Bewertung (Punkt 1), Priorität hoch, Aufwand klein bis mittel
+- **Status:** Done
+- **Dependencies:** 014
+- **Milestone:** M6: UX iteration 1
+- **Origin:** UX assessment (point 1), priority high, effort small to medium
 
-## Ziel
+## Goal
 
-Die aktuelle Schätzung steht im Mittelpunkt. Raumverwaltung und technische Hinweise treten
-zurück, damit im schmalen Browserfenster neben Teams wenig gescrollt werden muss.
+The current estimate is at the center. Room management and technical notices step
+back so that little scrolling is needed in a narrow browser window next to Teams.
 
-## Aufgaben
+## Tasks
 
-- Kompakte Kopfzeile: Raum, eigener Name, „Einladen“ (Link kopieren).
-- Aktuelle Schätzung als zentraler Arbeitsbereich.
-- Teilnehmende auf breiten Bildschirmen neben der Schätzung, auf schmalen darunter.
-- Raum-Link-Verwaltung, Verlassen-Aktion und technische Hinweise (Browserkennung, Supabase)
-  einklappen bzw. hinter „Hilfe“ verschieben.
-- Verbindungstext im Normalbetrieb durch „● Live“ ersetzen; ausführliche Hinweise nur bei Problemen.
-- Bestehende Bedienbarkeit aus 012 erhalten (Fokusführung, Text statt nur Farbe, Umbruch langer Texte).
+- Compact header: room, own name, "Invite" (copy link).
+- The current estimate as the central work area.
+- Participants next to the estimate on wide screens, below it on narrow ones.
+- Collapse the room link management, leave action and technical notices (browser ID, Supabase)
+  or move them behind "Help".
+- Replace the connection text in normal operation with "● Live"; detailed notices only on problems.
+- Keep the existing usability from 012 (focus handling, text instead of color only, wrapping of long texts).
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Bei 320 px und 1280 px Breite sind Schätzung und Hauptaktion ohne Suchen erreichbar.
-- Kein horizontales Scrollen; Tastaturbedienung und Fokus wie zuvor.
-- Verbindungsprobleme bleiben deutlich erkennbar, nicht nur durch Farbe.
-- Typecheck, Lint und Build fehlerfrei; manuelle Prüfung in Hell- und Dunkelmodus.
+- At 320 px and 1280 px width the estimate and main action are reachable without searching.
+- No horizontal scrolling; keyboard operation and focus as before.
+- Connection problems stay clearly recognizable, not only by color.
+- Type check, lint and build error-free; manual check in light and dark mode.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Änderungen:
+Changes:
 
-- Kompakte Kopfzeile (`RoomView.tsx`): „Du bist als … dabei“, Verbindungsstatus „● Live“ und „Einladen“
-  (kopiert den Link; bei gesperrter Zwischenablage klappt „Raum und Hilfe“ auf und markiert den Link).
-- Zweispaltiges Layout ab 40 rem: Schätzung links, Mitglieder rechts; auf schmalen Fenstern untereinander.
-- Einladungslink, Hinweis zum Verlassen und „Raum verlassen“ stehen eingeklappt unter „Raum und Hilfe“.
-- Der Hinweis zu Browserkennung und Identität im Fußbereich ist hinter „Hilfe zu Browser und Teilnahme“
-  eingeklappt.
-- Verbindungsstatus: im Normalbetrieb nur „● Live“; „○ Verbindung wird hergestellt …“ bzw.
-  „▲ Keine Live-Verbindung“ mit ausführlichem Hinweis in einem Hinweiskasten nur bei Problemen.
-- Die Phasenlogik (Formular „Neue Runde“ nur wenn sinnvoll) folgt in 016.
+- Compact header (`RoomView.tsx`): "You are taking part as …", connection status "● Live" and "Invite"
+  (copies the link; if the clipboard is blocked, "Room and help" opens and selects the link).
+- Two-column layout from 40 rem: estimate on the left, members on the right; below each other in narrow windows.
+- Invitation link, notice on leaving and the leave action are collapsed under "Room and help".
+- The notice on browser ID and identity in the footer is collapsed behind "Help on browser and participation".
+- Connection status: in normal operation only "● Live"; "○ Connecting …" or
+  "▲ No live connection" with a detailed notice in a notice box only on problems.
+- The phase logic (form "New round" only when sensible) follows in 016.
 
-Geprüft (Headless-Chromium über Playwright, echtes Supabase-Projekt, kein Testcode eingecheckt):
-Raum erstellen, Runde starten, Karte wählen bei 1280 px (hell), 320 px (hell) und 1000 px (dunkel):
-kein horizontales Scrollen, keine JavaScript-Fehler. axe-core (WCAG 2 A/AA, Best Practices) ohne
-Befunde in Hell- und Dunkelmodus, auch mit aufgeklappten Hilfebereichen. Typecheck, Lint und Build
-fehlerfrei. Der Offline-Hinweiskasten wurde nicht visuell geprüft.
+Verified (headless Chromium via Playwright, real Supabase project, no test code checked in):
+create room, start round, select card at 1280 px (light), 320 px (light) and 1000 px (dark):
+no horizontal scrolling, no JavaScript errors. axe-core (WCAG 2 A/AA, best practices) without
+findings in light and dark mode, also with expanded help areas. Type check, lint and build
+error-free. The offline notice box was not checked visually.
 
-Hinweis: Die Prüfungen haben einige Testräume im Supabase-Projekt angelegt.
+Note: the checks created some test rooms in the Supabase project.

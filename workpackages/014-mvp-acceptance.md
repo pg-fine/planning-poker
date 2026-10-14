@@ -1,83 +1,83 @@
-# 014 – Gemeinsame MVP-Abnahme
+# 014 – Joint MVP acceptance
 
-- **Status:** Erledigt (vom Auftraggeber abgenommen)
-- **Abhängigkeiten:** 013
-- **Meilenstein:** M5
-- **Externe Voraussetzung:** Zwei getrennte Browser-Identitäten, möglichst zwei Personen
+- **Status:** Done (accepted by the client)
+- **Dependencies:** 013
+- **Milestone:** M5
+- **External prerequisite:** Two separate browser identities, preferably two people
 
-## Ziel
+## Goal
 
-Das veröffentlichte MVP in einem realistischen Planning-Poker-Ablauf abnehmen.
+Accept the published MVP in a realistic planning poker flow.
 
-## Manuelle Abnahmeszenarien
+## Manual acceptance scenarios
 
-1. Raum erstellen, Link im Teams-Chat teilen und mit zweitem Namen beitreten.
-2. Story-Titel eingeben; unterschiedliche Karten wählen und eigene Auswahl ändern.
-3. Vor Aufdecken bleiben fremde Werte verborgen; die Stimmenanzahl ist live korrekt.
-4. Durch die zweite Person aufdecken; Namen, Zahlenwerte und Sonderkarten erscheinen korrekt.
-5. Neue Runde starten; vorheriger Titel und Stimmen sind ersetzt, keine Historie ist abrufbar.
-6. Alle Browser schließen und denselben Raum-Link später öffnen; Raum und aktuelle Runde bleiben.
-7. Während einer Runde beitreten, neu laden und ein zusätzliches Fenster derselben Identität öffnen.
-8. Verbindung unterbrechen, in der anderen Session die Runde wechseln und wieder verbinden.
-9. Fast gleichzeitig neue Runde/Aufdecken/Stimmabgabe auslösen; Zustände bleiben konsistent.
-10. Bewusst verlassen und per Link erneut beitreten; eigene entfernte Stimme bleibt entfernt.
-11. Zweiten Raum erstellen; weder dessen Daten noch Änderungen erscheinen im ersten Raum.
-12. Fremde Raumabfragen und Änderungen fremder Stimmen manuell über den Client versuchen;
-    sie müssen abgewiesen werden. Kein Service-Role-Key für diese Prüfung verwenden.
+1. Create a room, share the link in the Teams chat and join with a second name.
+2. Enter a story title; choose different cards and change the own selection.
+3. Before the reveal other people's values stay hidden; the number of votes is correct live.
+4. Reveal by the second person; names, number values and special cards appear correctly.
+5. Start a new round; previous title and votes are replaced, no history is retrievable.
+6. Close all browsers and open the same room link later; room and current round remain.
+7. Join during a round, reload and open an additional window of the same identity.
+8. Interrupt the connection, switch the round in the other session and reconnect.
+9. Trigger new round/reveal/voting almost simultaneously; states stay consistent.
+10. Leave deliberately and join again via the link; the own removed vote stays removed.
+11. Create a second room; neither its data nor changes appear in the first room.
+12. Manually try other people's room queries and changes to other people's votes via the client;
+    they must be rejected. Do not use a service role key for this check.
 
-## Aufgaben
+## Tasks
 
-- Typecheck, Lint und Produktionsbuild mit den endgültigen Ständen ausführen.
-- Datum, Browser, beteiligte Profile, Build-/Commit-Stand und Ergebnisse protokollieren.
-- Bugs mit Reproduktion und erwartetem/tatsächlichem Verhalten erfassen und korrigieren.
-- **Testcode ausschließlich für konkret aufgefallene Bugs schreiben**, wenn ein gezielter
-  Regressionstest sinnvoll ist; keine nachträgliche pauschale Testsuite erstellen.
-- Nach Korrekturen betroffene Szenarien erneut prüfen.
-- Kurze Nutzungsanleitung für Raum-Link, Kartenwahl, Aufdecken und neue Runde abschließen.
+- Run type check, lint and production build with the final states.
+- Record date, browser, profiles involved, build/commit state and results.
+- Capture bugs with reproduction and expected/actual behavior and fix them.
+- **Write test code only for concretely noticed bugs**, if a targeted
+  regression test makes sense; do not create a blanket test suite afterwards.
+- After fixes, check the affected scenarios again.
+- Finish a short usage guide for room link, card selection, reveal and new round.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Alle Szenarien sind erfolgreich protokolliert; offene Punkte sind sichtbar dokumentiert.
-- Keine offenen Fehler verhindern Raumzugang, Stimmabgabe, Aufdecken oder Datenisolation.
-- Projektbefehle sind erfolgreich; gegebenenfalls vorhandene Bug-Regressionstests ebenfalls.
-- Das Team kann mit Anleitung eine vollständige Schätzrunde ohne Entwicklerwerkzeuge durchführen.
+- All scenarios are recorded as successful; open points are visibly documented.
+- No open errors prevent room access, voting, reveal or data isolation.
+- Project commands are successful; any existing bug regression tests as well.
+- The team can run a complete estimation round with the guide without developer tools.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-**Abnahme am 14.10.2026** durch den Auftraggeber (Peter Gruszka) an der veröffentlichten App
-https://planning-poker.peter-gruszka.workers.dev. Rückmeldung: „Die Software ist abgenommen.
-Sieht super aus.“ Die Abnahme wurde mündlich im Chat erteilt; ein szenarienweises Protokoll der
-manuellen Durchführung durch das Team liegt nicht vor. Auffälligkeiten wurden nicht gemeldet.
+**Acceptance on 14.10.2026** by the client (Peter Gruszka) on the published app
+https://planning-poker.peter-gruszka.workers.dev. Feedback: "The software is accepted.
+Looks great." The acceptance was given verbally in the chat; a scenario-by-scenario log of the
+manual execution by the team does not exist. No anomalies were reported.
 
-Eigene Prüfungen vor der Abnahme (Headless-Chromium über Playwright, getrennte Browserprofile,
-echtes Supabase-Projekt, kein Testcode eingecheckt). Die Szenarien 1-12 sind damit wie folgt abgedeckt:
+Own checks before the acceptance (headless Chromium via Playwright, separate browser profiles,
+real Supabase project, no test code checked in). Scenarios 1-12 are thereby covered as follows:
 
-| Nr. | Szenario | Geprüft in |
+| No. | Scenario | Verified in |
 | --- | --- | --- |
-| 1 | Raum erstellen, Link teilen, beitreten | 008, 013 (veröffentlichte App) |
-| 2 | Titel, Karten wählen und ändern | 009 |
-| 3 | Fremde Werte verborgen, Stimmenzahl live | 009, 010, 013 |
-| 4 | Aufdecken durch zweite Person, Ergebnis | 009, 010 |
-| 5 | Neue Runde ersetzt Titel und Stimmen | 009, 010 |
-| 6 | Raum-Link später erneut öffnen | 008, 013 (Neuladen auf `/r/<token>`) |
-| 7 | Beitritt während der Runde, Neuladen, zweiter Tab | 010, 011 |
-| 8 | Verbindung unterbrechen, Runde wechselt | 011 (Netzwerk-Emulation) |
-| 9 | Gleichzeitige Aktionen | 006, 007 (SQL, 8 parallele Aufrufe), 011 |
-| 10 | Verlassen und erneut beitreten | 005, 008 |
-| 11 | Zweiter Raum bleibt getrennt | 003, 005, 010 (Fremde sehen nichts, keine Ereignisse) |
-| 12 | Fremde Abfragen und Änderungen abgewiesen | 003, 004, 005-007 (öffentlicher Key, `permission denied`/`not_member`) |
+| 1 | Create room, share link, join | 008, 013 (published app) |
+| 2 | Title, select and change cards | 009 |
+| 3 | Other people's values hidden, number of votes live | 009, 010, 013 |
+| 4 | Reveal by second person, result | 009, 010 |
+| 5 | New round replaces title and votes | 009, 010 |
+| 6 | Open room link again later | 008, 013 (reload on `/r/<token>`) |
+| 7 | Join during the round, reload, second tab | 010, 011 |
+| 8 | Interrupt connection, round switches | 011 (network emulation) |
+| 9 | Simultaneous actions | 006, 007 (SQL, 8 parallel calls), 011 |
+| 10 | Leave and join again | 005, 008 (since 019: vote is only removed in an open round) |
+| 11 | Second room stays separate | 003, 005, 010 (outsiders see nothing, no events) |
+| 12 | Other people's queries and changes rejected | 003, 004, 005-007 (public key, `permission denied`/`not_member`) |
 
-Projektbefehle zum Stand der Abnahme: `npm run typecheck`, `npm run lint` und `npm run build`
-sind fehlerfrei. Es gibt keinen Testcode, weil kein Bug aufgefallen ist, der einen Regressionstest
-verlangt hätte. Der einzige auffällige Fehler (ein einmal ausgebliebenes Live-Update) ist in Paket 011
-dokumentiert und mit einem Abgleich alle 30 Sekunden abgesichert; seine Ursache ist nicht bewiesen.
+Project commands at the time of acceptance: `npm run typecheck`, `npm run lint` and `npm run build`
+are error-free. There is no test code because no bug turned up that would have required a
+regression test. The only conspicuous error (a live update that failed once) is documented in package 011
+and secured with a reconciliation every 30 seconds; its cause is not proven.
 
-Bekannte Grenzen des MVP:
+Known limits of the MVP:
 
-- Teilnahme ist an den Browser gebunden. Ein anderes Gerät oder gelöschte Browserdaten bedeuten
-  eine neue Teilnahme; ein alter Eintrag bleibt als Mitglied stehen, blockiert aber nichts.
-- Keine Historie, keine Ticket-Integration, keine Teams-App (bewusst nicht im MVP).
-- Fremde Kartenwerte sind vor dem Aufdecken nur in der Oberfläche verborgen, technisch aber für
-  Mitglieder abrufbar (bewusste Entscheidung).
-- Supabase Free pausiert nach etwa einer Woche Inaktivität; Reaktivierung siehe `docs/deployment.md`.
-- Geprüft wurde nur Chromium; echter Screenreader und die Teams-Umgebung wurden nicht getestet.
+- Participation is bound to the browser. Another device or cleared browser data mean
+  a new participation; an old entry stays as a member but blocks nothing.
+- No history, no ticket integration, no Teams app (deliberately not in the MVP).
+- Other people's card values are only hidden in the user interface before the reveal, but technically retrievable for
+  members (deliberate decision).
+- Supabase Free pauses after about a week of inactivity; for reactivation see `docs/deployment.md`.
+- Only Chromium was tested; a real screen reader and the Teams environment were not tested.

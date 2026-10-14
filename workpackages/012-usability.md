@@ -1,63 +1,63 @@
-# 012 – Bedienbarkeit und Fehleranzeigen
+# 012 – Usability and error displays
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 011
-- **Meilenstein:** M4
+- **Status:** Done
+- **Dependencies:** 011
+- **Milestone:** M4
 
-## Ziel
+## Goal
 
-Den vorhandenen Ablauf im Meeting schnell verständlich und gut bedienbar machen.
+Make the existing flow quickly understandable and easy to use in the meeting.
 
-## Aufgaben
+## Tasks
 
-- Deutsche Beschriftungen und Fehlermeldungen vereinheitlichen.
-- Tastaturbedienung, sichtbaren Fokus und beschriftete Eingabefelder sicherstellen.
-- Gewählte Karte und Verbindungsstatus zusätzlich zu Farben durch Text/Symbole kennzeichnen.
-- Layout auf Desktop und schmalen Browserfenstern prüfen und anpassen.
-- Lange Titel/Namen sowie leere Zustände ohne Layoutbruch darstellen.
-- Laufende Aktionen, erfolgreiche Linkkopie und Fehler gut sichtbar rückmelden.
-- Kurzen Hinweis ergänzen: derselbe Browser behält die Identität; neues Gerät oder
-  gelöschte Browserdaten bedeuten eine neue Teilnahme.
-- Fehler bei pausiertem/nicht erreichbarem Supabase-Projekt verständlich anzeigen,
-  ohne eine unbekannte Ursache fälschlich sicher zu diagnostizieren.
+- Harmonize labels and error messages.
+- Ensure keyboard operation, visible focus and labeled input fields.
+- Mark the selected card and connection status with text/symbols in addition to colors.
+- Check and adapt the layout on desktop and narrow browser windows.
+- Display long titles/names and empty states without breaking the layout.
+- Give clearly visible feedback on running actions, successful link copying and errors.
+- Add a short notice: the same browser keeps the identity; a new device or
+  cleared browser data mean a new participation.
+- Display errors for a paused/unreachable Supabase project understandably,
+  without wrongly diagnosing an unknown cause with certainty.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Raumzugang und Schätzrunde sind vollständig per Tastatur bedienbar.
-- Keine wesentliche Aktion ist nur durch Farbe oder Hover erkennbar.
-- Schmale Fenster bleiben ohne horizontales Scrollen für Kernaktionen nutzbar.
-- Fehler geben eine sinnvolle nächste Handlung an und löschen keine Benutzereingaben unnötig.
+- Room access and estimation round are fully operable by keyboard.
+- No essential action is recognizable only by color or hover.
+- Narrow windows stay usable for core actions without horizontal scrolling.
+- Errors give a sensible next action and do not delete user input unnecessarily.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Änderungen:
+Changes:
 
-- Laufende Aktionen deaktivieren Knöpfe nicht mehr (`aria-disabled`, Klicks werden ignoriert,
-  Eingabefelder `readOnly`): Der Tastaturfokus bleibt erhalten. Echtes `disabled` gibt es nur ohne
-  Netzwerk. Knöpfe zeigen „Wird gespeichert …“.
-- Fokusführung: Nach Seitenwechsel (z. B. Raum erstellt) und beim ersten Anzeigen des Raums wandert
-  der Fokus an den Anfang des Inhalts; nach dem Aufdecken auf das Ergebnis, sofern der Fokus
-  sonst verloren wäre.
-- Kontrast im Dunkelmodus: eigene Textfarbe auf dem Akzent (`--on-accent`), vorher kaum lesbar.
-- Lange Wörter (Namen, Titel, Links) brechen um und sprengen das Layout nicht.
-- Hinweis zur Identität im Fußbereich: Browser behält die Teilnahme; anderes Gerät/Browser oder
-  gelöschte Browserdaten bedeuten eine neue Person.
-- Netzwerkfehler nennen mögliche Ursachen (Internet, pausiertes Free-Projekt, Netzblockade), ohne
-  eine davon als sicher zu behaupten.
-- Bereits vorhanden: deutsche Beschriftungen und Fehlertexte, beschriftete Felder, Kartenwahl per
-  Text „gewählt“ und `aria-pressed`, Verbindungsstatus als Text, Kopier-Rückmeldung als Text.
+- Running actions no longer disable buttons (`aria-disabled`, clicks are ignored,
+  input fields `readOnly`): keyboard focus is kept. Real `disabled` only exists without a
+  network. Buttons show "Saving …".
+- Focus handling: after a page change (e.g. room created) and when the room is first shown, focus moves
+  to the start of the content; after the reveal to the result, if focus
+  would otherwise be lost.
+- Contrast in dark mode: own text color on the accent (`--on-accent`), previously barely readable.
+- Long words (names, titles, links) wrap and do not break the layout.
+- Notice on identity in the footer: the browser keeps the participation; another device/browser or
+  cleared browser data mean a new person.
+- Network errors name possible causes (internet, paused free project, network block) without
+  claiming any of them as certain.
+- Already present: labels and error texts, labeled fields, card selection via
+  the text "selected" and `aria-pressed`, connection status as text, copy feedback as text.
 
-Im Browser geprüft (Headless-Chromium über Playwright, echtes Supabase-Projekt; kein Testcode
-eingecheckt):
+Verified in the browser (headless Chromium via Playwright, real Supabase project; no test code
+checked in):
 
-- Reine Tastaturbedienung: Name eintippen und mit Enter den Raum erstellen, Titel mit Enter, per
-  Tab zu den Karten, Auswahl mit der Leertaste (Fokus bleibt auf der Karte), per Tab zu „Karten
-  aufdecken“, Enter deckt auf (Fokus danach auf dem Ergebnis).
-- Automatische Barrierefreiheitsprüfung (axe-core, WCAG 2 A/AA und Best Practices) ohne Befunde
-  auf Startseite, offener Runde, Ergebnis, Fehlerzustand und im Dunkelmodus (inkl. Kontrast).
-- Fehlerfall (Anfrage bricht ab): Meldung mit „erneut versuchen“, eingegebener Titel bleibt erhalten.
-- 320 px Breite mit 40 Zeichen Name und 120 Zeichen Titel ohne Leerzeichen: kein horizontales
-  Scrollen in offener Runde und Ergebnis. Keine JavaScript-Fehler. Typecheck, Lint, Build fehlerfrei.
+- Keyboard-only operation: type the name and create the room with Enter, title with Enter, Tab to the
+  cards, select with the space bar (focus stays on the card), Tab to "Reveal
+  cards", Enter reveals (focus afterwards on the result).
+- Automatic accessibility check (axe-core, WCAG 2 A/AA and best practices) without findings
+  on home page, open round, result, error state and in dark mode (incl. contrast).
+- Error case (request aborts): message with "try again", entered title is kept.
+- 320 px width with a 40-character name and 120-character title without spaces: no horizontal
+  scrolling in the open round and result. No JavaScript errors. Type check, lint, build error-free.
 
-Grenzen: Geprüft wurde nur Chromium. Ein echter Screenreader und die Teams-Browser-Umgebung
-wurden nicht getestet. Axe findet nur einen Teil möglicher Barrieren.
+Limits: only Chromium was tested. A real screen reader and the Teams browser environment
+were not tested. Axe only finds part of the possible barriers.

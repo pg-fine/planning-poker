@@ -1,62 +1,62 @@
-# 009 – Karten und Ergebnisse: Oberfläche
+# 009 – Cards and results: user interface
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 006, 007, 008
-- **Meilenstein:** M3
+- **Status:** Done
+- **Dependencies:** 006, 007, 008
+- **Milestone:** M3
 
-## Ziel
+## Goal
 
-Eine komplette Schätzrunde über die Oberfläche spielbar machen.
+Make a complete estimation round playable through the user interface.
 
-## Aufgaben
+## Tasks
 
-- Titel eingeben und erste/neue Runde starten lassen.
-- Fibonacci-Karten inklusive `?` und `☕` als auswählbare Buttons darstellen.
-- Eigene Auswahl kenntlich machen; weitere Auswahl bis zum Aufdecken ermöglichen.
-- Vor dem Aufdecken nur Anzahl abgegebener Stimmen und eigene Karte anzeigen.
-- Aufdecken für alle Mitglieder anbieten; danach Kartenwerte mit Namen darstellen.
-- Sonderkarten ohne numerische Durchschnittsberechnung darstellen.
-- Leere Runde und Runde ohne eigene Stimme sinnvoll anzeigen.
-- Aktionen erst nach bestätigtem Datenbankerfolg als gespeichert darstellen.
-- Nach jeder eigenen Mutation den aktuellen Zustand laden; Echtzeit folgt in 010.
+- Let the user enter a title and start the first/a new round.
+- Display Fibonacci cards including `?` and `☕` as selectable buttons.
+- Mark the own selection; allow further selection until the reveal.
+- Before the reveal, show only the number of votes cast and the own card.
+- Offer the reveal to all members; afterwards display card values with names.
+- Display special cards without a numeric average calculation.
+- Display an empty round and a round without an own vote sensibly.
+- Only display actions as saved after the database success is confirmed.
+- After each own mutation, load the current state; realtime follows in 010.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Titel, Auswahl, Auswahländerung, Aufdecken und neue Runde sind ohne API-Konsole möglich.
-- Fremde Karten erscheinen vor Aufdecken nicht als sichtbarer Text, Tooltip oder
-  Screenreader-Beschriftung; technische Auslesbarkeit der Daten ist bewusst akzeptiert.
-- Nach Aufdecken ist die Auswahl gesperrt; eine neue Runde zeigt keine alten Stimmen.
-- Namen und Titel werden als Text gerendert, nicht als HTML.
+- Title, selection, changing the selection, reveal and new round are possible without an API console.
+- Other people's cards do not appear before the reveal as visible text, tooltip or
+  screen reader label; technical readability of the data is deliberately accepted.
+- After the reveal the selection is locked; a new round shows no old votes.
+- Names and titles are rendered as text, not as HTML.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Umsetzung:
+Implementation:
 
-- `RoundPanel` (Runde starten, Karten, Aufdecken, neue Runde), `CardDeck` (Kartenauswahl mit
-  `aria-pressed` und Text „gewählt“), `RevealedResults` (Namen mit Karten, Verteilung, Einigkeit),
-  `src/domain/results.ts` (Auswertung; Mittelwert nur über Zahlenkarten, Sonderkarten zählen nicht).
-- `useRoomState` übernimmt Zustände der eigenen Aktionen und verwirft solche mit älterer Revision.
-- Nur bestätigte Datenbankantworten werden dargestellt (keine optimistische Anzeige).
-  Nach `round_conflict`/`round_not_open` lädt die Ansicht den aktuellen Stand neu und nennt das.
-- Vor dem Aufdecken zeigt die Oberfläche nur die Anzahl der Stimmen und die eigene Karte. Fremde
-  Kartenwerte stehen nicht im DOM (Text, Labels, Tooltips). Technisch bleiben sie für Mitglieder
-  abrufbar (bewusste Entscheidung). Die Zahl „Abgegebene Stimmen“ ist keine Liste Pflichtabstimmender.
-- Titel und Namen werden als Text gerendert.
+- `RoundPanel` (start round, cards, reveal, new round), `CardDeck` (card selection with
+  `aria-pressed` and the text "selected"), `RevealedResults` (names with cards, distribution, agreement),
+  `src/domain/results.ts` (evaluation; average only over number cards, special cards do not count).
+- `useRoomState` adopts states from own actions and discards those with an older revision.
+- Only confirmed database responses are displayed (no optimistic display).
+  After `round_conflict`/`round_not_open` the view reloads the current state and says so.
+- Before the reveal the user interface only shows the number of votes and the own card. Other
+  people's card values are not in the DOM (text, labels, tooltips). Technically they remain
+  retrievable for members (deliberate decision). The number "Votes cast" is not a list of mandatory voters.
+- Titles and names are rendered as text.
 
-Im Browser geprüft (Headless-Chromium über Playwright außerhalb des Projekts, zwei getrennte
-Profile, echtes Supabase-Projekt; kein Testcode eingecheckt):
+Verified in the browser (headless Chromium via Playwright outside the project, two separate
+profiles, real Supabase project; no test code checked in):
 
-- Erste Runde: leerer Titel → Fehler; Titel `<b>STORY-1</b> Login` erscheint als Text.
-- Karte wählen und ändern (8 → 13): genau eine Karte gewählt, Stimmenzahl bleibt 1.
-- Zweite Person sieht die Runde und die Stimmenzahl, aber nicht die Karte der ersten.
-- Aufdecken: Namen mit Karten (inkl. `☕`), Verteilung, Mittelwert nur der Zahlenkarten;
-  danach keine Kartenauswahl mehr. Aufdecken ohne Stimmen: „Niemand hat abgestimmt.“
-  Gleiche Karten: Hinweis auf Einigkeit. Neuladen nach dem Aufdecken zeigt das Ergebnis weiter.
-- Neue Runde: keine alten Stimmen, nichts gewählt. Veraltete Ansicht (noch ohne Live-Update):
-  Stimme nach dem Aufdecken und zweiter Rundenstart liefern die passende Meldung und aktualisieren.
-- Schmale Ansicht (380 px) ohne horizontales Scrollen; keine JavaScript-Fehler.
-- Typecheck, Lint und Build sind fehlerfrei.
+- First round: empty title → error; title `<b>STORY-1</b> Login` appears as text.
+- Select and change a card (8 → 13): exactly one card selected, number of votes stays 1.
+- The second person sees the round and the number of votes, but not the first person's card.
+- Reveal: names with cards (incl. `☕`), distribution, average of the number cards only;
+  afterwards no card selection any more. Reveal without votes: "Nobody voted."
+  Identical cards: notice of agreement. Reloading after the reveal keeps showing the result.
+- New round: no old votes, nothing selected. Stale view (still without live update):
+  a vote after the reveal and a second round start give the matching message and update.
+- Narrow view (380 px) without horizontal scrolling; no JavaScript errors.
+- Type check, lint and build are error-free.
 
-Bekannt und für spätere Pakete vorgesehen: Andere Personen sehen Änderungen noch erst nach
-Neuladen oder eigener Aktion (010 Echtzeit); ein erneuter Versuch nach Verbindungsproblemen und
-Konfliktfeinschliff folgen in 011.
+Known and planned for later packages: other people only see changes after
+reloading or an own action (010 realtime); a retry after connection problems and
+conflict refinement follow in 011.

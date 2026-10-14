@@ -1,43 +1,43 @@
-# 021 – Dauerhafte Räume wiederfinden
+# 021 – Finding permanent rooms again
 
-- **Status:** Erledigt
-- **Abhängigkeiten:** 015
-- **Meilenstein:** M7: UX-Iteration 2
-- **Herkunft:** UX-Bewertung (Punkt 5), Priorität mittel, Aufwand mittel
+- **Status:** Done
+- **Dependencies:** 015
+- **Milestone:** M7: UX iteration 2
+- **Origin:** UX assessment (point 5), priority medium, effort medium
 
-## Ziel
+## Goal
 
-Weniger unnötig neue Räume und weniger Suchen nach dem richtigen Teams-Link.
+Fewer unnecessary new rooms and less searching for the right Teams link.
 
-## Aufgaben
+## Tasks
 
-- Optionaler Raumname beim Erstellen: ausgelagert in 022, weil dafür eine Datenbankänderung nötig ist.
-- Startseite: „Zuletzt verwendete Räume“, lokal im Browser gespeichert (`src/ui/storage.ts`),
-  mit Fehlertoleranz bei gesperrtem Speicher.
-- „Name ändern“ im Raum.
-- Eintrag entfernbar; keine personenbezogenen Daten über den Anzeigenamen hinaus speichern.
+- Optional room name when creating: moved to 022, because it needs a database change.
+- Home page: "Recently used rooms", stored locally in the browser (`src/ui/storage.ts`),
+  fault-tolerant when storage is blocked.
+- "Change name" in the room.
+- Entry removable; do not store personal data beyond the display name.
 
-## Abnahmekriterien
+## Acceptance criteria
 
-- Zuletzt besuchte Räume erscheinen nach Neuladen und führen in den richtigen Raum.
-- Ohne verfügbaren lokalen Speicher bleibt die Startseite funktionsfähig.
-- Typecheck, Lint, Build; manuelle Prüfung.
+- Recently visited rooms appear after reloading and lead to the right room.
+- Without available local storage the home page stays functional.
+- Type check, lint, build; manual check.
 
-## Prüfung und Ergebnis
+## Verification and result
 
-Änderungen:
+Changes:
 
-- `src/ui/storage.ts`: Liste „zuletzt verwendete Räume“ (höchstens 10; Token, letzter Besuch, eigener
-  Name; nur im Browser). Defekter oder gesperrter Speicher führt zu einer leeren Liste.
-- Startseite (`HomePage.tsx`): Abschnitt „Zuletzt verwendete Räume“ mit Link, Zeitpunkt, eigenem Namen
-  und „Entfernen“ (löscht nur den Listeneintrag). Der Abschnitt erscheint nur, wenn es Einträge gibt.
-- Einträge werden beim Erstellen, Beitreten und Öffnen eines bekannten Raums aktualisiert.
-- „Name ändern“ (`NameChange.tsx`, unter „Raum und Hilfe“): nutzt `join_room` mit demselben Token; die
-  Mitgliedschaft bleibt bestehen, nur der Name ändert sich. Keine Datenbankänderung nötig.
-- Ohne Raumnamen heißt ein Eintrag „Raum …“ plus die letzten sechs Zeichen des Tokens.
+- `src/ui/storage.ts`: list "recently used rooms" (at most 10; token, last visit, own
+  name; browser only). Broken or blocked storage leads to an empty list.
+- Home page (`HomePage.tsx`): section "Recently used rooms" with link, time, own name
+  and "Remove" (only deletes the list entry). The section only appears if there are entries.
+- Entries are updated when creating, joining and opening a known room.
+- "Change name" (`NameChange.tsx`, under "Room and help"): uses `join_room` with the same token; the
+  membership stays, only the name changes. No database change needed.
+- Without a room name an entry is called "Room …" plus the last six characters of the token.
 
-Geprüft (Headless-Chromium über Playwright, zwei getrennte Profile, echtes Supabase-Projekt, kein
-Testcode eingecheckt): neue Startseite ohne Liste; Raum erstellen, Beitritt der zweiten Person;
-Umbenennen wird bei der anderen Person sichtbar; Liste zeigt den Raum samt neuem Namen, Link öffnet
-den Raum; „Entfernen“ räumt den Eintrag ab; axe-core ohne Befunde. Typecheck, Lint, Build fehlerfrei.
-Nicht geprüft: gesperrter lokaler Speicher im Browser.
+Verified (headless Chromium via Playwright, two separate profiles, real Supabase project, no
+test code checked in): new home page without a list; create room, second person joins;
+renaming becomes visible for the other person; the list shows the room with the new name, the link opens
+the room; "Remove" clears the entry; axe-core without findings. Type check, lint, build error-free.
+Not verified: blocked local storage in the browser.
