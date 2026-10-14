@@ -57,7 +57,7 @@ Bearbeitungsreihenfolge; die Spalte Abhängigkeiten nennt die zwingenden Vorarbe
 | 011 | [Wiederverbinden und konkurrierende Aktionen](011-wiederverbinden-und-konflikte.md) | 010 | M4: Verlässliche Nutzung | Erledigt |
 | 012 | [Bedienbarkeit und Fehleranzeigen](012-bedienbarkeit.md) | 011 | M4 | Erledigt |
 | 013 | [Cloud-Einrichtung und Veröffentlichung](013-bereitstellung.md) | 012 | M5: Nutzbares MVP | Erledigt |
-| 014 | [Gemeinsame MVP-Abnahme](014-mvp-abnahme.md) | 013 | M5 | Offen |
+| 014 | [Gemeinsame MVP-Abnahme](014-mvp-abnahme.md) | 013 | M5 | Erledigt |
 
 ### M1: Grundlage
 
