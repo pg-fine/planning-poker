@@ -1,6 +1,6 @@
 # 018 – Rückmeldungen nahe an der Aktion
 
-- **Status:** Offen
+- **Status:** Erledigt
 - **Abhängigkeiten:** 015
 - **Meilenstein:** M6: UX-Iteration 1
 - **Herkunft:** UX-Bewertung (Punkt 7), Priorität mittel, Aufwand klein
@@ -25,4 +25,21 @@ Speicherstatus und Fehler erscheinen dort, wo die Aktion stattfand.
 
 ## Prüfung und Ergebnis
 
-Noch nicht bearbeitet.
+Änderungen (`RoundPanel.tsx`, `cards.ts`):
+
+- Laufende Aktionen und Fehler sind nach Bereich getrennt (`vote`, `reveal`, `start`): Es zeigt nur
+  der Knopf des betroffenen Bereichs „Wird gespeichert …“ bzw. „Wird aufgedeckt …“; während einer
+  Aktion bleiben die übrigen Aktionen wie bisher gesperrt.
+- Bei der Kartenwahl steht direkt unter den Karten „Speichere deine Schätzung: 8 …“ und danach
+  „Deine Schätzung: 8 · gespeichert“ (`role="status"`).
+- Abstimmfehler erscheinen unter den Karten, Aufdeck-Fehler unter „Karten aufdecken“, Titelfehler
+  direkt am Titelfeld (`aria-invalid`, `aria-describedby`). Der gemeinsame Fehlerblock am Ende entfällt.
+- `cardDescription` aus der Ergebnisansicht liegt jetzt in `src/domain/cards.ts` und wird auch für
+  die Statusmeldung genutzt.
+- Technische Hinweise zu Browserkennung/Identität liegen bereits seit 015 hinter „Hilfe“.
+
+Geprüft (Headless-Chromium über Playwright, echtes Supabase-Projekt, kein Testcode eingecheckt):
+leerer Titel → Fehler am Titelfeld; Kartenwahl → „Deine Schätzung: 8 · gespeichert“; bei abgebrochenen
+Anfragen erscheinen Abstimm- und Aufdeckfehler an der jeweiligen Stelle, die Auswahl bleibt erhalten;
+axe-core ohne Befunde. Typecheck, Lint, Build fehlerfrei.
+Offen: Fehlermeldungen nennen weiterhin „Supabase“ (technischer Begriff, aber nur im Fehlerfall).
