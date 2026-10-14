@@ -471,6 +471,14 @@ a:focus-visible {
   font-weight: 700;
 }
 
+.participant__remove {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.8rem;
+}
+
 .participant__name {
   overflow-wrap: anywhere;
 }

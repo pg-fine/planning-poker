@@ -154,7 +154,13 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
           />
         </div>
 
-        <Participants state={state} onlineIds={connection === 'live' ? onlineIds : null} />
+        <Participants
+          client={client}
+          state={state}
+          onState={applyState}
+          offline={!browserOnline}
+          onlineIds={connection === 'live' ? onlineIds : null}
+        />
       </div>
 
       <details className="card room-details" ref={details}>

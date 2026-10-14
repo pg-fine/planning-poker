@@ -1,7 +1,15 @@
+import { useState } from 'react'
+import type { AppSupabaseClient } from '../supabase/client.ts'
+import { removeMember } from '../supabase/members.ts'
 import type { RoomState } from '../supabase/roomState.ts'
+import { describeRoomError } from '../supabase/rooms.ts'
 
 type Props = {
+  client: AppSupabaseClient
   state: RoomState
+  onState: (state: RoomState) => void
+  /** No connection: removing is disabled. */
+  offline: boolean
   /** Who is currently online; `null` if unknown (no live connection). */
   onlineIds: ReadonlySet<string> | null
 }
@@ -23,8 +31,12 @@ function initials(name: string): string {
  * visible with a check mark under "Not online". Being online does not say whether someone is
  * estimating or just watching.
  */
-export function Participants({ state, onlineIds }: Props) {
+export function Participants({ client, state, onState, offline, onlineIds }: Props) {
   const { members, me, round } = state
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const confirmMember = members.find((member) => member.userId === confirmId)
   const voted = new Set(round?.votes.map((vote) => vote.userId))
   const isOnline = (userId: string) => userId === me.userId || (onlineIds?.has(userId) ?? false)
 
@@ -50,8 +62,36 @@ export function Participants({ state, onlineIds }: Props) {
             {hasVoted ? '✓ voted' : showMissing && isOpen ? 'no vote yet' : ''}
           </span>
         )}
+        {member.userId !== me.userId && (
+          <button
+            type="button"
+            className="secondary participant__remove"
+            disabled={offline}
+            aria-label={`Remove ${member.displayName} from the room`}
+            onClick={() => {
+              setError(null)
+              setConfirmId(member.userId)
+            }}
+          >
+            Remove
+          </button>
+        )}
       </li>
     )
+  }
+
+  const confirmRemoval = async () => {
+    if (busy || !confirmMember) return
+    setBusy(true)
+    setError(null)
+    try {
+      onState(await removeMember(client, state.roomId, confirmMember.userId))
+      setConfirmId(null)
+    } catch (caught) {
+      setError(describeRoomError(caught))
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -73,6 +113,28 @@ export function Participants({ state, onlineIds }: Props) {
           <summary>Not online ({others.length})</summary>
           <ul className="participant-list">{others.map((member) => row(member, false))}</ul>
         </details>
+      )}
+      {confirmMember && (
+        <div className="confirm" role="alert">
+          <p>
+            <strong>Remove {confirmMember.displayName} from this room?</strong> A vote in the open
+            round is deleted; in a revealed result it stays until the next round. They can join
+            again with the invitation link.
+          </p>
+          <div className="row">
+            <button type="button" onClick={confirmRemoval} aria-disabled={busy || undefined}>
+              {busy ? 'Removing …' : 'Yes, remove'}
+            </button>
+            <button type="button" className="secondary" onClick={() => setConfirmId(null)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
       )}
       <p className="hint">
         {known
