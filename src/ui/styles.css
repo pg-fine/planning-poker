@@ -171,6 +171,15 @@ button.secondary {
   margin-top: 1.5rem;
 }
 
+.footer summary {
+  cursor: pointer;
+}
+
+.footer summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
 a {
   color: var(--accent);
 }
@@ -264,4 +273,83 @@ input[readonly]:not(#invite-link) {
 a:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* Raumkopf und zweispaltiges Layout (Schätzung | Mitglieder) */
+.room-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.room-bar p {
+  margin: 0;
+}
+
+.room-bar__who {
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+}
+
+.room-bar__status {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.room-bar__status--warn {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.room-layout {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+.room-layout__main > .card + .card {
+  margin-top: 1rem;
+}
+
+.room-layout__side {
+  margin: 0;
+}
+
+@media (min-width: 40rem) {
+  .room-layout {
+    grid-template-columns: minmax(0, 1fr) 13rem;
+  }
+}
+
+.room-details {
+  margin-top: 1rem;
+}
+
+.room-details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.room-details[open] summary {
+  margin-bottom: 1rem;
+}
+
+.room-details summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card--notice + .room-layout,
+.room-bar + .card--notice {
+  margin-top: 0;
+}
+
+.card--notice {
+  margin-bottom: 1rem;
+}
+
+.card--notice p {
+  margin: 0;
 }

@@ -23,6 +23,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
   const link = roomUrl(token)
   const linkField = useRef<HTMLInputElement>(null)
   const top = useRef<HTMLDivElement>(null)
+  const details = useRef<HTMLDetailsElement>(null)
   const isReady = result.status === 'ready'
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
   const [leaving, setLeaving] = useState(false)
@@ -71,7 +72,8 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
       await navigator.clipboard.writeText(link)
       setCopyMessage('Link kopiert.')
     } catch {
-      // Zwischenablage gesperrt: Link markieren, damit er von Hand kopiert werden kann.
+      // Zwischenablage gesperrt: Link sichtbar machen und markieren, damit er von Hand kopiert werden kann.
+      if (details.current) details.current.open = true
       linkField.current?.select()
       setCopyMessage('Kopieren nicht möglich. Der Link ist markiert, kopiere ihn mit Strg+C.')
     }
@@ -90,32 +92,70 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
     }
   }
 
+  const statusText =
+    connection === 'live'
+      ? '● Live'
+      : connection === 'connecting'
+        ? '○ Verbindung wird hergestellt …'
+        : '▲ Keine Live-Verbindung'
+
   return (
     <div ref={top} tabIndex={-1} className="focus-target">
-      <p className="hint" role="status">
-        {connection === 'live' && 'Live verbunden: Änderungen erscheinen sofort.'}
-        {connection === 'connecting' && 'Verbindung für Live-Updates wird hergestellt …'}
-        {connection === 'offline' &&
-          !browserOnline &&
-          'Keine Verbindung. Aktionen sind pausiert; deine gespeicherte Stimme bleibt erhalten. Sobald die Verbindung zurück ist, wird der Stand automatisch aktualisiert.'}
-        {connection === 'offline' &&
-          browserOnline &&
-          'Keine Live-Verbindung. Der Stand wird alle paar Sekunden abgefragt, Änderungen erscheinen mit kurzer Verzögerung.'}
-      </p>
-
-      <RoundPanel
-        client={client}
-        state={state}
-        onState={applyState}
-        offline={!browserOnline}
-      />
-
-      <section className="card" aria-labelledby="room-title">
-        <h2 id="room-title">Dein Raum</h2>
-        <p>
-          Du bist als <strong>{state.me.displayName}</strong> dabei.
+      <div className="room-bar">
+        <p className="room-bar__who">
+          Du bist als <strong>{state.me.displayName}</strong> dabei
         </p>
+        <p
+          className={`room-bar__status${connection === 'live' ? '' : ' room-bar__status--warn'}`}
+          role="status"
+        >
+          {statusText}
+        </p>
+        <button type="button" onClick={copyLink}>
+          Einladen
+        </button>
+      </div>
+      {copyMessage && (
+        <p className="hint" role="status">
+          {copyMessage}
+        </p>
+      )}
+      {connection === 'offline' && (
+        <p className="card card--notice" role="status">
+          {browserOnline
+            ? 'Keine Live-Verbindung. Der Stand wird alle paar Sekunden abgefragt, Änderungen erscheinen mit kurzer Verzögerung.'
+            : 'Keine Verbindung. Aktionen sind pausiert; deine gespeicherte Stimme bleibt erhalten. Sobald die Verbindung zurück ist, wird der Stand automatisch aktualisiert.'}
+        </p>
+      )}
 
+      <div className="room-layout">
+        <div className="room-layout__main">
+          <RoundPanel
+            client={client}
+            state={state}
+            onState={applyState}
+            offline={!browserOnline}
+          />
+        </div>
+
+        <aside className="card room-layout__side" aria-labelledby="members-title">
+          <h2 id="members-title">Mitglieder ({state.members.length})</h2>
+          <ul className="member-list">
+            {state.members.map((member) => (
+              <li key={member.userId}>
+                {member.displayName}
+                {member.userId === state.me.userId ? ' (du)' : ''}
+              </li>
+            ))}
+          </ul>
+          <p className="hint">
+            Alle, die diesem Raum beigetreten sind, nicht nur wer gerade online ist.
+          </p>
+        </aside>
+      </div>
+
+      <details className="card room-details" ref={details}>
+        <summary>Raum und Hilfe</summary>
         <div className="field">
           <label htmlFor="invite-link">Einladungslink</label>
           <div className="row">
@@ -124,28 +164,8 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
               Link kopieren
             </button>
           </div>
-          <p className="hint" role="status">
-            {copyMessage ?? 'Teile diesen Link im Teams-Chat. Er bleibt dauerhaft gültig.'}
-          </p>
+          <p className="hint">Teile diesen Link im Teams-Chat. Er bleibt dauerhaft gültig.</p>
         </div>
-      </section>
-
-      <section className="card" aria-labelledby="members-title">
-        <h2 id="members-title">Mitglieder ({state.members.length})</h2>
-        <ul className="member-list">
-          {state.members.map((member) => (
-            <li key={member.userId}>
-              {member.displayName}
-              {member.userId === state.me.userId ? ' (du)' : ''}
-            </li>
-          ))}
-        </ul>
-        <p className="hint">
-          Das sind alle, die diesem Raum beigetreten sind, nicht nur wer gerade online ist.
-        </p>
-      </section>
-
-      <section className="card">
         <p className="hint">
           Beim Verlassen wird deine Stimme entfernt. Mit dem Link kannst du jederzeit erneut
           beitreten.
@@ -163,7 +183,7 @@ export function RoomView({ client, roomId, token, onNotMember, onLeft }: Props) 
         >
           {leaving ? 'Raum wird verlassen …' : 'Raum verlassen'}
         </button>
-      </section>
+      </details>
     </div>
   )
 }
