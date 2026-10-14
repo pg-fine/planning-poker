@@ -10,3 +10,8 @@ dist/
 
 npm-debug.log*
 .DS_Store
+
+# Presentation material (not part of the repository)
+presentation/
+slides/
+deck/
